@@ -1,0 +1,7 @@
+# Domain Layer
+
+This layer contains:
+- Entities - Domain entities
+- Exceptions - Custom domain exceptions
+- Enums - Domain enumerations
+- Constants - Domain constants
