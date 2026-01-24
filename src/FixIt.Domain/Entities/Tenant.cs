@@ -31,6 +31,15 @@ public class Tenant : BaseEntity
 
     public void Activate()
     {
+        if (IsDeleted)
+            throw new InvalidOperationException("Cannot activate a deleted tenant.");
+
         IsActive = true;
+    }
+
+    public new void SoftDelete()
+    {
+        IsDeleted = true;
+        IsActive = false;
     }
 }

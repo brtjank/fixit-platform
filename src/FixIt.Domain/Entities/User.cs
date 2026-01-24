@@ -51,6 +51,15 @@ public class User : BaseEntity
 
     public void Activate()
     {
+        if (IsDeleted)
+            throw new InvalidOperationException("Cannot activate a deleted user.");
+
         IsActive = true;
+    }
+
+    public new void SoftDelete()
+    {
+        IsDeleted = true;
+        IsActive = false;
     }
 }
