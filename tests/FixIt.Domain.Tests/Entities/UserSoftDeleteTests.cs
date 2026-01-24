@@ -1,5 +1,6 @@
 using FixIt.Domain.Entities;
 using FixIt.Domain.Enums;
+using FixIt.Domain.Exceptions;
 using FluentAssertions;
 using Xunit;
 
@@ -41,7 +42,7 @@ public class UserSoftDeleteTests
     }
 
     [Fact]
-    public void Activate_DeletedUser_ThrowsInvalidOperationException()
+    public void Activate_DeletedUser_ThrowsUserCannotBeActivatedException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -52,11 +53,12 @@ public class UserSoftDeleteTests
         var act = () => user.Activate();
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("*deleted*");
+        var exception = act.Should().Throw<UserCannotBeActivatedException>().Which;
+        exception.UserId.Should().Be(user.Id);
     }
 
     [Fact]
-    public void SoftDelete_ThenActivate_ThrowsException()
+    public void SoftDelete_ThenActivate_ThrowsUserCannotBeActivatedException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -65,7 +67,7 @@ public class UserSoftDeleteTests
 
         // Act & Assert
         var act = () => user.Activate();
-        act.Should().Throw<InvalidOperationException>();
+        act.Should().Throw<UserCannotBeActivatedException>();
 
         user.IsDeleted.Should().BeTrue();
         user.IsActive.Should().BeFalse();

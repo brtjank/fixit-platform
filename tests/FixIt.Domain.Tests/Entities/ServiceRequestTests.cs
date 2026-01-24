@@ -1,5 +1,6 @@
 using FixIt.Domain.Entities;
 using FixIt.Domain.Enums;
+using FixIt.Domain.Exceptions;
 using FluentAssertions;
 using Xunit;
 
@@ -45,7 +46,7 @@ public class ServiceRequestTests
     }
 
     [Fact]
-    public void AssignWorker_NonPendingStatus_ThrowsInvalidOperationException()
+    public void AssignWorker_NonPendingStatus_ThrowsServiceRequestStatusInvalidForAssignmentException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -59,7 +60,9 @@ public class ServiceRequestTests
         var act = () => serviceRequest.AssignWorker(Guid.NewGuid());
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("*status*");
+        var exception = act.Should().Throw<ServiceRequestStatusInvalidForAssignmentException>().Which;
+        exception.ServiceRequestId.Should().Be(serviceRequest.Id);
+        exception.CurrentStatus.Should().Be(ServiceRequestStatus.InProgress);
     }
 
     [Fact]
@@ -80,7 +83,7 @@ public class ServiceRequestTests
     }
 
     [Fact]
-    public void ChangeStatus_ToInProgressWithoutWorker_ThrowsInvalidOperationException()
+    public void ChangeStatus_ToInProgressWithoutWorker_ThrowsServiceRequestWorkerRequiredException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -91,11 +94,12 @@ public class ServiceRequestTests
         var act = () => serviceRequest.ChangeStatus(ServiceRequestStatus.InProgress);
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("*assigned worker*");
+        var exception = act.Should().Throw<ServiceRequestWorkerRequiredException>().Which;
+        exception.ServiceRequestId.Should().Be(serviceRequest.Id);
     }
 
     [Fact]
-    public void ChangeStatus_FromCompleted_ThrowsInvalidOperationException()
+    public void ChangeStatus_FromCompleted_ThrowsServiceRequestStatusImmutableException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -109,11 +113,13 @@ public class ServiceRequestTests
         var act = () => serviceRequest.ChangeStatus(ServiceRequestStatus.InProgress);
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("*Completed*");
+        var exception = act.Should().Throw<ServiceRequestStatusImmutableException>().Which;
+        exception.ServiceRequestId.Should().Be(serviceRequest.Id);
+        exception.CurrentStatus.Should().Be(ServiceRequestStatus.Completed);
     }
 
     [Fact]
-    public void ChangeStatus_FromCancelled_ThrowsInvalidOperationException()
+    public void ChangeStatus_FromCancelled_ThrowsServiceRequestStatusImmutableException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -125,7 +131,9 @@ public class ServiceRequestTests
         var act = () => serviceRequest.ChangeStatus(ServiceRequestStatus.InProgress);
 
         // Assert
-        act.Should().Throw<InvalidOperationException>().WithMessage("*Cancelled*");
+        var exception = act.Should().Throw<ServiceRequestStatusImmutableException>().Which;
+        exception.ServiceRequestId.Should().Be(serviceRequest.Id);
+        exception.CurrentStatus.Should().Be(ServiceRequestStatus.Cancelled);
     }
 
     [Fact]

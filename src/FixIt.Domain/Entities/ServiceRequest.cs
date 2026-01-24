@@ -1,4 +1,5 @@
 using FixIt.Domain.Enums;
+using FixIt.Domain.Exceptions;
 
 namespace FixIt.Domain.Entities;
 
@@ -17,12 +18,9 @@ public class ServiceRequest : BaseEntity
         : base(tenantId)
     {
         if (string.IsNullOrWhiteSpace(title))
-            throw new ArgumentException("Title cannot be null or empty.", nameof(title));
+            throw new ServiceRequestTitleRequiredException();
         if (string.IsNullOrWhiteSpace(description))
-            throw new ArgumentException(
-                "Description cannot be null or empty.",
-                nameof(description)
-            );
+            throw new ServiceRequestDescriptionRequiredException();
 
         Title = title;
         Description = description;
@@ -32,9 +30,7 @@ public class ServiceRequest : BaseEntity
     public void AssignWorker(Guid workerId)
     {
         if (Status != ServiceRequestStatus.Pending)
-            throw new InvalidOperationException(
-                $"Cannot assign worker to service request with status {Status}."
-            );
+            throw new ServiceRequestStatusInvalidForAssignmentException(Id, Status);
 
         AssignedWorkerId = workerId;
         Status = ServiceRequestStatus.Assigned;
@@ -43,14 +39,10 @@ public class ServiceRequest : BaseEntity
     public void ChangeStatus(ServiceRequestStatus newStatus)
     {
         if (Status == ServiceRequestStatus.Completed || Status == ServiceRequestStatus.Cancelled)
-            throw new InvalidOperationException(
-                $"Cannot change status of {Status} service request."
-            );
+            throw new ServiceRequestStatusImmutableException(Id, Status);
 
         if (newStatus == ServiceRequestStatus.InProgress && AssignedWorkerId == null)
-            throw new InvalidOperationException(
-                "Cannot set status to InProgress without assigned worker."
-            );
+            throw new ServiceRequestWorkerRequiredException(Id);
 
         Status = newStatus;
     }

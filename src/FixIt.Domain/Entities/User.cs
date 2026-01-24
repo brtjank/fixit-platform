@@ -1,4 +1,5 @@
 using FixIt.Domain.Enums;
+using FixIt.Domain.Exceptions;
 
 namespace FixIt.Domain.Entities;
 
@@ -16,11 +17,11 @@ public class User : BaseEntity
         : base(tenantId)
     {
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email cannot be null or empty.", nameof(email));
+            throw new UserEmailRequiredException();
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("FirstName cannot be null or empty.", nameof(firstName));
+            throw new UserNameRequiredException("FirstName");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("LastName cannot be null or empty.", nameof(lastName));
+            throw new UserNameRequiredException("LastName");
 
         Email = email;
         FirstName = firstName;
@@ -31,9 +32,9 @@ public class User : BaseEntity
     public void UpdateName(string firstName, string lastName)
     {
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("FirstName cannot be null or empty.", nameof(firstName));
+            throw new UserNameRequiredException("FirstName");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("LastName cannot be null or empty.", nameof(lastName));
+            throw new UserNameRequiredException("LastName");
 
         FirstName = firstName;
         LastName = lastName;
@@ -52,7 +53,7 @@ public class User : BaseEntity
     public void Activate()
     {
         if (IsDeleted)
-            throw new InvalidOperationException("Cannot activate a deleted user.");
+            throw new UserCannotBeActivatedException(Id);
 
         IsActive = true;
     }

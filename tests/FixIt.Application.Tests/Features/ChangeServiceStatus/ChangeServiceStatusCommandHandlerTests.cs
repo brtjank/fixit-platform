@@ -105,7 +105,7 @@ public class ChangeServiceStatusCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ChangeStatusToInProgressWithoutWorker_ThrowsInvalidOperationException()
+    public async Task Handle_ChangeStatusToInProgressWithoutWorker_ThrowsServiceRequestWorkerRequiredException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -132,11 +132,12 @@ public class ChangeServiceStatusCommandHandlerTests
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*assigned worker*");
+        var exception = await act.Should().ThrowAsync<ServiceRequestWorkerRequiredException>();
+        exception.Which.ServiceRequestId.Should().Be(serviceRequest.Id);
     }
 
     [Fact]
-    public async Task Handle_ChangeStatusOfCompletedRequest_ThrowsInvalidOperationException()
+    public async Task Handle_ChangeStatusOfCompletedRequest_ThrowsServiceRequestStatusImmutableException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -166,6 +167,8 @@ public class ChangeServiceStatusCommandHandlerTests
         var act = async () => await _handler.Handle(command, CancellationToken.None);
 
         // Assert
-        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*Completed*");
+        var exception = await act.Should().ThrowAsync<ServiceRequestStatusImmutableException>();
+        exception.Which.ServiceRequestId.Should().Be(serviceRequest.Id);
+        exception.Which.CurrentStatus.Should().Be(ServiceRequestStatus.Completed);
     }
 }

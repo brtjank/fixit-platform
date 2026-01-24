@@ -1,3 +1,5 @@
+using FixIt.Domain.Exceptions;
+
 namespace FixIt.Domain.Entities;
 
 public class Tenant : BaseEntity
@@ -19,7 +21,7 @@ public class Tenant : BaseEntity
     public void UpdateName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Name cannot be null or empty.", nameof(name));
+            throw new TenantNameRequiredException();
 
         Name = name;
     }
@@ -32,7 +34,7 @@ public class Tenant : BaseEntity
     public void Activate()
     {
         if (IsDeleted)
-            throw new InvalidOperationException("Cannot activate a deleted tenant.");
+            throw new TenantCannotBeActivatedException(Id);
 
         IsActive = true;
     }
