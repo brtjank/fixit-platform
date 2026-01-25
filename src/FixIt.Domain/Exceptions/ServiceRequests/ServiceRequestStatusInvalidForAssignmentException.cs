@@ -12,7 +12,8 @@ public class ServiceRequestStatusInvalidForAssignmentException : BadRequestExcep
         ServiceRequestStatus currentStatus
     )
         : base(
-            $"Cannot assign worker to service request {serviceRequestId} with status {currentStatus}. Only Pending requests can have workers assigned."
+            errorCode: "SR_002_STATUS_INVALID_FOR_ASSIGNMENT",
+            message: $"Cannot assign worker to service request {serviceRequestId} with status {currentStatus}. Only Pending requests can have workers assigned."
         )
     {
         ServiceRequestId = serviceRequestId;

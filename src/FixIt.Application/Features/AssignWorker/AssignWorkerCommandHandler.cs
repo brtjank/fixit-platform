@@ -37,11 +37,17 @@ public class AssignWorkerCommandHandler : IRequestHandler<AssignWorkerCommand, A
         );
 
         if (serviceRequest == null)
-            throw new NotFoundException("ServiceRequest", request.ServiceRequestId.ToString());
+            throw new ResourceNotFoundException(
+                "ServiceRequest",
+                request.ServiceRequestId.ToString()
+            );
 
         // Ownership check: service request must belong to current user's tenant
         if (serviceRequest.TenantId != tenantId)
-            throw new NotFoundException("ServiceRequest", request.ServiceRequestId.ToString());
+            throw new ResourceNotFoundException(
+                "ServiceRequest",
+                request.ServiceRequestId.ToString()
+            );
 
         var worker = await _userRepository.GetByIdAsync(
             request.WorkerId,
@@ -49,14 +55,14 @@ public class AssignWorkerCommandHandler : IRequestHandler<AssignWorkerCommand, A
             cancellationToken
         );
         if (worker == null)
-            throw new NotFoundException("User", request.WorkerId.ToString());
+            throw new ResourceNotFoundException("User", request.WorkerId.ToString());
 
         // Ownership check: worker must belong to current user's tenant
         if (worker.TenantId != tenantId)
-            throw new NotFoundException("User", request.WorkerId.ToString());
+            throw new ResourceNotFoundException("User", request.WorkerId.ToString());
 
         if (worker.Role != UserRole.Worker)
-            throw new BadRequestException($"User with id {request.WorkerId} is not a Worker.");
+            throw new UserRoleInvalidException(request.WorkerId, UserRole.Worker, worker.Role);
 
         serviceRequest.AssignWorker(request.WorkerId);
 

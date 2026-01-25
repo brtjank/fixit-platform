@@ -19,14 +19,14 @@ public class CurrentUserService : ICurrentUserService
         get
         {
             if (!IsAuthenticated)
-                throw new UnauthenticatedException("User is not authenticated.");
+                throw new UserNotAuthenticatedException();
 
             var userIdClaim =
                 _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)
                 ?? _httpContextAccessor.HttpContext?.User?.FindFirst("sub");
 
             if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
-                throw new UnauthenticatedException("User ID claim is missing or invalid.");
+                throw new InvalidClaimException("UserId", "missing or invalid");
 
             return userId;
         }
@@ -37,12 +37,12 @@ public class CurrentUserService : ICurrentUserService
         get
         {
             if (!IsAuthenticated)
-                throw new UnauthenticatedException("User is not authenticated.");
+                throw new UserNotAuthenticatedException();
 
             var tenantIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("TenantId");
 
             if (tenantIdClaim == null || !Guid.TryParse(tenantIdClaim.Value, out var tenantId))
-                throw new UnauthenticatedException("TenantId claim is missing or invalid.");
+                throw new InvalidClaimException("TenantId", "missing or invalid");
 
             return tenantId;
         }

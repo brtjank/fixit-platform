@@ -1,5 +1,5 @@
 using System.Text;
-using FixIt.Domain.Exceptions;
+using FixIt.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

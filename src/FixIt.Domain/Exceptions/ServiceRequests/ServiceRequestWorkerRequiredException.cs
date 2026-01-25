@@ -6,7 +6,8 @@ public class ServiceRequestWorkerRequiredException : BadRequestException
 
     public ServiceRequestWorkerRequiredException(Guid serviceRequestId)
         : base(
-            $"Cannot set service request {serviceRequestId} status to InProgress without assigned worker."
+            errorCode: "SR_003_WORKER_REQUIRED",
+            message: $"Cannot set service request {serviceRequestId} status to InProgress without assigned worker."
         )
     {
         ServiceRequestId = serviceRequestId;

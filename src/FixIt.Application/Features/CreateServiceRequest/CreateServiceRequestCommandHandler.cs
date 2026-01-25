@@ -37,11 +37,11 @@ public class CreateServiceRequestCommandHandler
             cancellationToken
         );
         if (customer == null)
-            throw new NotFoundException("User", request.CustomerId.ToString());
+            throw new ResourceNotFoundException("User", request.CustomerId.ToString());
 
         // Ownership check: customer must belong to current user's tenant
         if (customer.TenantId != tenantId)
-            throw new NotFoundException("User", request.CustomerId.ToString());
+            throw new ResourceNotFoundException("User", request.CustomerId.ToString());
 
         var serviceRequest = new ServiceRequest(
             tenantId,

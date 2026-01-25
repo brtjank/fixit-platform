@@ -12,7 +12,8 @@ public class ServiceRequestStatusImmutableException : BadRequestException
         ServiceRequestStatus currentStatus
     )
         : base(
-            $"Cannot change status of service request {serviceRequestId}. Status {currentStatus} is immutable (Completed or Cancelled)."
+            errorCode: "SR_001_STATUS_IMMUTABLE",
+            message: $"Cannot change status of service request {serviceRequestId}. Status {currentStatus} is immutable (Completed or Cancelled)."
         )
     {
         ServiceRequestId = serviceRequestId;

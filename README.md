@@ -95,7 +95,7 @@ All entities include:
 
 ### Domain Exceptions
 
-The project uses custom domain exceptions (all inherit from `AppException`) for semantic error handling.
+The project uses custom domain exceptions (all inherit from `AppException`) for semantic error handling. Each exception has a stable `ErrorCode` (e.g., "SR_001_STATUS_IMMUTABLE") used in API responses and error handling middleware.
 
 ## 🧪 Testing
 

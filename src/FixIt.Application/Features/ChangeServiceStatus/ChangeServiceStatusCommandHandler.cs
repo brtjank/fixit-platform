@@ -39,11 +39,17 @@ public class ChangeServiceStatusCommandHandler
         );
 
         if (serviceRequest == null)
-            throw new NotFoundException("ServiceRequest", request.ServiceRequestId.ToString());
+            throw new ResourceNotFoundException(
+                "ServiceRequest",
+                request.ServiceRequestId.ToString()
+            );
 
         // Ownership check: service request must belong to current user's tenant
         if (serviceRequest.TenantId != tenantId)
-            throw new NotFoundException("ServiceRequest", request.ServiceRequestId.ToString());
+            throw new ResourceNotFoundException(
+                "ServiceRequest",
+                request.ServiceRequestId.ToString()
+            );
 
         var previousStatus = serviceRequest.Status;
 
