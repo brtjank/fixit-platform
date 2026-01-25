@@ -1,4 +1,5 @@
 using FixIt.Application.Interfaces;
+using FixIt.Application.Services;
 using FixIt.Domain.Entities;
 using FixIt.Domain.Exceptions;
 using MediatR;
@@ -10,14 +11,17 @@ public class CreateServiceRequestCommandHandler
 {
     private readonly IServiceRequestRepository _serviceRequestRepository;
     private readonly IUserRepository _userRepository;
+    private readonly ICurrentUserService _currentUser;
 
     public CreateServiceRequestCommandHandler(
         IServiceRequestRepository serviceRequestRepository,
-        IUserRepository userRepository
+        IUserRepository userRepository,
+        ICurrentUserService currentUser
     )
     {
         _serviceRequestRepository = serviceRequestRepository;
         _userRepository = userRepository;
+        _currentUser = currentUser;
     }
 
     public async Task<CreateServiceRequestResponse> Handle(
@@ -25,16 +29,22 @@ public class CreateServiceRequestCommandHandler
         CancellationToken cancellationToken
     )
     {
+        var tenantId = _currentUser.TenantId;
+
         var customer = await _userRepository.GetByIdAsync(
             request.CustomerId,
-            request.TenantId,
+            tenantId,
             cancellationToken
         );
         if (customer == null)
             throw new NotFoundException("User", request.CustomerId.ToString());
 
+        // Ownership check: customer must belong to current user's tenant
+        if (customer.TenantId != tenantId)
+            throw new NotFoundException("User", request.CustomerId.ToString());
+
         var serviceRequest = new ServiceRequest(
-            request.TenantId,
+            tenantId,
             request.Title,
             request.Description,
             request.CustomerId

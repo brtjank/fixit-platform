@@ -18,7 +18,7 @@
 - **Entity Framework Core** - ORM for data access
 - **PostgreSQL** - Database (local via Docker and cloud via Azure Flexible Server)
 - **Docker** - Containerization
-- **JWT Authentication** - Token-based authentication with role-based authorization
+- **JWT Authentication** - Token-based authentication with role-based authorization (JWT Bearer)
 - **MediatR** - CQRS pattern implementation
 - **FluentValidation** - Request validation
 - **Serilog** - Structured logging
@@ -66,7 +66,8 @@ The system implements **multi-tenancy** using a shared database with logical dat
 - Shared database, shared schema
 - `TenantId` in every entity
 - Global Query Filters in EF Core for soft delete
-- TenantId filtering in repositories (Phase 3: via JWT claims)
+- TenantId from JWT claims (automatic filtering)
+- Ownership checks in use cases
 - Each tenant = one service company
 
 ## 🧠 Domain Model
@@ -98,9 +99,9 @@ The project uses custom domain exceptions (all inherit from `AppException`) for 
 
 ## 🧪 Testing
 
-- `FixIt.Application.Tests` - 19 tests covering use cases (AssignWorker, ChangeServiceStatus, and others)
+- `FixIt.Application.Tests` - 18 tests covering use cases (AssignWorker, ChangeServiceStatus, and others)
 - `FixIt.Domain.Tests` - 32 tests covering domain entities, validation, and soft delete logic
-- **Total:** 51 tests, all passing ✅
+- **Total:** 50 tests, all passing ✅
 - **Coverage:** 100% for use cases and domain logic
 
 Tests follow AAA pattern (Arrange-Act-Assert) and use semantic exception type checking rather than message validation.
@@ -147,13 +148,14 @@ See [LICENSE](LICENSE) file for details.
 
 ## 📊 Project Status
 
-**Current Status:** 🚧 In Development - Phase 2 ✅ COMPLETED
+**Current Status:** 🚧 In Development - Phase 3 ✅ COMPLETED
 
 - ✅ Phase 0: Setup Project
 - ✅ Phase 1: Domain & Application
-- ✅ Phase 1 Tests: Unit Tests (51 tests, 100% coverage for use cases and domain logic)
+- ✅ Phase 1 Tests: Unit Tests (50 tests, 100% coverage for use cases and domain logic)
 - ✅ Phase 2: Persistence & EF Core
-- ⏳ Phase 3: Auth & Security - NEXT
+- ✅ Phase 3: Auth & Security
+- ⏳ Phase 4: API Layer - NEXT
 - ⏳ Phase 4: API Layer
 - ⏳ Phase 5: Async Messaging
 - ⏳ Phase 6: Docker

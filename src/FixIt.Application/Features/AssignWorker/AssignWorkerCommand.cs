@@ -2,5 +2,5 @@ using MediatR;
 
 namespace FixIt.Application.Features.AssignWorker;
 
-public record AssignWorkerCommand(Guid TenantId, Guid ServiceRequestId, Guid WorkerId)
+public record AssignWorkerCommand(Guid ServiceRequestId, Guid WorkerId)
     : IRequest<AssignWorkerResponse>;

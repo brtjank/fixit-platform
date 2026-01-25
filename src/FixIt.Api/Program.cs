@@ -1,3 +1,4 @@
+using FixIt.Api.Extensions;
 using FixIt.Application;
 using FixIt.Infrastructure;
 using Serilog;
@@ -24,7 +25,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Health check endpoint
+// Authentication and Authorization
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("WorkerOrAdmin", policy => policy.RequireRole("Worker", "Admin"));
+    options.AddPolicy("CustomerOrAdmin", policy => policy.RequireRole("Customer", "Admin"));
+});
+
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
@@ -38,6 +48,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");

@@ -18,7 +18,6 @@ public class CreateServiceRequestCommandValidatorTests
     {
         // Arrange
         var command = new CreateServiceRequestCommand(
-            Guid.NewGuid(),
             "Fix broken sink",
             "The sink in kitchen is leaking",
             Guid.NewGuid()
@@ -32,29 +31,10 @@ public class CreateServiceRequestCommandValidatorTests
     }
 
     [Fact]
-    public void Validate_EmptyTenantId_ShouldFail()
-    {
-        // Arrange
-        var command = new CreateServiceRequestCommand(
-            Guid.Empty,
-            "Fix broken sink",
-            "The sink in kitchen is leaking",
-            Guid.NewGuid()
-        );
-
-        // Act
-        var result = _validator.TestValidate(command);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.TenantId);
-    }
-
-    [Fact]
     public void Validate_EmptyTitle_ShouldFail()
     {
         // Arrange
         var command = new CreateServiceRequestCommand(
-            Guid.NewGuid(),
             string.Empty,
             "The sink in kitchen is leaking",
             Guid.NewGuid()
@@ -72,7 +52,6 @@ public class CreateServiceRequestCommandValidatorTests
     {
         // Arrange
         var command = new CreateServiceRequestCommand(
-            Guid.NewGuid(),
             new string('A', 201),
             "The sink in kitchen is leaking",
             Guid.NewGuid()
@@ -90,7 +69,6 @@ public class CreateServiceRequestCommandValidatorTests
     {
         // Arrange
         var command = new CreateServiceRequestCommand(
-            Guid.NewGuid(),
             "Fix broken sink",
             string.Empty,
             Guid.NewGuid()
@@ -108,7 +86,6 @@ public class CreateServiceRequestCommandValidatorTests
     {
         // Arrange
         var command = new CreateServiceRequestCommand(
-            Guid.NewGuid(),
             "Fix broken sink",
             new string('A', 2001),
             Guid.NewGuid()
@@ -126,7 +103,6 @@ public class CreateServiceRequestCommandValidatorTests
     {
         // Arrange
         var command = new CreateServiceRequestCommand(
-            Guid.NewGuid(),
             "Fix broken sink",
             "The sink in kitchen is leaking",
             Guid.Empty

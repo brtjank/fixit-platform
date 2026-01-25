@@ -1,5 +1,6 @@
 using FixIt.Application.Features.CreateServiceRequest;
 using FixIt.Application.Interfaces;
+using FixIt.Application.Services;
 using FixIt.Domain.Entities;
 using FixIt.Domain.Enums;
 using FixIt.Domain.Exceptions;
@@ -13,15 +14,18 @@ public class CreateServiceRequestCommandHandlerTests
 {
     private readonly Mock<IServiceRequestRepository> _serviceRequestRepositoryMock;
     private readonly Mock<IUserRepository> _userRepositoryMock;
+    private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly CreateServiceRequestCommandHandler _handler;
 
     public CreateServiceRequestCommandHandlerTests()
     {
         _serviceRequestRepositoryMock = new Mock<IServiceRequestRepository>();
         _userRepositoryMock = new Mock<IUserRepository>();
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
         _handler = new CreateServiceRequestCommandHandler(
             _serviceRequestRepositoryMock.Object,
-            _userRepositoryMock.Object
+            _userRepositoryMock.Object,
+            _currentUserServiceMock.Object
         );
     }
 
@@ -32,11 +36,12 @@ public class CreateServiceRequestCommandHandlerTests
         var tenantId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
         var command = new CreateServiceRequestCommand(
-            tenantId,
             "Fix broken sink",
             "The sink in kitchen is leaking",
             customerId
         );
+
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
 
         var customer = new User(tenantId, "customer@example.com", "John", "Doe", UserRole.Customer);
         _userRepositoryMock
@@ -80,11 +85,12 @@ public class CreateServiceRequestCommandHandlerTests
         var tenantId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
         var command = new CreateServiceRequestCommand(
-            tenantId,
             "Fix broken sink",
             "The sink in kitchen is leaking",
             customerId
         );
+
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
 
         _userRepositoryMock
             .Setup(x => x.GetByIdAsync(customerId, tenantId, It.IsAny<CancellationToken>()))
@@ -109,15 +115,23 @@ public class CreateServiceRequestCommandHandlerTests
         var differentTenantId = Guid.NewGuid();
         var customerId = Guid.NewGuid();
         var command = new CreateServiceRequestCommand(
-            tenantId,
             "Fix broken sink",
             "The sink in kitchen is leaking",
             customerId
         );
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+
+        var customerFromDifferentTenant = new User(
+            differentTenantId,
+            "customer@example.com",
+            "John",
+            "Doe",
+            UserRole.Customer
+        );
         _userRepositoryMock
             .Setup(x => x.GetByIdAsync(customerId, tenantId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User?)null);
+            .ReturnsAsync(customerFromDifferentTenant);
 
         // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);

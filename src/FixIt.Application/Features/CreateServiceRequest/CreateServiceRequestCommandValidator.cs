@@ -6,8 +6,6 @@ public class CreateServiceRequestCommandValidator : AbstractValidator<CreateServ
 {
     public CreateServiceRequestCommandValidator()
     {
-        RuleFor(x => x.TenantId).NotEmpty().WithMessage("TenantId is required.");
-
         RuleFor(x => x.Title)
             .NotEmpty()
             .WithMessage("Title is required.")

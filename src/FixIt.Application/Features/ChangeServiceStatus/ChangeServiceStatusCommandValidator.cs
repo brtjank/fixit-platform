@@ -6,8 +6,6 @@ public class ChangeServiceStatusCommandValidator : AbstractValidator<ChangeServi
 {
     public ChangeServiceStatusCommandValidator()
     {
-        RuleFor(x => x.TenantId).NotEmpty().WithMessage("TenantId is required.");
-
         RuleFor(x => x.ServiceRequestId).NotEmpty().WithMessage("ServiceRequestId is required.");
 
         RuleFor(x => x.NewStatus)

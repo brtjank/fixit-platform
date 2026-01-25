@@ -1,5 +1,6 @@
 using FixIt.Application.Features.ChangeServiceStatus;
 using FixIt.Application.Interfaces;
+using FixIt.Application.Services;
 using FixIt.Domain.Entities;
 using FixIt.Domain.Enums;
 using FixIt.Domain.Exceptions;
@@ -13,15 +14,18 @@ public class ChangeServiceStatusCommandHandlerTests
 {
     private readonly Mock<IServiceRequestRepository> _serviceRequestRepositoryMock;
     private readonly Mock<IServiceLogRepository> _serviceLogRepositoryMock;
+    private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly ChangeServiceStatusCommandHandler _handler;
 
     public ChangeServiceStatusCommandHandlerTests()
     {
         _serviceRequestRepositoryMock = new Mock<IServiceRequestRepository>();
         _serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
         _handler = new ChangeServiceStatusCommandHandler(
             _serviceRequestRepositoryMock.Object,
-            _serviceLogRepositoryMock.Object
+            _serviceLogRepositoryMock.Object,
+            _currentUserServiceMock.Object
         );
     }
 
@@ -54,12 +58,13 @@ public class ChangeServiceStatusCommandHandlerTests
             .Setup(x => x.AddAsync(It.IsAny<ServiceLog>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ServiceLog log, CancellationToken _) => log);
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+        _currentUserServiceMock.Setup(x => x.UserId).Returns(changedByUserId);
+
         var command = new ChangeServiceStatusCommand(
-            tenantId,
             serviceRequestId,
             ServiceRequestStatus.InProgress,
-            "Starting work",
-            changedByUserId
+            "Starting work"
         );
 
         // Act
@@ -87,12 +92,14 @@ public class ChangeServiceStatusCommandHandlerTests
         var tenantId = Guid.NewGuid();
         var serviceRequestId = Guid.NewGuid();
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+        _currentUserServiceMock.Setup(x => x.UserId).Returns(Guid.NewGuid());
+
         _serviceRequestRepositoryMock
             .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ServiceRequest?)null);
 
         var command = new ChangeServiceStatusCommand(
-            tenantId,
             serviceRequestId,
             ServiceRequestStatus.InProgress
         );
@@ -118,12 +125,14 @@ public class ChangeServiceStatusCommandHandlerTests
             Guid.NewGuid()
         );
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+        _currentUserServiceMock.Setup(x => x.UserId).Returns(Guid.NewGuid());
+
         _serviceRequestRepositoryMock
             .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(serviceRequest);
 
         var command = new ChangeServiceStatusCommand(
-            tenantId,
             serviceRequestId,
             ServiceRequestStatus.InProgress
         );
@@ -153,12 +162,14 @@ public class ChangeServiceStatusCommandHandlerTests
         serviceRequest.AssignWorker(workerId);
         serviceRequest.ChangeStatus(ServiceRequestStatus.Completed);
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+        _currentUserServiceMock.Setup(x => x.UserId).Returns(Guid.NewGuid());
+
         _serviceRequestRepositoryMock
             .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(serviceRequest);
 
         var command = new ChangeServiceStatusCommand(
-            tenantId,
             serviceRequestId,
             ServiceRequestStatus.InProgress
         );

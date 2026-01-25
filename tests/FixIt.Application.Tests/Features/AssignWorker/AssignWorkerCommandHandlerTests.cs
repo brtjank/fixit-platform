@@ -1,5 +1,6 @@
 using FixIt.Application.Features.AssignWorker;
 using FixIt.Application.Interfaces;
+using FixIt.Application.Services;
 using FixIt.Domain.Entities;
 using FixIt.Domain.Enums;
 using FixIt.Domain.Exceptions;
@@ -13,15 +14,18 @@ public class AssignWorkerCommandHandlerTests
 {
     private readonly Mock<IServiceRequestRepository> _serviceRequestRepositoryMock;
     private readonly Mock<IUserRepository> _userRepositoryMock;
+    private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly AssignWorkerCommandHandler _handler;
 
     public AssignWorkerCommandHandlerTests()
     {
         _serviceRequestRepositoryMock = new Mock<IServiceRequestRepository>();
         _userRepositoryMock = new Mock<IUserRepository>();
+        _currentUserServiceMock = new Mock<ICurrentUserService>();
         _handler = new AssignWorkerCommandHandler(
             _serviceRequestRepositoryMock.Object,
-            _userRepositoryMock.Object
+            _userRepositoryMock.Object,
+            _currentUserServiceMock.Object
         );
     }
 
@@ -53,7 +57,9 @@ public class AssignWorkerCommandHandlerTests
             .Setup(x => x.UpdateAsync(It.IsAny<ServiceRequest>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var command = new AssignWorkerCommand(tenantId, serviceRequestId, workerId);
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+
+        var command = new AssignWorkerCommand(serviceRequestId, workerId);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -78,11 +84,13 @@ public class AssignWorkerCommandHandlerTests
         var serviceRequestId = Guid.NewGuid();
         var workerId = Guid.NewGuid();
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+
         _serviceRequestRepositoryMock
             .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ServiceRequest?)null);
 
-        var command = new AssignWorkerCommand(tenantId, serviceRequestId, workerId);
+        var command = new AssignWorkerCommand(serviceRequestId, workerId);
 
         // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
@@ -114,11 +122,13 @@ public class AssignWorkerCommandHandlerTests
             .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(serviceRequest);
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+
         _userRepositoryMock
             .Setup(x => x.GetByIdAsync(workerId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((User?)null);
 
-        var command = new AssignWorkerCommand(tenantId, serviceRequestId, workerId);
+        var command = new AssignWorkerCommand(serviceRequestId, workerId);
 
         // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
@@ -142,11 +152,13 @@ public class AssignWorkerCommandHandlerTests
             .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(serviceRequest);
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+
         _userRepositoryMock
             .Setup(x => x.GetByIdAsync(customerId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(customer);
 
-        var command = new AssignWorkerCommand(tenantId, serviceRequestId, customerId);
+        var command = new AssignWorkerCommand(serviceRequestId, customerId);
 
         // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
@@ -164,11 +176,13 @@ public class AssignWorkerCommandHandlerTests
         var serviceRequestId = Guid.NewGuid();
         var workerId = Guid.NewGuid();
 
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+
         _serviceRequestRepositoryMock
             .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((ServiceRequest?)null);
 
-        var command = new AssignWorkerCommand(tenantId, serviceRequestId, workerId);
+        var command = new AssignWorkerCommand(serviceRequestId, workerId);
 
         // Act
         var act = async () => await _handler.Handle(command, CancellationToken.None);
