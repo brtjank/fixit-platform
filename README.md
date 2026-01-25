@@ -15,7 +15,7 @@
 
 - **.NET 8**
 - **ASP.NET Core Web API** - RESTful API
-- **Entity Framework Core** - ORM for data access (planned in Phase 2)
+- **Entity Framework Core** - ORM for data access
 - **PostgreSQL** - Database (local via Docker and cloud via Azure Flexible Server)
 - **Docker** - Containerization
 - **JWT Authentication** - Token-based authentication with role-based authorization
@@ -46,6 +46,7 @@ fixit-platform/
 ├── tests/        # Test projects
 │   ├── FixIt.Application.Tests/  # Unit tests for use cases
 │   └── FixIt.Domain.Tests/       # Unit tests for domain entities
+├── scripts/      # Utility scripts
 ├── infra/        # Infrastructure as Code (Bicep/Terraform) - planned
 ├── docs/         # Documentation - planned
 ```
@@ -64,8 +65,8 @@ The project follows **Clean Architecture** principles with clear separation of c
 The system implements **multi-tenancy** using a shared database with logical data isolation:
 - Shared database, shared schema
 - `TenantId` in every entity
-- Global Query Filters in EF Core for automatic tenant filtering
-- JWT claims include `TenantId` for authorization
+- Global Query Filters in EF Core for soft delete
+- TenantId filtering in repositories (Phase 3: via JWT claims)
 - Each tenant = one service company
 
 ## 🧠 Domain Model
@@ -106,13 +107,37 @@ Tests follow AAA pattern (Arrange-Act-Assert) and use semantic exception type ch
 
 ## 🚀 Getting Started
 
-> **Note:** The project is currently in Phase 1 (Domain & Application) completed. Full setup instructions will be available in later phases.
-
 ### Prerequisites
 
 - .NET 8 SDK
-- Docker (for local PostgreSQL - planned in Phase 2)
+- Docker and Docker Compose (for local PostgreSQL)
 - Azure CLI (for cloud deployment - planned in Phase 8)
+
+### Local Development Setup
+
+1. **Start PostgreSQL database:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Run database migrations:**
+   
+   Use the provided script:
+   ```bash
+   ./scripts/migrate-database.sh
+   ```
+
+3. **Run the application:**
+   ```bash
+   cd src/FixIt.Api
+   dotnet run
+   ```
+
+The API will be available at `https://localhost:5001` (or the port configured in `launchSettings.json`).
+
+### Database Connection
+
+The default connection string is defined in `appsettings.json` configuration file.
 
 ## 📝 License
 
@@ -122,13 +147,13 @@ See [LICENSE](LICENSE) file for details.
 
 ## 📊 Project Status
 
-**Current Status:** 🚧 In Development - Phase 1 ✅ COMPLETED + Tests ✅ COMPLETED
+**Current Status:** 🚧 In Development - Phase 2 ✅ COMPLETED
 
 - ✅ Phase 0: Setup Project
 - ✅ Phase 1: Domain & Application
 - ✅ Phase 1 Tests: Unit Tests (51 tests, 100% coverage for use cases and domain logic)
-- ⏳ Phase 2: Persistence & EF Core - NEXT
-- ⏳ Phase 3: Auth & Security
+- ✅ Phase 2: Persistence & EF Core
+- ⏳ Phase 3: Auth & Security - NEXT
 - ⏳ Phase 4: API Layer
 - ⏳ Phase 5: Async Messaging
 - ⏳ Phase 6: Docker

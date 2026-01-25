@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen();
 
 // Add application layers
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Health check endpoint
 builder.Services.AddHealthChecks();
