@@ -1,4 +1,4 @@
-using FixIt.Application.Interfaces;
+using FixIt.Application.Interfaces.Repositories;
 using FixIt.Domain.Entities;
 using FixIt.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;

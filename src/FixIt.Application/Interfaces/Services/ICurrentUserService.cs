@@ -1,4 +1,4 @@
-namespace FixIt.Application.Services;
+namespace FixIt.Application.Interfaces.Services;
 
 public interface ICurrentUserService
 {

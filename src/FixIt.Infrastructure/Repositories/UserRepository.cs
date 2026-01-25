@@ -1,4 +1,4 @@
-using FixIt.Application.Interfaces;
+using FixIt.Application.Interfaces.Repositories;
 using FixIt.Domain.Entities;
 using FixIt.Domain.Enums;
 using FixIt.Infrastructure.Persistence;

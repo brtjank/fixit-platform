@@ -1,5 +1,5 @@
-using FixIt.Application.Interfaces;
-using FixIt.Application.Services;
+using FixIt.Application.Interfaces.Repositories;
+using FixIt.Application.Interfaces.Services;
 using FixIt.Infrastructure.Persistence;
 using FixIt.Infrastructure.Repositories;
 using FixIt.Infrastructure.Services;

@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using FixIt.Application.Services;
+using FixIt.Application.Interfaces.Services;
 using FixIt.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
 

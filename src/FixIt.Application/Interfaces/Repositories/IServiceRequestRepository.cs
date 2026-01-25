@@ -1,6 +1,6 @@
 using FixIt.Domain.Entities;
 
-namespace FixIt.Application.Interfaces;
+namespace FixIt.Application.Interfaces.Repositories;
 
 public interface IServiceRequestRepository
 {
