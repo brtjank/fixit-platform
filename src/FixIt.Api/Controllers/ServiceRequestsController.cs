@@ -1,8 +1,8 @@
-using FixIt.Application.Features.AssignWorker;
-using FixIt.Application.Features.ChangeServiceStatus;
-using FixIt.Application.Features.CreateServiceRequest;
-using FixIt.Application.Features.GetServiceRequestById;
-using FixIt.Application.Features.GetServiceRequests;
+using FixIt.Application.Features.ServiceRequests.AssignWorker;
+using FixIt.Application.Features.ServiceRequests.ChangeServiceStatus;
+using FixIt.Application.Features.ServiceRequests.CreateServiceRequest;
+using FixIt.Application.Features.ServiceRequests.GetServiceRequestById;
+using FixIt.Application.Features.ServiceRequests.GetServiceRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

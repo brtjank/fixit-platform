@@ -1,4 +1,4 @@
-using FixIt.Application.Features.CreateServiceRequest;
+using FixIt.Application.Features.ServiceRequests.CreateServiceRequest;
 using FluentValidation.TestHelper;
 using Xunit;
 

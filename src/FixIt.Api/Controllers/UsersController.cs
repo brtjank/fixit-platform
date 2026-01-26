@@ -1,5 +1,5 @@
-using FixIt.Application.Features.GetUsers;
-using FixIt.Application.Features.GetWorkers;
+using FixIt.Application.Features.Users.GetUsers;
+using FixIt.Application.Features.Users.GetWorkers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

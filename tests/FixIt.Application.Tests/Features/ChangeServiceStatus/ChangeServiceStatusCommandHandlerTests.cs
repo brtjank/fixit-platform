@@ -1,4 +1,4 @@
-using FixIt.Application.Features.ChangeServiceStatus;
+using FixIt.Application.Features.ServiceRequests.ChangeServiceStatus;
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
 using FixIt.Domain.Entities;

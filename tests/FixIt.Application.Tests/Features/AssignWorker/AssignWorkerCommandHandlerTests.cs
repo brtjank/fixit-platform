@@ -1,4 +1,4 @@
-using FixIt.Application.Features.AssignWorker;
+using FixIt.Application.Features.ServiceRequests.AssignWorker;
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
 using FixIt.Domain.Entities;

@@ -1,4 +1,4 @@
-using FixIt.Application.Features.Login;
+using FixIt.Application.Features.Auth.Login;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
