@@ -1,4 +1,5 @@
 using FixIt.Api.Extensions;
+using FixIt.Api.Middleware;
 using FixIt.Application;
 using FixIt.Infrastructure;
 using Serilog;
@@ -19,7 +20,7 @@ builder.Host.UseSerilog();
 // Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerWithJwt();
 
 // Add application layers
 builder.Services.AddApplication();
@@ -48,6 +49,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
+
+app.UseMiddleware<RequestIdMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

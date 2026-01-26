@@ -37,36 +37,23 @@ public class ServiceRequestRepository : IServiceRequestRepository
         );
     }
 
-    public async Task<IEnumerable<ServiceRequest>> GetByTenantIdAsync(
-        Guid tenantId,
-        CancellationToken cancellationToken = default
-    )
+    public IQueryable<ServiceRequest> GetByTenantId(Guid tenantId)
     {
-        return await _context
-            .ServiceRequests.Where(sr => sr.TenantId == tenantId)
-            .ToListAsync(cancellationToken);
+        return _context.ServiceRequests.Where(sr => sr.TenantId == tenantId);
     }
 
-    public async Task<IEnumerable<ServiceRequest>> GetByCustomerIdAsync(
-        Guid customerId,
-        Guid tenantId,
-        CancellationToken cancellationToken = default
-    )
+    public IQueryable<ServiceRequest> GetByCustomerId(Guid customerId, Guid tenantId)
     {
-        return await _context
-            .ServiceRequests.Where(sr => sr.CustomerId == customerId && sr.TenantId == tenantId)
-            .ToListAsync(cancellationToken);
+        return _context.ServiceRequests.Where(sr =>
+            sr.CustomerId == customerId && sr.TenantId == tenantId
+        );
     }
 
-    public async Task<IEnumerable<ServiceRequest>> GetByWorkerIdAsync(
-        Guid workerId,
-        Guid tenantId,
-        CancellationToken cancellationToken = default
-    )
+    public IQueryable<ServiceRequest> GetByWorkerId(Guid workerId, Guid tenantId)
     {
-        return await _context
-            .ServiceRequests.Where(sr => sr.AssignedWorkerId == workerId && sr.TenantId == tenantId)
-            .ToListAsync(cancellationToken);
+        return _context.ServiceRequests.Where(sr =>
+            sr.AssignedWorkerId == workerId && sr.TenantId == tenantId
+        );
     }
 
     public async Task<ServiceRequest> AddAsync(

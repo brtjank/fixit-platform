@@ -97,6 +97,17 @@ All entities include:
 
 The project uses custom domain exceptions (all inherit from `AppException`) for semantic error handling. Each exception has a stable `ErrorCode` (e.g., "SR_001_STATUS_IMMUTABLE") used in API responses and error handling middleware.
 
+## 💼 Example Business Scenarios
+
+### Customer Submits Service Request
+Customer logs in and creates service request via `POST /api/service-requests`. System validates ownership and creates request with `Pending` status. Customer views their requests via `GET /api/service-requests`.
+
+### Admin Assigns Worker
+Admin views service requests and available workers, then assigns worker via `PUT /api/service-requests/{id}/assign-worker`. System validates tenant ownership, request status (`Pending`), and worker role. Status automatically changes to `Assigned`.
+
+### Worker Updates Status
+Worker views assigned requests via `GET /api/service-requests?assignedWorkerId={id}` and updates status via `PUT /api/service-requests/{id}/change-status`. System validates tenant ownership and status transition rules. Status progresses: `InProgress` → `Completed`.
+
 ## 🧪 Testing
 
 - `FixIt.Application.Tests` - 18 tests covering use cases (AssignWorker, ChangeServiceStatus, and others)
@@ -148,15 +159,14 @@ See [LICENSE](LICENSE) file for details.
 
 ## 📊 Project Status
 
-**Current Status:** 🚧 In Development - Phase 3 ✅ COMPLETED
+**Current Status:** 🚧 In Development - Phase 4 ✅ COMPLETED
 
 - ✅ Phase 0: Setup Project
 - ✅ Phase 1: Domain & Application
 - ✅ Phase 1 Tests: Unit Tests (50 tests, 100% coverage for use cases and domain logic)
 - ✅ Phase 2: Persistence & EF Core
 - ✅ Phase 3: Auth & Security
-- ⏳ Phase 4: API Layer - NEXT
-- ⏳ Phase 4: API Layer
+- ✅ Phase 4: API Layer
 - ⏳ Phase 5: Async Messaging
 - ⏳ Phase 6: Docker
 - ⏳ Phase 7: CI/CD

@@ -10,20 +10,9 @@ public interface IServiceRequestRepository
         CancellationToken cancellationToken = default
     );
     Task<ServiceRequest?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<IEnumerable<ServiceRequest>> GetByTenantIdAsync(
-        Guid tenantId,
-        CancellationToken cancellationToken = default
-    );
-    Task<IEnumerable<ServiceRequest>> GetByCustomerIdAsync(
-        Guid customerId,
-        Guid tenantId,
-        CancellationToken cancellationToken = default
-    );
-    Task<IEnumerable<ServiceRequest>> GetByWorkerIdAsync(
-        Guid workerId,
-        Guid tenantId,
-        CancellationToken cancellationToken = default
-    );
+    IQueryable<ServiceRequest> GetByTenantId(Guid tenantId);
+    IQueryable<ServiceRequest> GetByCustomerId(Guid customerId, Guid tenantId);
+    IQueryable<ServiceRequest> GetByWorkerId(Guid workerId, Guid tenantId);
     Task<ServiceRequest> AddAsync(
         ServiceRequest serviceRequest,
         CancellationToken cancellationToken = default
