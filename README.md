@@ -2,14 +2,13 @@
 
 ## 🎯 Project Purpose
 
-**FixIt.Platform** is an open-source project intended as a technical showcase for portfolio purposes, demonstrating:
-- Clean Architecture principles in .NET 8
+**FixIt.Platform** is an open-source backend API for service companies (repairs, cleaning, maintenance) to manage service requests, workers, and customers. Built with:
+- Clean Architecture in .NET 8
 - Docker containerization
 - Azure cloud integration
 - Async messaging (Queue)
 - CI/CD
-- Multi-tenancy - shared database with logical data isolation
-- Production-like patterns and practices
+- Multi-tenancy — shared database with logical data isolation per company
 
 ## 🛠️ Technology Stack
 
@@ -175,8 +174,4 @@ See [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
-This is a portfolio project. Feedback is welcome, but please note this is primarily a showcase project.
-
----
-
-**Disclaimer:** This project is for educational and portfolio purposes only. It is not intended for production use.
+Contributions and feedback are welcome. Open an issue or submit a pull request.
