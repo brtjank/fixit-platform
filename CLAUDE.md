@@ -46,6 +46,14 @@ Cel: event-driven element w systemie.
 
 Sekrety przez env vars / Azure Key Vault (Phase 8).
 
+## Frontend (`web/`)
+
+React 19 + Vite + TypeScript + Tailwind v4, TanStack Query, MSW. Feature-sliced; docs w `web/ARCHITECTURE.md`, `web/README.md`.
+- `VITE_API_MODE=mock` (domyślnie, bez backendu) / `live` (proxy `/api` → `localhost:5177`; backend nie ma CORS)
+- Endpointy, których backend nie ma, są mockowane i opisane w `web/docs/API_GAPS.md` (to lista kandydatów na zmiany w backendzie)
+- Dwa języki (EN/PL), tłumaczenia w `web/src/locales/<lang>/<namespace>.json`
+- `cd web && npm run dev` · `npm run typecheck` · `npm run lint` · `npm run build`
+
 ## Dev setup
 
 ```bash

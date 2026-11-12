@@ -24,8 +24,8 @@
     "activeWorkers_other": "/ {{count}} aktywnych"
   },
   "trend": {
-    "vsPrev30Days": "vs poprz. 30 dni",
-    "vsPrev": "vs poprz. okres",
+    "vsPrev30Days": "vs poprzednie 30 dni",
+    "vsPrev": "vs poprzedni okres",
     "noChange": "Bez zmian {{value}} {{period}}",
     "up": "Wzrost o {{value}} {{period}}",
     "down": "Spadek o {{value}} {{period}}"

@@ -20,8 +20,8 @@
     "activeWorkers_other": "/ {{count}} active"
   },
   "trend": {
-    "vsPrev30Days": "vs prev. 30 days",
-    "vsPrev": "vs prev.",
+    "vsPrev30Days": "vs previous 30 days",
+    "vsPrev": "vs previous period",
     "noChange": "No change {{value}} {{period}}",
     "up": "Up {{value}} {{period}}",
     "down": "Down {{value}} {{period}}"
