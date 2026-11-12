@@ -33,7 +33,7 @@ export function useServiceRequest(id: string | undefined) {
   })
 }
 
-/** ⚠ mock-only endpoint (ServiceLog history) */
+/** ✅ real endpoint (ServiceLog history) */
 export function useServiceRequestLogs(id: string | undefined) {
   return useQuery({
     queryKey: serviceRequestKeys.logs(id ?? ''),

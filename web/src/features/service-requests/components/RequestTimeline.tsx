@@ -4,7 +4,7 @@ import { useUser, useUserDirectory } from '@/features/users/hooks'
 import { errorMessage } from '@/shared/api'
 import { formatDateTime, formatRelative, fullName } from '@/shared/lib'
 import { ServiceRequestStatus, type ServiceRequest } from '@/shared/types'
-import { Card, CardContent, CardHeader, ErrorState, MockBadge, Skeleton, StatusBadge, Tooltip } from '@/shared/ui'
+import { Card, CardContent, CardHeader, ErrorState, Skeleton, StatusBadge, Tooltip } from '@/shared/ui'
 import { useServiceRequestLogs } from '../hooks'
 
 function When({ at }: { at: string }) {
@@ -28,11 +28,7 @@ export function RequestTimeline({ request }: { request: ServiceRequest }) {
   return (
     <Card>
       <CardHeader
-        title={
-          <span className="flex items-center gap-2">
-            {t('detail.history.title')} <MockBadge />
-          </span>
-        }
+        title={t('detail.history.title')}
         description={t('detail.history.description')}
       />
       <CardContent>

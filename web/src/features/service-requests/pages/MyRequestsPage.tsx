@@ -6,7 +6,7 @@ import { useSession } from '@/features/auth'
 import { errorMessage } from '@/shared/api'
 import { isClosedStatus } from '@/shared/lib'
 import { ServiceRequestStatus } from '@/shared/types'
-import { Badge, Button, EmptyState, ErrorState, MockBadge, PageHeader, Skeleton, Tabs, TabsList, TabsTrigger } from '@/shared/ui'
+import { Badge, Button, EmptyState, ErrorState, PageHeader, Skeleton, Tabs, TabsList, TabsTrigger } from '@/shared/ui'
 import { RequestCard } from '../components/RequestCard'
 import { useServiceRequests } from '../hooks'
 
@@ -16,15 +16,11 @@ export default function MyRequestsPage() {
   const { t } = useTranslation('requests')
   const session = useSession()
   const [tab, setTab] = useState<Tab>('open')
-  // Backend gap: no ?customerId filter and no Customer scoping → filter client-side (see docs/API_GAPS.md).
-  const query = useServiceRequests({ pageSize: 100 })
+  const query = useServiceRequests({ customerId: session?.userId, pageSize: 100 }, { enabled: !!session })
 
   const mine = useMemo(
-    () =>
-      (query.data?.items ?? [])
-        .filter((sr) => sr.customerId === session?.userId)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [query.data, session?.userId],
+    () => [...(query.data?.items ?? [])].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)),
+    [query.data],
   )
   const open = mine.filter((sr) => !isClosedStatus(sr.status))
   const closed = mine.filter((sr) => isClosedStatus(sr.status))
@@ -33,11 +29,7 @@ export default function MyRequestsPage() {
   return (
     <>
       <PageHeader
-        title={
-          <span className="flex items-center gap-2">
-            {t('my.title')} <MockBadge label={t('my.clientSideFilter')} />
-          </span>
-        }
+        title={t('my.title')}
         description={t('my.description')}
         actions={
           <Button asChild>

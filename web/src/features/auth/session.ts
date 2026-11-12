@@ -4,7 +4,7 @@ import { httpAuth } from '@/shared/api'
 import { isTokenExpired } from '@/shared/lib'
 import { UserRole, type UserRole as UserRoleValue, type UserRoleName } from '@/shared/types'
 
-/** Session state persisted to localStorage. `profile` comes from the (mock-only) /api/users/me endpoint. */
+/** Session state persisted to localStorage. `profile` comes from GET /api/users/me. */
 export interface Session {
   token: string
   userId: string

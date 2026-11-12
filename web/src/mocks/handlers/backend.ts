@@ -15,10 +15,16 @@ import {
   type LoginResponse,
   type ServiceRequest,
 } from '@/shared/types'
-import { authorize, errors, isResponse, issueMockToken, Policies } from '../auth'
+import { authorize, errors, isResponse, issueMockToken, Policies, resolveUser, type Principal } from '../auth'
 import { db, findServiceRequest, findUser, findUserByEmail, newId, nowIso, paginate, pushNotification } from '../db'
 
 const LATENCY = () => delay(250 + Math.random() * 250)
+
+/** Tenant check + Customer scoping (customers can only read their own requests; others get 404). */
+function canReadRequest(sr: ServiceRequest | null | undefined, auth: Principal): sr is ServiceRequest {
+  if (!sr || sr.tenantId !== auth.tenantId) return false
+  return auth.role !== UserRole.Customer || sr.customerId === auth.userId
+}
 
 export const backendHandlers = [
   // POST /api/auth/login — no password verification (matches backend Phase 4 placeholder)
@@ -48,10 +54,14 @@ export const backendHandlers = [
     const status = parseStatus(statusRaw)
     if (statusRaw && !status) return errors.badRequest('ERR_001_UNEXPECTED', `Requested value '${statusRaw}' was not found.`)
     const assignedWorkerId = url.searchParams.get('assignedWorkerId')
+    const customerId = url.searchParams.get('customerId')
 
     let items = db.serviceRequests.filter((sr) => sr.tenantId === auth.tenantId && !sr.isDeleted)
+    // Customers only ever see their own requests (backend forces this regardless of ?customerId).
+    if (auth.role === UserRole.Customer) items = items.filter((sr) => sr.customerId === auth.userId)
     if (status) items = items.filter((sr) => sr.status === status)
     if (assignedWorkerId) items = items.filter((sr) => sr.assignedWorkerId === assignedWorkerId)
+    if (customerId) items = items.filter((sr) => sr.customerId === customerId)
     return HttpResponse.json(paginate(items, page, pageSize))
   }),
 
@@ -61,8 +71,19 @@ export const backendHandlers = [
     const auth = authorize(request)
     if (isResponse(auth)) return auth
     const sr = findServiceRequest(String(params.id))
-    if (!sr || sr.tenantId !== auth.tenantId) return errors.notFound('ServiceRequest', String(params.id))
+    if (!canReadRequest(sr, auth)) return errors.notFound('ServiceRequest', String(params.id))
     return HttpResponse.json(sr)
+  }),
+
+  // GET /api/service-requests/{id}/logs — ordered by createdAt ascending, plain array
+  http.get('/api/service-requests/:id/logs', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const id = String(params.id)
+    if (!canReadRequest(findServiceRequest(id), auth)) return errors.notFound('ServiceRequest', id)
+    const logs = db.serviceLogs.filter((l) => l.serviceRequestId === id && !l.isDeleted).sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    return HttpResponse.json(logs)
   }),
 
   // POST /api/service-requests (CustomerOrAdmin)
@@ -122,7 +143,7 @@ export const backendHandlers = [
     const previous = sr.status
     sr.assignedWorkerId = worker.id
     sr.status = ServiceRequestStatus.Assigned
-    // Note: the real backend's AssignWorker does NOT write a ServiceLog today; the mock does, for a richer timeline.
+    // Backend writes a Pending→Assigned ServiceLog on assignment (notes null).
     db.serviceLogs.push({ id: newId(), tenantId: sr.tenantId, serviceRequestId: sr.id, previousStatus: previous, newStatus: sr.status, notes: null, changedByUserId: auth.userId, createdAt: nowIso(), isDeleted: false })
     pushNotification({ title: 'Worker assigned', body: `${worker.firstName} ${worker.lastName} was assigned to “${sr.title}”.`, serviceRequestId: sr.id })
     return HttpResponse.json({ serviceRequestId: sr.id, assignedWorkerId: sr.assignedWorkerId, status: sr.status })
@@ -162,6 +183,17 @@ export const backendHandlers = [
     const url = new URL(request.url)
     const items = db.users.filter((u) => u.tenantId === auth.tenantId && !u.isDeleted)
     return HttpResponse.json(paginate(items, Number(url.searchParams.get('page') ?? 1), Number(url.searchParams.get('pageSize') ?? 20)))
+  }),
+
+  // GET /api/users/me (any role) — User + tenantName. Registered before the mock-only /api/users/:id.
+  http.get('/api/users/me', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    // Mock-mode tokens are only issued for users in the dataset, so the user is always found.
+    const user = resolveUser(auth)
+    if (!user) return errors.notFound('User', auth.userId)
+    return HttpResponse.json({ ...user, tenantName: db.tenant.name })
   }),
 
   // GET /api/users/workers (WorkerOrAdmin)

@@ -55,7 +55,7 @@ export interface WorkerProfile extends BaseEntity {
   isAvailable: boolean
 }
 
-/** Backend entity exists but has NO endpoint yet → served by mocks only. */
+/** Status history entry — ✅ GET /api/service-requests/{id}/logs. */
 export interface ServiceLog extends BaseEntity {
   serviceRequestId: string
   previousStatus: ServiceRequestStatus
@@ -107,6 +107,7 @@ export interface ServiceRequestListParams {
   pageSize?: number
   status?: ServiceRequestStatus
   assignedWorkerId?: string
+  customerId?: string
 }
 
 export interface CreateServiceRequestRequest {

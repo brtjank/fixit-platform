@@ -148,7 +148,6 @@
   },
   "my": {
     "title": "My requests",
-    "clientSideFilter": "Client-side filter",
     "description": "Track everything you have asked us to fix.",
     "empty": {
       "title": "No requests yet",

@@ -16,7 +16,7 @@ import type {
  * ✅ = real backend endpoint   ⚠ = MOCK-ONLY (see docs/API_GAPS.md)
  */
 export const serviceRequestsApi = {
-  /** ✅ GET /api/service-requests?page&pageSize&status&assignedWorkerId */
+  /** ✅ GET /api/service-requests?page&pageSize&status&assignedWorkerId&customerId  (Customer role is always scoped to own requests) */
   list: (params: ServiceRequestListParams = {}) =>
     http.get<Paged<ServiceRequest>>('/api/service-requests', {
       query: {
@@ -24,6 +24,7 @@ export const serviceRequestsApi = {
         pageSize: params.pageSize ?? 20,
         status: params.status, // backend parses enum name or number (Enum.Parse)
         assignedWorkerId: params.assignedWorkerId,
+        customerId: params.customerId,
       },
     }),
 
@@ -49,6 +50,6 @@ export const serviceRequestsApi = {
       notes: notes || null,
     }),
 
-  /** ⚠ GET /api/service-requests/{id}/logs — MOCK-ONLY (ServiceLog has no endpoint yet) */
+  /** ✅ GET /api/service-requests/{id}/logs — status history, ordered by createdAt ascending */
   logs: (id: string) => http.get<ServiceLog[]>(`/api/service-requests/${id}/logs`),
 }

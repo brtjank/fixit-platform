@@ -27,7 +27,7 @@ export default function MyAssignmentsPage() {
   const query = useServiceRequests({ assignedWorkerId: session?.userId, pageSize: 100 }, { enabled: Boolean(session?.userId) })
 
   const columns = useMemo(() => {
-    const items = [...(query.data?.items ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    const items = [...(query.data?.items ?? [])].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
     return COLUMNS.map((c) => ({ ...c, items: items.filter((sr) => c.match(sr.status)) }))
   }, [query.data])
 

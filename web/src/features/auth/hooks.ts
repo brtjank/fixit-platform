@@ -20,7 +20,7 @@ export function useLogin() {
       const res = await authApi.login(body)
       const role = parseRole(res.role) ?? UserRole.Customer
       setSession({ token: res.token, userId: res.userId, tenantId: res.tenantId, role, roleName: res.role })
-      // Profile is best-effort (mock-only endpoint). Never block login on it.
+      // Profile (✅ GET /api/users/me) is best-effort. Never block login on it.
       try {
         const me = await authApi.me()
         setProfile({ firstName: me.firstName, lastName: me.lastName, email: me.email, tenantName: me.tenantName })

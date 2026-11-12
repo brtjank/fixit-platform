@@ -50,12 +50,13 @@ Page → feature hook (`useX`) → feature api (`xApi`) → `http` → (MSW in m
   and clears the session on 401.
 - Mutations invalidate related query keys and toast success/errors. Pages don't call `fetch` directly.
 - Session (`features/auth/session.ts`) persists `{ token, userId, tenantId, role }` plus a best-effort
-  profile (name, email, tenant name) from the mock-only `/api/users/me`.
+  profile (name, email, tenant name) from `GET /api/users/me`.
 
 ## API modes
 
 `VITE_API_MODE=mock` (default) — every request is served by MSW from `src/mocks/data/seed.ts`.
-`VITE_API_MODE=live` — real endpoints go through the Vite proxy to `http://localhost:5177`;
+`VITE_API_MODE=live` — real endpoints go through the Vite proxy to `http://localhost:5177` (kept for
+convenience; the backend also allows `http://localhost:5173` via CORS);
 MSW still serves the endpoints listed in `docs/API_GAPS.md` (it decodes the real JWT to apply policies).
 
 Mock handlers mirror the backend precisely: policies (`AdminOnly`, `WorkerOrAdmin`, `CustomerOrAdmin`),
@@ -69,11 +70,11 @@ error codes (`RES_001_NOT_FOUND`, `SR_001_STATUS_IMMUTABLE`, …), and numeric e
 | `/` (Home)          | Dashboard | Dashboard | My requests | `app/pages/HomePage.tsx` switches on role |
 | `/requests`         |  ✅   |   ✅   |    –     | list + filters + pagination (real)               |
 | `/requests/new`     |  ✅   |   –    |    ✅    | create (real)                                    |
-| `/requests/:id`     |  ✅   |   ✅   |    ✅    | detail, actions (real), timeline (mock)          |
+| `/requests/:id`     |  ✅   |   ✅   |    ✅    | detail, actions, timeline (real)                 |
 | `/my-assignments`   |   –   |   ✅   |    –     | `assignedWorkerId=me` (real)                     |
 | `/workers`, `/workers/:id` | ✅ | ✅  |    –     | users/workers (real) + profiles/workload (mock)  |
 | `/users`            |  ✅   |   –    |    –     | list (real) + invite/edit/deactivate (mock)      |
-| `/settings`         |  ✅   |   ✅   |    ✅    | tenant/preferences (mock), appearance (local)    |
+| `/settings`         |  ✅   |   ✅   |    ✅    | profile (real), tenant/preferences (mock), appearance (local) |
 | `/notifications`    |  ✅   |   ✅   |    ✅    | mock                                             |
 
 Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders a 403 state).

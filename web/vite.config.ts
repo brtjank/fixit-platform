@@ -14,7 +14,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      // Backend has no CORS configured — dev proxy keeps requests same-origin.
+      // Kept for convenience: same-origin requests, no CORS preflight. The backend also allows
+      // http://localhost:5173 via CORS, so the proxy is no longer required.
       '/api': {
         target: process.env.VITE_PROXY_TARGET ?? 'http://localhost:5177',
         changeOrigin: true,

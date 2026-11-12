@@ -28,7 +28,7 @@ export function ProfileSection() {
 
   return (
     <section>
-      <SectionHeading title={t('profile.title')} description={t('profile.description')} mock />
+      <SectionHeading title={t('profile.title')} description={t('profile.description')} />
       <Card>
         <CardContent>
           {me.isLoading && !user ? (

@@ -10,36 +10,15 @@ import type { UpdateWorkerProfileRequest, WorkerWorkload } from '@/features/work
 import type { NotificationPreferences, UpdateTenantRequest } from '@/features/settings/api/settingsApi'
 import { parseRole } from '@/shared/lib'
 import { ServiceRequestStatus, UserRole, type User, type WorkerProfile } from '@/shared/types'
-import { authorize, isResponse, errors, resolveUser, Policies } from '../auth'
+import { authorize, isResponse, errors, Policies } from '../auth'
 import { db, findUser, newId, nowIso } from '../db'
 
 const LATENCY = () => delay(200 + Math.random() * 200)
 const STATUS_NAMES = ['', 'Pending', 'Assigned', 'InProgress', 'Completed', 'Cancelled']
-const capitalize = (s: string) => s.replace(/^\w/, (c: string) => c.toUpperCase())
 const OPEN: ServiceRequestStatus[] = [ServiceRequestStatus.Pending, ServiceRequestStatus.Assigned, ServiceRequestStatus.InProgress]
 
 export const mockOnlyHandlers = [
-  // ---- Current user ----------------------------------------------------------
-  http.get('/api/users/me', async ({ request }) => {
-    await LATENCY()
-    const auth = authorize(request)
-    if (isResponse(auth)) return auth
-    const user = resolveUser(auth)
-    // Live mode with a user that is not in the mock dataset: derive a profile from the token.
-    const fallback: User = {
-      id: auth.userId,
-      tenantId: auth.tenantId,
-      email: auth.email ?? 'user@fixit.local',
-      firstName: capitalize((auth.email ?? 'User').split('@')[0]!.split('.')[0]!),
-      lastName: capitalize((auth.email ?? '').split('@')[0]!.split('.')[1] ?? ''),
-      role: auth.role,
-      isActive: true,
-      createdAt: nowIso(),
-      isDeleted: false,
-    }
-    return HttpResponse.json({ ...(user ?? fallback), tenantName: db.tenant.name })
-  }),
-
+  // ---- Current user preferences -------------------------------------------
   http.get('/api/users/me/notification-preferences', async ({ request }) => {
     await LATENCY()
     const auth = authorize(request)
@@ -55,19 +34,9 @@ export const mockOnlyHandlers = [
     return HttpResponse.json(db.notificationPreferences)
   }),
 
-  // ---- Service logs ------------------------------------------------------------
-  http.get('/api/service-requests/:id/logs', async ({ request, params }) => {
-    await LATENCY()
-    const auth = authorize(request)
-    if (isResponse(auth)) return auth
-    const id = String(params.id)
-    const logs = db.serviceLogs.filter((l) => l.serviceRequestId === id && !l.isDeleted).sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-    return HttpResponse.json(logs)
-  }),
-
   // ---- User management (Admin) ------------------------------------------------
   http.get('/api/users/:id', async ({ request, params }) => {
-    // Reserved sub-routes handled elsewhere (real backend in live mode).
+    // Reserved sub-routes served by the backend (mock backend handlers in mock mode, real API in live mode).
     if (['workers', 'me'].includes(String(params.id))) return passthrough()
     await LATENCY()
     const auth = authorize(request)

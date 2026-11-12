@@ -14,11 +14,11 @@ export function decodeJwt<T = Record<string, unknown>>(token: string): T | null 
 export interface FixItJwtClaims {
   sub?: string
   TenantId?: string
-  role?: string
+  role?: string | string[]
   exp?: number
   'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'?: string
   'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'?: string
-  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string | string[]
 }
 
 export function emailFromToken(token: string): string | null {

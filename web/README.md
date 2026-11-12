@@ -30,9 +30,9 @@ dotnet run --project src/FixIt.Api            # http://localhost:5177
 cd web && VITE_API_MODE=live npm run dev       # /api is proxied to the backend
 ```
 
-In live mode the real endpoints (`/api/auth/login`, `/api/service-requests*`, `/api/users*`) hit the
-API; everything the backend does not implement yet is still served by MSW — see
-[`docs/API_GAPS.md`](docs/API_GAPS.md). UI backed by mocked endpoints is marked with a small
+In live mode the real endpoints (`/api/auth/login`, `/api/service-requests*` including `/{id}/logs`,
+`GET /api/users`, `/api/users/workers`, `/api/users/me`) hit the API; everything the backend does not
+implement yet is still served by MSW — see [`docs/API_GAPS.md`](docs/API_GAPS.md). UI backed by mocked endpoints is marked with a small
 "Mocked" badge.
 
 ## Languages

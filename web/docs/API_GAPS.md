@@ -6,8 +6,6 @@ endpoint, shaped to fit the existing conventions (camelCase JSON, numeric enums,
 
 | Endpoint | Policy | Purpose / proposed contract | Used by |
 | --- | --- | --- | --- |
-| `GET /api/users/me` | any | Profile of the signed-in user (`User` + `tenantName`). Today Worker/Customer cannot read their own name (`GET /api/users` is AdminOnly). | Topbar, Settings |
-| `GET /api/service-requests/{id}/logs` | any (tenant-scoped) | `ServiceLog[]` history for the timeline. Entity + repository exist; no endpoint. | Request detail |
 | `GET /api/users/{id}` | any | Single user (resolve customer/worker names on detail pages). | Request detail, worker detail |
 | `POST /api/users` | AdminOnly | Invite/create user `{ email, firstName, lastName, role }`. | Users |
 | `PUT /api/users/{id}` | AdminOnly | Update name/role. | Users |
@@ -27,10 +25,15 @@ endpoint, shaped to fit the existing conventions (camelCase JSON, numeric enums,
 
 | Gap | Workaround in the UI |
 | --- | --- |
-| `GET /api/service-requests` has no `customerId` filter and returns **all** tenant requests to a Customer. | "My requests" filters by `customerId === session.userId` on the client (page size 100). Proposed: `?customerId=` + implicit scoping for the Customer role in the handler. |
 | `GET /api/service-requests` has no search/sort. | Title search is client-side within the current page. Proposed: `?search=` and `?sort=`. |
 | `POST /api/auth/login` does not verify passwords (Phase 4 placeholder). | Login form still requires a password; any value works. Demo accounts are listed on the login page. |
-| `AssignWorker` does not write a `ServiceLog`. | The mock does, so the timeline shows assignments. Proposed: log the Pending→Assigned transition (or emit it via the Phase 5 event). |
-| No CORS configuration. | Vite dev proxy (`/api` → `http://localhost:5177`). Production would need `AddCors` or same-origin hosting. |
 | Enums serialize as integers. | Types use numeric enums; `status` query param is sent as the number (backend `Enum.Parse` accepts it). Consider `JsonStringEnumConverter` for readability. |
 | No seed data / registration. | `dev/seed.sql` inserts the demo tenant + users for live mode. |
+
+## Resolved
+
+- `GET /api/users/me` — profile of the signed-in user (`User` + `tenantName`), any role.
+- `GET /api/service-requests/{id}/logs` — `ServiceLog[]` ordered by `createdAt`, tenant- and Customer-scoped.
+- `GET /api/service-requests?customerId=` — plus implicit Customer scoping on the list and `GET /{id}`; "My requests" no longer filters client-side.
+- `AssignWorker` writes a Pending→Assigned `ServiceLog`.
+- CORS allows `http://localhost:5173`; the Vite proxy is kept for convenience.

@@ -150,7 +150,6 @@
   },
   "my": {
     "title": "Moje zgłoszenia",
-    "clientSideFilter": "Filtr po stronie klienta",
     "description": "Śledź wszystkie swoje zgłoszenia napraw.",
     "empty": {
       "title": "Brak zgłoszeń",

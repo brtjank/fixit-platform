@@ -39,7 +39,9 @@ export function readPrincipal(request: Request): Principal | null {
   if (!claims) return null
   if (claims.exp && claims.exp * 1000 < Date.now()) return null
   const userId = claims.sub ?? claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier']
-  const role = parseRole(claims.role ?? claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'])
+  // A JWT with duplicate role claims serializes them as an array — take the first.
+  const rawRole = claims.role ?? claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+  const role = parseRole(Array.isArray(rawRole) ? rawRole[0] : rawRole)
   if (!userId || !claims.TenantId || !role) return null
   return {
     userId,
