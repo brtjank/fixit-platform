@@ -42,8 +42,19 @@ public class ErrorHandlingMiddleware
         var errorCode = exception is AppException appEx ? appEx.ErrorCode : "ERR_001_UNEXPECTED";
         var requestId = context.Items[RequestIdMiddleware.HttpContextItemKey]?.ToString();
 
-        // Log exception with context
-        if (exception.InnerException != null)
+        // Expected client errors (4xx) are part of normal operation: log a one-line warning.
+        // Anything mapped to 5xx is a real failure and gets the full exception.
+        if ((int)statusCode < 500)
+        {
+            _logger.LogWarning(
+                "Request failed. ErrorCode={ErrorCode}, Status={StatusCode}, RequestId={RequestId}, Message={Message}",
+                errorCode,
+                (int)statusCode,
+                requestId,
+                exception.Message
+            );
+        }
+        else if (exception.InnerException != null)
         {
             _logger.LogError(
                 exception,

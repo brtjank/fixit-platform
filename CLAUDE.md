@@ -62,4 +62,4 @@ docker-compose up -d          # PostgreSQL 16 na porcie 5433
 dotnet run --project src/FixIt.Api
 ```
 
-Testy: `dotnet test`
+Testy: `dotnet test src/FixIt.sln`

@@ -7,12 +7,10 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
+// Sinks and enrichers come from the "Serilog" section in appsettings (adding WriteTo.Console()
+// here as well would log every line twice).
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .Enrich.WithEnvironmentName()
-    .Enrich.WithThreadId()
-    .WriteTo.Console()
     .CreateLogger();
 
 builder.Host.UseSerilog();
