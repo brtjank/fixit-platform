@@ -1,4 +1,5 @@
 import { ArrowRightLeft, Eye, MoreHorizontal, UserPlus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRole } from '@/features/auth'
 import type { ServiceRequest } from '@/shared/types'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function RequestRowActions({ request, onAssign, onChangeStatus }: Props) {
+  const { t } = useTranslation('requests')
   const navigate = useNavigate()
   const role = useRole()
   const perms = getRequestPermissions(request, role)
@@ -19,22 +21,22 @@ export function RequestRowActions({ request, onAssign, onChangeStatus }: Props) 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label="Request actions" onClick={(e) => e.stopPropagation()}>
+        <Button variant="ghost" size="icon-sm" aria-label={t('actions.rowActions')} onClick={(e) => e.stopPropagation()}>
           <MoreHorizontal />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
         <DropdownMenuItem onSelect={() => navigate(`/requests/${request.id}`)}>
-          <Eye /> View
+          <Eye /> {t('common:actions.view')}
         </DropdownMenuItem>
         {perms.canAssign ? (
           <DropdownMenuItem onSelect={() => onAssign(request)}>
-            <UserPlus /> Assign worker
+            <UserPlus /> {t('actions.assignWorker')}
           </DropdownMenuItem>
         ) : null}
         {perms.canChangeStatus ? (
           <DropdownMenuItem onSelect={() => onChangeStatus(request)}>
-            <ArrowRightLeft /> Change status
+            <ArrowRightLeft /> {t('actions.changeStatus')}
           </DropdownMenuItem>
         ) : null}
       </DropdownMenuContent>

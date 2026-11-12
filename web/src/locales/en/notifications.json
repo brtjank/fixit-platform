@@ -1,0 +1,27 @@
+{
+  "page": {
+    "title": "Notifications",
+    "description": "Updates about requests in your organization"
+  },
+  "list": {
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "unreadIndicator": "Unread"
+  },
+  "filters": {
+    "label": "Filter",
+    "all": "All",
+    "unread": "Unread",
+    "unreadCount_one": "Unread ({{count}})",
+    "unreadCount_other": "Unread ({{count}})"
+  },
+  "groups": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "empty": {
+    "title": "You're all caught up",
+    "unread": "No unread notifications.",
+    "all": "New updates about requests will show up here."
+  }
+}

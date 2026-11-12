@@ -1,4 +1,5 @@
 import { Wrench, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
 import { useProfile, useRole } from '@/features/auth'
 import { cn } from '@/shared/lib'
@@ -11,6 +12,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open, onClose }: SidebarProps) {
+  const { t } = useTranslation()
   const role = useRole()
   const profile = useProfile()
   const sections = role ? navForRole(role) : []
@@ -36,23 +38,23 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </span>
             <span className="leading-tight">
               <span className="block text-sm font-semibold tracking-tight">FixIt</span>
-              <span className="block max-w-36 truncate text-[11px] text-fg-subtle">{profile?.tenantName ?? 'Workspace'}</span>
+              <span className="block max-w-36 truncate text-[11px] text-fg-subtle">{profile?.tenantName ?? t('app.workspace')}</span>
             </span>
           </NavLink>
-          <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={onClose} aria-label="Close menu">
+          <Button variant="ghost" size="icon-sm" className="lg:hidden" onClick={onClose} aria-label={t('nav.closeMenu')}>
             <X />
           </Button>
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           {sections.map((section, i) => (
-            <div key={section.title ?? i} className={cn(i > 0 && 'mt-6')}>
-              {section.title ? (
-                <div className="mb-1.5 px-2.5 text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">{section.title}</div>
+            <div key={section.titleKey ?? i} className={cn(i > 0 && 'mt-6')}>
+              {section.titleKey ? (
+                <div className="mb-1.5 px-2.5 text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">{t(`nav.sections.${section.titleKey}`)}</div>
               ) : null}
               <ul className="space-y-0.5">
                 {section.items.map((item) => (
-                  <li key={item.to + item.label}>
+                  <li key={item.to + item.labelKey}>
                     <NavLink
                       to={item.to}
                       end={item.end}
@@ -65,7 +67,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                       }
                     >
                       <item.icon className="size-4 shrink-0" />
-                      {item.label}
+                      {t(`nav.${item.labelKey}`)}
                     </NavLink>
                   </li>
                 ))}
@@ -74,9 +76,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           ))}
         </nav>
 
-        <div className="border-t border-border p-3 text-[11px] text-fg-subtle">
-          FixIt Platform · v0.1
-        </div>
+        <div className="border-t border-border p-3 text-[11px] text-fg-subtle">{t('app.version')}</div>
       </aside>
     </>
   )

@@ -1,22 +1,28 @@
-import { Building2, Code2, Bell, Palette, User, type LucideIcon } from 'lucide-react'
+import { Building2, Code2, Bell, Languages, Palette, User, type LucideIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import { cn } from '@/shared/lib'
 import { PageHeader, Tabs, TabsList, TabsTrigger } from '@/shared/ui'
 import { AppearanceSection } from '../components/AppearanceSection'
 import { DeveloperSection } from '../components/DeveloperSection'
+import { LanguageSection } from '../components/LanguageSection'
 import { NotificationPreferencesSection } from '../components/NotificationPreferencesSection'
 import { OrganizationSection } from '../components/OrganizationSection'
 import { ProfileSection } from '../components/ProfileSection'
 
-const SECTIONS: { id: string; label: string; icon: LucideIcon; Component: () => React.ReactNode }[] = [
-  { id: 'profile', label: 'Profile', icon: User, Component: ProfileSection },
-  { id: 'organization', label: 'Organization', icon: Building2, Component: OrganizationSection },
-  { id: 'notifications', label: 'Notifications', icon: Bell, Component: NotificationPreferencesSection },
-  { id: 'appearance', label: 'Appearance', icon: Palette, Component: AppearanceSection },
-  { id: 'developer', label: 'Developer', icon: Code2, Component: DeveloperSection },
+type SectionId = 'profile' | 'organization' | 'notifications' | 'appearance' | 'language' | 'developer'
+
+const SECTIONS: { id: SectionId; icon: LucideIcon; Component: () => React.ReactNode }[] = [
+  { id: 'profile', icon: User, Component: ProfileSection },
+  { id: 'organization', icon: Building2, Component: OrganizationSection },
+  { id: 'notifications', icon: Bell, Component: NotificationPreferencesSection },
+  { id: 'appearance', icon: Palette, Component: AppearanceSection },
+  { id: 'language', icon: Languages, Component: LanguageSection },
+  { id: 'developer', icon: Code2, Component: DeveloperSection },
 ]
 
 export default function SettingsPage() {
+  const { t } = useTranslation('settings')
   const [params, setParams] = useSearchParams()
   const requested = params.get('tab')
   const active = SECTIONS.find((s) => s.id === requested) ?? SECTIONS[0]!
@@ -24,14 +30,14 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Settings" description="Manage your profile, organization and preferences." />
+      <PageHeader title={t('page.title')} description={t('page.description')} />
 
       <Tabs value={active.id} onValueChange={select} className="mb-5 md:hidden">
         <div className="overflow-x-auto">
           <TabsList>
             {SECTIONS.map((s) => (
               <TabsTrigger key={s.id} value={s.id}>
-                {s.label}
+                {t(`nav.${s.id}`)}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -39,7 +45,7 @@ export default function SettingsPage() {
       </Tabs>
 
       <div className="md:grid md:grid-cols-[13rem_minmax(0,1fr)] md:gap-8">
-        <nav aria-label="Settings sections" className="hidden md:block">
+        <nav aria-label={t('page.sectionsNav')} className="hidden md:block">
           <ul className="sticky top-20 space-y-1">
             {SECTIONS.map((s) => (
               <li key={s.id}>
@@ -53,7 +59,7 @@ export default function SettingsPage() {
                   )}
                 >
                   <s.icon className="size-4" />
-                  {s.label}
+                  {t(`nav.${s.id}`)}
                 </button>
               </li>
             ))}

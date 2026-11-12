@@ -1,0 +1,229 @@
+{
+  "shared": {
+    "requests": "Zgłoszenia",
+    "myRequests": "Moje zgłoszenia",
+    "newRequest": "Nowe zgłoszenie",
+    "unassigned": "Nieprzypisane",
+    "general": "Ogólne",
+    "available": "Dostępny",
+    "unavailable": "Niedostępny",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano"
+  },
+  "actions": {
+    "assign": "Przypisz",
+    "assignWorker": "Przypisz pracownika",
+    "changeStatus": "Zmień status",
+    "updateStatus": "Aktualizuj status",
+    "rowActions": "Akcje zgłoszenia"
+  },
+  "list": {
+    "title": "Zgłoszenia serwisowe",
+    "count_one": "{{count}} zgłoszenie",
+    "count_few": "{{count}} zgłoszenia",
+    "count_many": "{{count}} zgłoszeń",
+    "count_other": "{{count}} zgłoszenia",
+    "loading": "Ładowanie…",
+    "filters": {
+      "all": "Wszystkie",
+      "byStatus": "Filtruj według statusu",
+      "searchPlaceholder": "Szukaj po tytule…",
+      "searchLabel": "Szukaj po tytule",
+      "byWorker": "Filtruj według pracownika",
+      "anyWorker": "Dowolny pracownik",
+      "inactive": " (nieaktywny)",
+      "searchHint": "Przeszukuje tylko bieżącą stronę"
+    },
+    "columns": {
+      "reference": "Numer",
+      "title": "Tytuł",
+      "customer": "Klient",
+      "worker": "Pracownik",
+      "status": "Status",
+      "created": "Utworzono",
+      "actions": "Akcje"
+    },
+    "empty": {
+      "title": "Brak zgłoszeń pasujących do filtrów",
+      "filtered": "Spróbuj innego statusu, pracownika lub wyszukiwanej frazy.",
+      "none": "Nie ma jeszcze żadnych zgłoszeń serwisowych."
+    }
+  },
+  "detail": {
+    "notFound": {
+      "title": "Nie znaleziono zgłoszenia",
+      "description": "Mogło zostać usunięte lub należy do innej organizacji.",
+      "back": "Wróć do zgłoszeń"
+    },
+    "created": "Utworzono {{time}}",
+    "description": {
+      "title": "Opis"
+    },
+    "notes": {
+      "title": "Ostatnie notatki",
+      "description": "Z ostatniej zmiany statusu",
+      "empty": "Brak notatek."
+    },
+    "people": {
+      "title": "Osoby",
+      "customer": "Klient",
+      "assignedWorker": "Przypisany pracownik"
+    },
+    "details": {
+      "title": "Szczegóły",
+      "status": "Status",
+      "reference": "Numer",
+      "created": "Utworzono",
+      "requestId": "ID zgłoszenia",
+      "customerId": "ID klienta",
+      "workerId": "ID pracownika",
+      "copyRequestId": "Kopiuj ID zgłoszenia",
+      "copyCustomerId": "Kopiuj ID klienta",
+      "copyWorkerId": "Kopiuj ID pracownika"
+    },
+    "history": {
+      "title": "Historia",
+      "description": "Każda zmiana statusu tego zgłoszenia",
+      "created": "Utworzono",
+      "submittedFor": "Zgłoszone dla: {{name}}",
+      "to": "na",
+      "by": "przez: {{name}}",
+      "system": "System"
+    }
+  },
+  "dialogs": {
+    "assign": {
+      "title": "Przypisz pracownika",
+      "submit": "Przypisz pracownika",
+      "selectWorker": "Wybierz pracownika",
+      "availabilityMocked": "Dostępność symulowana",
+      "workers": "Pracownicy",
+      "loadError": "Nie udało się wczytać pracowników.",
+      "emptyTitle": "Brak aktywnych pracowników",
+      "emptyDescription": "Zaproś pracownika, zanim zaczniesz przypisywać zgłoszenia."
+    },
+    "status": {
+      "title": "Zmień status",
+      "currently": "obecnie",
+      "newStatus": "Nowy status",
+      "cancelRequest": "Anuluj zgłoszenie",
+      "setTo": "Ustaw: {{status}}",
+      "submit": "Aktualizuj status",
+      "noTransitions": "Brak dostępnych zmian statusu.",
+      "cancelWarning": "Anulowanie jest ostateczne — anulowanych zgłoszeń nie można już zmieniać.",
+      "notesLabel": "Notatki",
+      "notesHint": "Opcjonalnie · {{length}}/{{max}}",
+      "notesTooLong": "Notatki nie mogą przekraczać {{max}} znaków",
+      "notesPlaceholder": "Co się zmieniło? Widoczne w historii zgłoszenia."
+    }
+  },
+  "new": {
+    "breadcrumb": "Nowe",
+    "title": "Nowe zgłoszenie serwisowe",
+    "description": "Napisz, co trzeba naprawić — resztą zajmiemy się my.",
+    "next": {
+      "title": "Co dalej",
+      "pending": "Twoje zgłoszenie zostało przyjęte i czeka w kolejce.",
+      "assigned": "Do zgłoszenia zostaje przypisany technik.",
+      "inProgress": "Technik pracuje nad zgłoszeniem.",
+      "completed": "Praca zakończona — zgłoszenie zostaje zamknięte."
+    },
+    "form": {
+      "customerLabel": "Klient",
+      "loadingCustomers": "Ładowanie klientów…",
+      "selectCustomer": "Wybierz klienta",
+      "submittingAs": "Wysyłasz jako",
+      "you": "ty",
+      "titleLabel": "Tytuł",
+      "titlePlaceholder": "np. Cieknąca rura pod zlewem w kuchni",
+      "descriptionLabel": "Opis",
+      "descriptionPlaceholder": "Opisz problem, gdzie występuje i kiedy możemy przyjechać.",
+      "submit": "Wyślij zgłoszenie"
+    },
+    "validation": {
+      "titleRequired": "Tytuł jest wymagany",
+      "titleMax": "Tytuł nie może przekraczać {{max}} znaków",
+      "descriptionRequired": "Opis jest wymagany",
+      "descriptionMax": "Opis nie może przekraczać {{max}} znaków",
+      "customerRequired": "Wybierz klienta"
+    }
+  },
+  "my": {
+    "title": "Moje zgłoszenia",
+    "clientSideFilter": "Filtr po stronie klienta",
+    "description": "Śledź wszystkie swoje zgłoszenia napraw.",
+    "empty": {
+      "title": "Brak zgłoszeń",
+      "description": "Coś się zepsuło? Wyślij pierwsze zgłoszenie, a przyślemy technika.",
+      "action": "Utwórz pierwsze zgłoszenie"
+    },
+    "tabs": {
+      "open": "Otwarte",
+      "closed": "Zamknięte"
+    },
+    "openCount_one": "{{count}} otwarte",
+    "openCount_few": "{{count}} otwarte",
+    "openCount_many": "{{count}} otwartych",
+    "openCount_other": "{{count}} otwartego",
+    "completedCount_one": "{{count}} zakończone",
+    "completedCount_few": "{{count}} zakończone",
+    "completedCount_many": "{{count}} zakończonych",
+    "completedCount_other": "{{count}} zakończonego",
+    "emptyOpen": {
+      "title": "Nic nie jest teraz otwarte",
+      "description": "Wszystkie Twoje zgłoszenia są zamknięte. Trzeba naprawić coś jeszcze?"
+    },
+    "emptyClosed": {
+      "title": "Brak zamkniętych zgłoszeń",
+      "description": "Tutaj pojawią się zakończone i anulowane zgłoszenia."
+    },
+    "technicianAssigned": "Przypisano technika",
+    "card": {
+      "latestNote": "Ostatnia notatka:",
+      "waiting": "Oczekuje na przypisanie"
+    }
+  },
+  "assignments": {
+    "title": "Moje zadania",
+    "fallbackDescription": "Zgłoszenia przypisane do Ciebie",
+    "summary": "{{open}} · łącznie {{total}}",
+    "openJobs_one": "{{count}} otwarte zadanie",
+    "openJobs_few": "{{count}} otwarte zadania",
+    "openJobs_many": "{{count}} otwartych zadań",
+    "openJobs_other": "{{count}} otwartego zadania",
+    "total_one": "{{count}} zadanie",
+    "total_few": "{{count}} zadania",
+    "total_many": "{{count}} zadań",
+    "total_other": "{{count}} zadania",
+    "empty": {
+      "title": "Brak zadań",
+      "description": "Tutaj pojawią się zgłoszenia przypisane do Ciebie."
+    },
+    "columns": {
+      "assigned": "Przypisane",
+      "inProgress": "W trakcie",
+      "done": "Gotowe"
+    },
+    "nothingHere": "Nic tu nie ma"
+  },
+  "permissions": {
+    "onlyStaffAssign": "Tylko pracownicy i administratorzy mogą przypisywać zgłoszenia",
+    "onlyStaffStatus": "Tylko pracownicy i administratorzy mogą zmieniać status",
+    "assignOnlyPending": "Pracownika można przypisać tylko do zgłoszenia o statusie „Oczekujące”",
+    "noTransitions": "Brak dostępnych zmian statusu",
+    "immutable": {
+      "completed": "Zakończonych zgłoszeń nie można już zmieniać",
+      "cancelled": "Anulowanych zgłoszeń nie można już zmieniać",
+      "other": "Zamkniętych zgłoszeń nie można już zmieniać"
+    }
+  },
+  "toasts": {
+    "created": "Utworzono zgłoszenie serwisowe",
+    "createError": "Nie udało się utworzyć zgłoszenia",
+    "assigned": "Przypisano pracownika",
+    "assignError": "Nie udało się przypisać pracownika",
+    "statusUpdated": "Zaktualizowano status",
+    "statusError": "Nie udało się zmienić statusu"
+  },
+  "breadcrumb": "Ścieżka nawigacji"
+}

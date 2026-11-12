@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import type { ApiErrorBody } from '@/shared/types'
 
 /** Normalized API error. Mirrors ErrorHandlingMiddleware's `{ errorCode, message, requestId }`. */
@@ -30,7 +31,8 @@ export function isApiError(error: unknown): error is ApiError {
 }
 
 /** Human-readable message for toasts / inline errors. */
-export function errorMessage(error: unknown, fallback = 'Something went wrong') {
+export function errorMessage(error: unknown, fallback?: string) {
+  fallback ??= i18n.t('common:errors.generic')
   if (isApiError(error)) return error.message
   if (error instanceof Error && error.message) return error.message
   return fallback

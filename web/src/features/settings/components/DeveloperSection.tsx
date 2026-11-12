@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Activity } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSession } from '@/features/auth'
 import { errorMessage, http } from '@/shared/api'
 import { env } from '@/shared/config/env'
@@ -13,6 +14,7 @@ const EMAIL = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddres
 const ROLE = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
 
 function HealthCheck() {
+  const { t } = useTranslation('settings')
   const [failedAt, setFailedAt] = useState<Date | null>(null)
   const check = useMutation({
     mutationFn: async () => ({ result: await http.get<string>('/health'), at: new Date() }),
@@ -21,12 +23,12 @@ function HealthCheck() {
   return (
     <div className="flex flex-wrap items-center gap-3">
       <Button variant="secondary" size="sm" loading={check.isPending} onClick={() => check.mutate()}>
-        <Activity /> Check backend health
+        <Activity /> {t('developer.health.check')}
       </Button>
       {check.isSuccess ? (
         <>
           <Badge tone="success" dot>
-            {String(check.data.result)}
+            {String(check.data.result) === 'Healthy' ? t('developer.health.healthy') : String(check.data.result)}
           </Badge>
           <span className="text-xs text-fg-subtle">{formatDateTime(check.data.at)}</span>
         </>
@@ -44,6 +46,7 @@ function HealthCheck() {
 }
 
 export function DeveloperSection() {
+  const { t } = useTranslation('settings')
   const session = useSession()
   const claims = session ? decodeJwt<FixItJwtClaims & Record<string, unknown>>(session.token) : null
   const rows: [string, string][] = claims
@@ -58,29 +61,30 @@ export function DeveloperSection() {
 
   return (
     <section className="space-y-4">
-      <SectionHeading title="Developer" description="Diagnostics for the API connection and your session." />
+      <SectionHeading title={t('developer.title')} description={t('developer.description')} />
       <Card>
-        <CardHeader title="API connection" />
+        <CardHeader title={t('developer.api.title')} />
         <CardContent className="space-y-4 text-sm">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-fg-muted">Mode</span>
+            <span className="text-fg-muted">{t('developer.api.mode')}</span>
             <Badge tone={env.apiMode === 'mock' ? 'warning' : 'success'} dot>
-              {env.apiMode === 'mock' ? 'Mock' : 'Live'}
+              {env.apiMode === 'mock' ? t('developer.api.mock') : t('developer.api.live')}
             </Badge>
           </div>
           <p className="text-xs text-fg-muted">
-            Switch with <code className="font-mono text-fg">VITE_API_MODE=mock|live</code> in <code className="font-mono text-fg">.env.local</code>, then restart the dev server. Endpoints that
-            are mocked even in live mode are listed in docs/API_GAPS.md.
+            {t('developer.api.switchHintBefore')} <code className="font-mono text-fg">VITE_API_MODE=mock|live</code> {t('developer.api.switchHintIn')}{' '}
+            <code className="font-mono text-fg">.env.local</code>
+            {t('developer.api.switchHintAfter')}
           </p>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-fg-muted">API base URL</span>
-            <code className="font-mono text-xs text-fg">{env.apiUrl || '(same origin, proxied to http://localhost:5177)'}</code>
+            <span className="text-fg-muted">{t('developer.api.baseUrl')}</span>
+            <code className="font-mono text-xs text-fg">{env.apiUrl || t('developer.api.sameOrigin')}</code>
           </div>
           <HealthCheck />
         </CardContent>
       </Card>
       <Card>
-        <CardHeader title="Session token" actions={session ? <CopyButton value={session.token} label="Copy token" /> : null} />
+        <CardHeader title={t('developer.token.title')} actions={session ? <CopyButton value={session.token} label={t('developer.token.copy')} /> : null} />
         <CardContent>
           {rows.length ? (
             <dl className="divide-y divide-border text-sm">
@@ -92,9 +96,9 @@ export function DeveloperSection() {
               ))}
             </dl>
           ) : (
-            <p className="text-sm text-fg-muted">No readable token in this session.</p>
+            <p className="text-sm text-fg-muted">{t('developer.token.empty')}</p>
           )}
-          <p className="mt-3 text-xs text-fg-subtle">Treat this token like a password. Anyone holding it can act as you until it expires.</p>
+          <p className="mt-3 text-xs text-fg-subtle">{t('developer.token.securityNote')}</p>
         </CardContent>
       </Card>
     </section>

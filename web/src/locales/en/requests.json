@@ -1,0 +1,219 @@
+{
+  "shared": {
+    "requests": "Requests",
+    "myRequests": "My requests",
+    "newRequest": "New request",
+    "unassigned": "Unassigned",
+    "general": "General",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "actions": {
+    "assign": "Assign",
+    "assignWorker": "Assign worker",
+    "changeStatus": "Change status",
+    "updateStatus": "Update status",
+    "rowActions": "Request actions"
+  },
+  "list": {
+    "title": "Service requests",
+    "count_one": "{{count}} request",
+    "count_other": "{{count}} requests",
+    "loading": "Loading…",
+    "filters": {
+      "all": "All",
+      "byStatus": "Filter by status",
+      "searchPlaceholder": "Search titles…",
+      "searchLabel": "Search titles",
+      "byWorker": "Filter by worker",
+      "anyWorker": "Any worker",
+      "inactive": " (inactive)",
+      "searchHint": "Search applies to the current page only"
+    },
+    "columns": {
+      "reference": "Reference",
+      "title": "Title",
+      "customer": "Customer",
+      "worker": "Worker",
+      "status": "Status",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No requests match these filters",
+      "filtered": "Try a different status, worker or search term.",
+      "none": "There are no service requests yet."
+    }
+  },
+  "detail": {
+    "notFound": {
+      "title": "Request not found",
+      "description": "It may have been removed, or it belongs to another organization.",
+      "back": "Back to requests"
+    },
+    "created": "Created {{time}}",
+    "description": {
+      "title": "Description"
+    },
+    "notes": {
+      "title": "Latest notes",
+      "description": "From the most recent status change",
+      "empty": "No notes yet."
+    },
+    "people": {
+      "title": "People",
+      "customer": "Customer",
+      "assignedWorker": "Assigned worker"
+    },
+    "details": {
+      "title": "Details",
+      "status": "Status",
+      "reference": "Reference",
+      "created": "Created",
+      "requestId": "Request ID",
+      "customerId": "Customer ID",
+      "workerId": "Worker ID",
+      "copyRequestId": "Copy request ID",
+      "copyCustomerId": "Copy customer ID",
+      "copyWorkerId": "Copy worker ID"
+    },
+    "history": {
+      "title": "History",
+      "description": "Every status change on this request",
+      "created": "Created",
+      "submittedFor": "Submitted for {{name}}",
+      "to": "to",
+      "by": "by {{name}}",
+      "system": "System"
+    }
+  },
+  "dialogs": {
+    "assign": {
+      "title": "Assign worker",
+      "submit": "Assign worker",
+      "selectWorker": "Select a worker",
+      "availabilityMocked": "Availability mocked",
+      "workers": "Workers",
+      "loadError": "Could not load workers.",
+      "emptyTitle": "No active workers",
+      "emptyDescription": "Invite a worker before assigning requests."
+    },
+    "status": {
+      "title": "Change status",
+      "currently": "currently",
+      "newStatus": "New status",
+      "cancelRequest": "Cancel request",
+      "setTo": "Set to {{status}}",
+      "submit": "Update status",
+      "noTransitions": "No status changes are available.",
+      "cancelWarning": "Cancelling is final — cancelled requests can no longer be changed.",
+      "notesLabel": "Notes",
+      "notesHint": "Optional · {{length}}/{{max}}",
+      "notesTooLong": "Notes must not exceed {{max}} characters",
+      "notesPlaceholder": "What changed? Visible in the request history."
+    }
+  },
+  "new": {
+    "breadcrumb": "New",
+    "title": "New service request",
+    "description": "Tell us what needs fixing — we will take it from there.",
+    "next": {
+      "title": "What happens next",
+      "pending": "Your request is received and waits in the queue.",
+      "assigned": "A technician is assigned to it.",
+      "inProgress": "The technician is working on it.",
+      "completed": "Work is done — the request is closed."
+    },
+    "form": {
+      "customerLabel": "Customer",
+      "loadingCustomers": "Loading customers…",
+      "selectCustomer": "Select a customer",
+      "submittingAs": "Submitting as",
+      "you": "you",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Leaking pipe under the kitchen sink",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Describe the problem, where it is, and when someone can visit.",
+      "submit": "Submit request"
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "titleMax": "Title must not exceed {{max}} characters",
+      "descriptionRequired": "Description is required",
+      "descriptionMax": "Description must not exceed {{max}} characters",
+      "customerRequired": "Choose a customer"
+    }
+  },
+  "my": {
+    "title": "My requests",
+    "clientSideFilter": "Client-side filter",
+    "description": "Track everything you have asked us to fix.",
+    "empty": {
+      "title": "No requests yet",
+      "description": "Something broken? Submit your first request and we will send a technician.",
+      "action": "Create your first request"
+    },
+    "tabs": {
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "openCount_one": "{{count}} open",
+    "openCount_other": "{{count}} open",
+    "completedCount_one": "{{count}} completed",
+    "completedCount_other": "{{count}} completed",
+    "emptyOpen": {
+      "title": "Nothing open right now",
+      "description": "All your requests are closed. Need something else fixed?"
+    },
+    "emptyClosed": {
+      "title": "No closed requests yet",
+      "description": "Completed and cancelled requests appear here."
+    },
+    "technicianAssigned": "Technician assigned",
+    "card": {
+      "latestNote": "Latest note:",
+      "waiting": "Waiting for assignment"
+    }
+  },
+  "assignments": {
+    "title": "My assignments",
+    "fallbackDescription": "Requests assigned to you",
+    "summary": "{{open}} · {{total}} in total",
+    "openJobs_one": "{{count}} open job",
+    "openJobs_other": "{{count}} open jobs",
+    "total_one": "{{count}} assignment",
+    "total_other": "{{count}} assignments",
+    "empty": {
+      "title": "No assignments yet",
+      "description": "Requests assigned to you will show up here."
+    },
+    "columns": {
+      "assigned": "Assigned",
+      "inProgress": "In progress",
+      "done": "Done"
+    },
+    "nothingHere": "Nothing here"
+  },
+  "permissions": {
+    "onlyStaffAssign": "Only workers and admins can assign requests",
+    "onlyStaffStatus": "Only workers and admins can change the status",
+    "assignOnlyPending": "A worker can only be assigned while the request is Pending",
+    "noTransitions": "No status changes are available",
+    "immutable": {
+      "completed": "Completed requests are immutable",
+      "cancelled": "Cancelled requests are immutable",
+      "other": "Closed requests are immutable"
+    }
+  },
+  "toasts": {
+    "created": "Service request created",
+    "createError": "Could not create the request",
+    "assigned": "Worker assigned",
+    "assignError": "Could not assign the worker",
+    "statusUpdated": "Status updated",
+    "statusError": "Could not change the status"
+  },
+  "breadcrumb": "Breadcrumb"
+}

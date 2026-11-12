@@ -1,0 +1,94 @@
+{
+  "list": {
+    "title": "Workers",
+    "description": "Field technicians, their specializations and current workload",
+    "invite": "Invite worker",
+    "loadError": "Could not load workers",
+    "emptyFilteredTitle": "No workers match your filters",
+    "emptyFilteredDescription": "Try a different search or clear the filters.",
+    "emptyTitle": "No workers yet",
+    "emptyDescription": "Invite workers so they can be assigned to service requests."
+  },
+  "summary": {
+    "total": "Total",
+    "availableNow": "Available now",
+    "busy": "Busy",
+    "mocked": "Profiles & workload mocked"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Search name or specialization…",
+    "searchLabel": "Search workers",
+    "specializationLabel": "Filter by specialization",
+    "allSpecializations": "All specializations",
+    "availableOnly": "Available only"
+  },
+  "availability": {
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "inactive": "Inactive"
+  },
+  "workload": {
+    "open": "Open",
+    "inProgress": "In progress",
+    "done30d": "Done 30d",
+    "completed30d": "Completed (30d)"
+  },
+  "card": {
+    "open": "Open {{name}}",
+    "noSpecialization": "No specialization",
+    "noPhone": "No phone",
+    "noProfile": "No profile yet"
+  },
+  "detail": {
+    "allWorkers": "All workers",
+    "loadError": "Could not load the worker",
+    "notFoundTitle": "Worker not found",
+    "notFoundDescription": "This worker does not exist or belongs to another organization.",
+    "backToWorkers": "Back to workers",
+    "editProfile": "Edit profile",
+    "profileMocked": "Profile mocked",
+    "assigned": {
+      "title": "Assigned requests",
+      "showingLatest": "Showing the latest 50 of {{total}}",
+      "open": "Open",
+      "closed": "Closed",
+      "loadError": "Could not load requests",
+      "emptyOpenTitle": "No open requests",
+      "emptyOpenDescription": "Nothing is currently assigned to this worker.",
+      "emptyClosedTitle": "No closed requests",
+      "emptyClosedDescription": "Completed and cancelled requests will show up here.",
+      "reference": "Reference",
+      "requestTitle": "Title",
+      "customer": "Customer",
+      "status": "Status",
+      "created": "Created"
+    },
+    "profile": {
+      "title": "Profile",
+      "noProfile": "No profile yet",
+      "notSet": "Not set",
+      "specialization": "Specialization",
+      "phone": "Phone",
+      "memberSince": "Member since",
+      "userId": "User ID"
+    }
+  },
+  "editProfile": {
+    "title": "Edit profile",
+    "submit": "Save profile",
+    "error": "Could not update the profile",
+    "specialization": "Specialization",
+    "specializationHint": "e.g. Plumbing, Electrical",
+    "phone": "Phone number",
+    "availability": "Available for new assignments",
+    "availabilityHint": "Unavailable workers are hidden from quick-assign suggestions.",
+    "validation": {
+      "maxLength": "Max {{max}} characters",
+      "phoneFormat": "Only digits, spaces, +, -, ( and )"
+    }
+  },
+  "toasts": {
+    "profileUpdated": "Profile updated",
+    "profileUpdateError": "Could not update the profile"
+  }
+}

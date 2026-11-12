@@ -1,14 +1,10 @@
-import { cn, ROLE_META } from '@/shared/lib'
+import { useTranslation } from 'react-i18next'
+import { cn, roleLabel } from '@/shared/lib'
 import { UserRole } from '@/shared/types'
 
 export type RoleFilterValue = UserRole | 'all'
 
-const OPTIONS: Array<{ value: RoleFilterValue; label: string }> = [
-  { value: 'all', label: 'All' },
-  { value: UserRole.Admin, label: ROLE_META[UserRole.Admin].label },
-  { value: UserRole.Worker, label: ROLE_META[UserRole.Worker].label },
-  { value: UserRole.Customer, label: ROLE_META[UserRole.Customer].label },
-]
+const OPTIONS: RoleFilterValue[] = ['all', UserRole.Admin, UserRole.Worker, UserRole.Customer]
 
 interface UserRoleFilterProps {
   value: RoleFilterValue
@@ -19,18 +15,19 @@ interface UserRoleFilterProps {
 
 /** Pill-style role filter (All / Admin / Worker / Customer). */
 export function UserRoleFilter({ value, onChange, counts, className }: UserRoleFilterProps) {
+  const { t } = useTranslation('users')
   return (
-    <div role="radiogroup" aria-label="Filter by role" className={cn('inline-flex flex-wrap items-center gap-1', className)}>
-      {OPTIONS.map((opt) => {
-        const active = opt.value === value
-        const count = counts?.[opt.value]
+    <div role="radiogroup" aria-label={t('toolbar.roleLabel')} className={cn('inline-flex flex-wrap items-center gap-1', className)}>
+      {OPTIONS.map((option) => {
+        const active = option === value
+        const count = counts?.[option]
         return (
           <button
-            key={String(opt.value)}
+            key={String(option)}
             type="button"
             role="radio"
             aria-checked={active}
-            onClick={() => onChange(opt.value)}
+            onClick={() => onChange(option)}
             className={cn(
               'inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               active
@@ -38,7 +35,7 @@ export function UserRoleFilter({ value, onChange, counts, className }: UserRoleF
                 : 'border-border bg-surface text-fg-muted hover:bg-surface-hover hover:text-fg',
             )}
           >
-            {opt.label}
+            {option === 'all' ? t('toolbar.allRoles') : roleLabel(option)}
             {count !== undefined ? <span className="tabular text-[11px] opacity-70">{count}</span> : null}
           </button>
         )

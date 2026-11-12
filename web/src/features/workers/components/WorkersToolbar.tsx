@@ -1,5 +1,6 @@
 import { Search } from 'lucide-react'
 import { useId } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Input, NativeSelect, Switch } from '@/shared/ui'
 
 interface WorkersToolbarProps {
@@ -13,6 +14,7 @@ interface WorkersToolbarProps {
 }
 
 export function WorkersToolbar(props: WorkersToolbarProps) {
+  const { t } = useTranslation('workers')
   const switchId = useId()
   return (
     <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -22,8 +24,8 @@ export function WorkersToolbar(props: WorkersToolbarProps) {
           type="search"
           value={props.search}
           onChange={(e) => props.onSearchChange(e.target.value)}
-          placeholder="Search name or specialization…"
-          aria-label="Search workers"
+          placeholder={t('toolbar.searchPlaceholder')}
+          aria-label={t('toolbar.searchLabel')}
           className="pl-9"
         />
       </div>
@@ -31,9 +33,9 @@ export function WorkersToolbar(props: WorkersToolbarProps) {
         <NativeSelect
           value={props.specialization}
           onChange={(e) => props.onSpecializationChange(e.target.value)}
-          aria-label="Filter by specialization"
+          aria-label={t('toolbar.specializationLabel')}
         >
-          <option value="">All specializations</option>
+          <option value="">{t('toolbar.allSpecializations')}</option>
           {props.specializations.map((s) => (
             <option key={s} value={s}>
               {s}
@@ -43,7 +45,7 @@ export function WorkersToolbar(props: WorkersToolbarProps) {
       </div>
       <label htmlFor={switchId} className="flex cursor-pointer items-center gap-2 text-sm text-fg sm:ml-auto">
         <Switch id={switchId} checked={props.availableOnly} onCheckedChange={props.onAvailableOnlyChange} />
-        Available only
+        {t('toolbar.availableOnly')}
       </label>
     </div>
   )

@@ -1,9 +1,10 @@
 import { Briefcase } from 'lucide-react'
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRole, useSession } from '@/features/auth'
 import { useUserDirectory } from '@/features/users/hooks'
 import { errorMessage } from '@/shared/api'
-import { cn, isClosedStatus, pluralize } from '@/shared/lib'
+import { cn, isClosedStatus } from '@/shared/lib'
 import { ServiceRequestStatus, type ServiceRequest } from '@/shared/types'
 import { EmptyState, ErrorState, PageHeader, Skeleton } from '@/shared/ui'
 import { AssignmentCard } from '../components/AssignmentCard'
@@ -12,12 +13,13 @@ import { useServiceRequests } from '../hooks'
 import { getRequestPermissions } from '../lib/permissions'
 
 const COLUMNS = [
-  { key: 'assigned', title: 'Assigned', dot: 'bg-info-fg', match: (s: ServiceRequestStatus) => s === ServiceRequestStatus.Assigned || s === ServiceRequestStatus.Pending },
-  { key: 'progress', title: 'In progress', dot: 'bg-violet-fg', match: (s: ServiceRequestStatus) => s === ServiceRequestStatus.InProgress },
-  { key: 'done', title: 'Done', dot: 'bg-success-fg', match: (s: ServiceRequestStatus) => isClosedStatus(s) },
+  { key: 'assigned', dot: 'bg-info-fg', match: (s: ServiceRequestStatus) => s === ServiceRequestStatus.Assigned || s === ServiceRequestStatus.Pending },
+  { key: 'inProgress', dot: 'bg-violet-fg', match: (s: ServiceRequestStatus) => s === ServiceRequestStatus.InProgress },
+  { key: 'done', dot: 'bg-success-fg', match: (s: ServiceRequestStatus) => isClosedStatus(s) },
 ] as const
 
 export default function MyAssignmentsPage() {
+  const { t } = useTranslation('requests')
   const session = useSession()
   const role = useRole()
   const directory = useUserDirectory()
@@ -35,20 +37,27 @@ export default function MyAssignmentsPage() {
   return (
     <>
       <PageHeader
-        title="My assignments"
-        description={query.data ? `${pluralize(openCount, 'open job')} · ${pluralize(total, 'assignment')} in total` : 'Requests assigned to you'}
+        title={t('assignments.title')}
+        description={
+          query.data
+            ? t('assignments.summary', {
+                open: t('assignments.openJobs', { count: openCount }),
+                total: t('assignments.total', { count: total }),
+              })
+            : t('assignments.fallbackDescription')
+        }
       />
       {query.isError ? (
         <ErrorState message={errorMessage(query.error)} retry={() => void query.refetch()} />
       ) : !query.isLoading && total === 0 ? (
-        <EmptyState icon={Briefcase} title="No assignments yet" description="Requests assigned to you will show up here." />
+        <EmptyState icon={Briefcase} title={t('assignments.empty.title')} description={t('assignments.empty.description')} />
       ) : (
         <div className="grid gap-4 lg:grid-cols-3">
           {columns.map((col) => (
             <section key={col.key} className="flex min-w-0 flex-col rounded-xl border border-border bg-bg-subtle p-3">
               <header className="mb-3 flex items-center gap-2 px-1">
                 <span className={cn('size-2 rounded-full', col.dot)} aria-hidden />
-                <h2 className="text-sm font-semibold text-fg">{col.title}</h2>
+                <h2 className="text-sm font-semibold text-fg">{t(`assignments.columns.${col.key}`)}</h2>
                 <span className="ml-auto rounded-full bg-surface px-2 text-xs text-fg-muted tabular">
                   {query.isLoading ? '–' : col.items.length}
                 </span>
@@ -58,7 +67,7 @@ export default function MyAssignmentsPage() {
                   Array.from({ length: 2 }, (_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)
                 ) : col.items.length === 0 ? (
                   <p className="rounded-lg border border-dashed border-border-strong px-3 py-6 text-center text-xs text-fg-subtle">
-                    Nothing here
+                    {t('assignments.nothingHere')}
                   </p>
                 ) : (
                   col.items.map((sr: ServiceRequest) => (

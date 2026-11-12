@@ -1,5 +1,6 @@
 import { useRole } from '@/features/auth'
-import { allowedTransitions, isClosedStatus, STATUS_META } from '@/shared/lib'
+import { i18n } from '@/i18n'
+import { allowedTransitions, isClosedStatus } from '@/shared/lib'
 import { ServiceRequestStatus, UserRole, type ServiceRequest } from '@/shared/types'
 
 export interface RequestPermissions {
@@ -17,17 +18,24 @@ export function getRequestPermissions(request: ServiceRequest, role: UserRole | 
   const canManage = role === UserRole.Admin || role === UserRole.Worker
   const transitions = allowedTransitions(request.status, Boolean(request.assignedWorkerId))
   const closed = isClosedStatus(request.status)
-  const label = STATUS_META[request.status]?.label ?? 'Closed'
+  const immutableReason = () =>
+    i18n.t(
+      request.status === ServiceRequestStatus.Completed
+        ? 'requests:permissions.immutable.completed'
+        : request.status === ServiceRequestStatus.Cancelled
+          ? 'requests:permissions.immutable.cancelled'
+          : 'requests:permissions.immutable.other',
+    )
 
   let assignReason: string | null = null
-  if (!canManage) assignReason = 'Only workers and admins can assign requests'
+  if (!canManage) assignReason = i18n.t('requests:permissions.onlyStaffAssign')
   else if (request.status !== ServiceRequestStatus.Pending)
-    assignReason = closed ? `${label} requests are immutable` : 'A worker can only be assigned while the request is Pending'
+    assignReason = closed ? immutableReason() : i18n.t('requests:permissions.assignOnlyPending')
 
   let statusReason: string | null = null
-  if (!canManage) statusReason = 'Only workers and admins can change the status'
-  else if (closed) statusReason = `${label} requests are immutable`
-  else if (transitions.length === 0) statusReason = 'No status changes are available'
+  if (!canManage) statusReason = i18n.t('requests:permissions.onlyStaffStatus')
+  else if (closed) statusReason = immutableReason()
+  else if (transitions.length === 0) statusReason = i18n.t('requests:permissions.noTransitions')
 
   return {
     canManage,

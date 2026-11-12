@@ -35,6 +35,12 @@ API; everything the backend does not implement yet is still served by MSW — se
 [`docs/API_GAPS.md`](docs/API_GAPS.md). UI backed by mocked endpoints is marked with a small
 "Mocked" badge.
 
+## Languages
+
+The UI ships in English and Polish. The language is detected from the browser on first visit and can be
+changed from the top bar switcher or in Settings → Language (saved per device). Translations live in
+`src/locales/<lang>/<namespace>.json`; see the i18n section of `ARCHITECTURE.md` for conventions.
+
 ## Scripts
 
 | Script          | What it does                      |

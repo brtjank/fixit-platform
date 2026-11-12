@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import type { CSSProperties } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useTheme, type Theme } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { SectionHeading } from './SectionCard'
@@ -32,34 +33,31 @@ function Mock({ mode }: { mode: 'light' | 'dark' }) {
   )
 }
 
-const OPTIONS: { value: Theme; label: string; hint: string }[] = [
-  { value: 'light', label: 'Light', hint: 'Bright surfaces' },
-  { value: 'dark', label: 'Dark', hint: 'Easy on the eyes' },
-  { value: 'system', label: 'System', hint: 'Follows your OS' },
-]
+const OPTIONS: Theme[] = ['light', 'dark', 'system']
 
 export function AppearanceSection() {
+  const { t } = useTranslation('settings')
   const { theme, setTheme, resolved } = useTheme()
   return (
     <section>
-      <SectionHeading title="Appearance" description="Saved on this device." />
-      <div role="radiogroup" aria-label="Theme" className="grid gap-3 sm:grid-cols-3">
-        {OPTIONS.map((o) => {
-          const active = theme === o.value
+      <SectionHeading title={t('appearance.title')} description={t('appearance.description')} />
+      <div role="radiogroup" aria-label={t('appearance.themeGroup')} className="grid gap-3 sm:grid-cols-3">
+        {OPTIONS.map((value) => {
+          const active = theme === value
           return (
             <button
-              key={o.value}
+              key={value}
               type="button"
               role="radio"
               aria-checked={active}
-              onClick={() => setTheme(o.value)}
+              onClick={() => setTheme(value)}
               className={cn(
                 'rounded-lg border bg-surface p-3 text-left transition-colors hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 active ? 'border-brand ring-2 ring-ring' : 'border-border',
               )}
             >
               <div className="relative h-24">
-                {o.value === 'system' ? (
+                {value === 'system' ? (
                   <div className="relative h-full w-full overflow-hidden rounded-md">
                     <Mock mode={resolved === 'dark' ? 'light' : 'dark'} />
                     <div className="absolute inset-0 [clip-path:polygon(0_0,100%_0,0_100%)]">
@@ -67,13 +65,13 @@ export function AppearanceSection() {
                     </div>
                   </div>
                 ) : (
-                  <Mock mode={o.value} />
+                  <Mock mode={value} />
                 )}
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-fg">{o.label}</p>
-                  <p className="text-xs text-fg-muted">{o.hint}</p>
+                  <p className="text-sm font-medium text-fg">{t(`appearance.${value}.title`)}</p>
+                  <p className="text-xs text-fg-muted">{t(`appearance.${value}.description`)}</p>
                 </div>
                 {active ? <Check className="size-4 text-brand-fg" /> : null}
               </div>

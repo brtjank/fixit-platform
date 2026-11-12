@@ -1,18 +1,31 @@
+import type { TFunction } from 'i18next'
 import { z } from 'zod'
-import { ROLE_META } from '@/shared/lib'
+import { roleLabel } from '@/shared/lib'
 import { UserRole } from '@/shared/types'
 
-export const ROLE_OPTIONS = [UserRole.Admin, UserRole.Worker, UserRole.Customer].map((role) => ({
-  value: String(role) as RoleValue,
-  label: ROLE_META[role].label,
-}))
+const ROLE_VALUES = ['1', '2', '3'] as const
+export type RoleValue = (typeof ROLE_VALUES)[number]
 
-export const roleSchema = z.enum(['1', '2', '3'], { message: 'Select a role' })
-export type RoleValue = z.infer<typeof roleSchema>
+/** Role select options — call during render so labels follow the active language. */
+export const roleOptions = () =>
+  [UserRole.Admin, UserRole.Worker, UserRole.Customer].map((role) => ({
+    value: String(role) as RoleValue,
+    label: roleLabel(role),
+  }))
 
-export const nameSchema = {
-  firstName: z.string().trim().min(1, 'First name is required').max(100, 'Max 100 characters'),
-  lastName: z.string().trim().min(1, 'Last name is required').max(100, 'Max 100 characters'),
-}
+export const makeRoleSchema = (t: TFunction<'users'>) => z.enum(ROLE_VALUES, { message: t('form.validation.role') })
+
+export const makeNameSchema = (t: TFunction<'users'>) => ({
+  firstName: z
+    .string()
+    .trim()
+    .min(1, t('form.validation.firstNameRequired'))
+    .max(100, t('form.validation.maxLength', { max: 100 })),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, t('form.validation.lastNameRequired'))
+    .max(100, t('form.validation.maxLength', { max: 100 })),
+})
 
 export const toRole = (value: RoleValue) => Number(value) as UserRole

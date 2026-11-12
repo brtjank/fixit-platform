@@ -1,4 +1,5 @@
 import { Eye, MoreHorizontal, Pencil, UserCheck, UserX } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { UserRole, type User } from '@/shared/types'
 import {
@@ -20,41 +21,42 @@ interface UserRowActionsProps {
 }
 
 export function UserRowActions({ user, isSelf, onEdit, onDeactivate, onActivate }: UserRowActionsProps) {
+  const { t } = useTranslation('users')
   const navigate = useNavigate()
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label={`Actions for ${user.email}`}>
+        <Button variant="ghost" size="icon-sm" aria-label={t('rowActions.menuLabel', { email: user.email })}>
           <MoreHorizontal />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onSelect={() => onEdit(user)}>
-          <Pencil /> Edit
+          <Pencil /> {t('rowActions.edit')}
         </DropdownMenuItem>
         {user.role === UserRole.Worker ? (
           <DropdownMenuItem onSelect={() => navigate(`/workers/${user.id}`)}>
-            <Eye /> View as worker
+            <Eye /> {t('rowActions.viewAsWorker')}
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuSeparator />
         {user.isActive ? (
           isSelf ? (
-            <Tooltip content="You cannot deactivate your own account" side="left">
+            <Tooltip content={t('rowActions.cannotDeactivateSelf')} side="left">
               <span className="block">
                 <DropdownMenuItem destructive disabled>
-                  <UserX /> Deactivate
+                  <UserX /> {t('rowActions.deactivate')}
                 </DropdownMenuItem>
               </span>
             </Tooltip>
           ) : (
             <DropdownMenuItem destructive onSelect={() => onDeactivate(user)}>
-              <UserX /> Deactivate
+              <UserX /> {t('rowActions.deactivate')}
             </DropdownMenuItem>
           )
         ) : (
           <DropdownMenuItem onSelect={() => onActivate(user)}>
-            <UserCheck /> Activate
+            <UserCheck /> {t('rowActions.activate')}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

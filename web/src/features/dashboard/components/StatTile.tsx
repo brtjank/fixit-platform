@@ -1,5 +1,6 @@
 import { ArrowDownRight, ArrowUpRight, Minus, type LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
 import { Card, Skeleton } from '@/shared/ui'
 
@@ -11,12 +12,14 @@ export interface TrendInfo {
   period?: string
 }
 
-export function TrendChip({ value, upIsGood, period = 'vs prev. 30 days' }: TrendInfo) {
+export function TrendChip({ value, upIsGood, period: periodProp }: TrendInfo) {
+  const { t, i18n } = useTranslation('dashboard')
+  const period = periodProp ?? t('trend.vsPrev30Days')
   const flat = Math.abs(value) < 0.05
   const up = value > 0
   const good = flat ? null : up === upIsGood
   const Icon = flat ? Minus : up ? ArrowUpRight : ArrowDownRight
-  const text = `${flat ? '0' : Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`
+  const text = `${flat ? '0' : Math.abs(value).toLocaleString(i18n.language, { maximumFractionDigits: 1 })}%`
   return (
     <span className="inline-flex items-center gap-1.5 text-xs">
       <span
@@ -24,7 +27,7 @@ export function TrendChip({ value, upIsGood, period = 'vs prev. 30 days' }: Tren
           'inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-medium tabular',
           good === null ? 'bg-neutral-soft text-neutral-fg' : good ? 'bg-success-soft text-success-fg' : 'bg-danger-soft text-danger-fg',
         )}
-        aria-label={`${flat ? 'No change' : up ? 'Up' : 'Down'} ${text} ${period}`}
+        aria-label={t(flat ? 'trend.noChange' : up ? 'trend.up' : 'trend.down', { value: text, period })}
       >
         <Icon className="size-3" aria-hidden />
         {text}

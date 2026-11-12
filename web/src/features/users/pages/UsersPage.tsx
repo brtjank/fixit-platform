@@ -1,9 +1,10 @@
 import { UserPlus, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useSession } from '@/features/auth'
 import { errorMessage } from '@/shared/api'
 import { useDebounce, usePagination } from '@/shared/hooks'
-import { fullName, pluralize } from '@/shared/lib'
+import { fullName } from '@/shared/lib'
 import type { User } from '@/shared/types'
 import { Button, Card, EmptyState, ErrorState, MockBadge, PageHeader, Pagination } from '@/shared/ui'
 import { DeactivateUserDialog } from '../components/DeactivateUserDialog'
@@ -15,6 +16,7 @@ import { UsersToolbar, type StatusFilterValue } from '../components/UsersToolbar
 import { useSetUserActive, useUsers } from '../hooks'
 
 export default function UsersPage() {
+  const { t } = useTranslation('users')
   const session = useSession()
   const { page, pageSize, setPage, setPageSize } = usePagination(20)
   const query = useUsers({ page, pageSize })
@@ -50,20 +52,20 @@ export default function UsersPage() {
   return (
     <>
       <PageHeader
-        title="Users"
-        description="People in your organization"
+        title={t('list.title')}
+        description={t('list.description')}
         actions={
           <>
             <MockBadge />
             <Button onClick={() => setInviteOpen(true)}>
-              <UserPlus /> Invite user
+              <UserPlus /> {t('actions.invite')}
             </Button>
           </>
         }
       />
 
       {query.isError ? (
-        <ErrorState title="Could not load users" message={errorMessage(query.error)} retry={() => void query.refetch()} />
+        <ErrorState title={t('list.loadError')} message={errorMessage(query.error)} retry={() => void query.refetch()} />
       ) : (
         <Card>
           <UsersToolbar
@@ -76,12 +78,12 @@ export default function UsersPage() {
           />
           <div className="flex items-center justify-between px-4 py-2 text-xs text-fg-muted">
             <span className="tabular">
-              {query.isLoading ? 'Loading…' : pluralize(filtered.length, 'user')}
-              {hasFilters && query.data ? ` (filtered from ${query.data.items.length} on this page)` : null}
+              {query.isLoading ? t('list.loading') : t('list.count', { count: filtered.length })}
+              {hasFilters && query.data ? t('list.filteredFrom', { total: query.data.items.length }) : null}
             </span>
             {hasFilters ? (
               <Button variant="link" size="sm" onClick={clearFilters}>
-                Clear filters
+                {t('common:actions.clearFilters')}
               </Button>
             ) : null}
           </div>
@@ -89,16 +91,16 @@ export default function UsersPage() {
           {!query.isLoading && filtered.length === 0 ? (
             <EmptyState
               icon={Users}
-              title={hasFilters ? 'No users match your filters' : 'No users yet'}
-              description={hasFilters ? 'Try a different search or filter. Filters apply to the current page.' : 'Invite people to your organization to get started.'}
+              title={hasFilters ? t('list.emptyFilteredTitle') : t('list.emptyTitle')}
+              description={hasFilters ? t('list.emptyFilteredDescription') : t('list.emptyDescription')}
               action={
                 hasFilters ? (
                   <Button variant="secondary" onClick={clearFilters}>
-                    Clear filters
+                    {t('common:actions.clearFilters')}
                   </Button>
                 ) : (
                   <Button onClick={() => setInviteOpen(true)}>
-                    <UserPlus /> Invite user
+                    <UserPlus /> {t('actions.invite')}
                   </Button>
                 )
               }

@@ -1,5 +1,6 @@
 import { Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useWorkers } from '@/features/users/hooks'
 import { useDebounce } from '@/shared/hooks'
 import { fullName } from '@/shared/lib'
@@ -8,6 +9,7 @@ import { StatusFilterTabs } from './StatusFilterTabs'
 import type { useRequestFilters } from './useRequestFilters'
 
 export function RequestFilterBar({ filters }: { filters: ReturnType<typeof useRequestFilters> }) {
+  const { t } = useTranslation('requests')
   const workers = useWorkers()
   const [search, setSearch] = useState(filters.q)
   const debounced = useDebounce(search, 250)
@@ -32,30 +34,30 @@ export function RequestFilterBar({ filters }: { filters: ReturnType<typeof useRe
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search titles…"
-            aria-label="Search titles"
+            placeholder={t('list.filters.searchPlaceholder')}
+            aria-label={t('list.filters.searchLabel')}
             className="pl-9"
           />
         </div>
         <div className="sm:w-56">
           <NativeSelect
-            aria-label="Filter by worker"
+            aria-label={t('list.filters.byWorker')}
             value={filters.assignedWorkerId}
             onChange={(e) => setFilter('assignedWorkerId', e.target.value || undefined)}
           >
-            <option value="">Any worker</option>
+            <option value="">{t('list.filters.anyWorker')}</option>
             {(workers.data?.items ?? []).map((w) => (
               <option key={w.id} value={w.id}>
                 {fullName(w)}
-                {w.isActive ? '' : ' (inactive)'}
+                {w.isActive ? '' : t('list.filters.inactive')}
               </option>
             ))}
           </NativeSelect>
         </div>
-        <span className="text-xs text-fg-subtle sm:ml-1">Search applies to the current page only</span>
+        <span className="text-xs text-fg-subtle sm:ml-1">{t('list.filters.searchHint')}</span>
         {filters.hasFilters ? (
           <Button variant="ghost" size="sm" className="sm:ml-auto" onClick={filters.clear}>
-            <X /> Clear filters
+            <X /> {t('common:actions.clearFilters')}
           </Button>
         ) : null}
       </div>

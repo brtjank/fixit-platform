@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import { ServiceRequestStatus, UserRole, type UserRoleName } from '@/shared/types'
 
 export type Tone = 'neutral' | 'info' | 'warning' | 'success' | 'danger' | 'violet' | 'brand'
@@ -5,15 +6,19 @@ export type Tone = 'neutral' | 'info' | 'warning' | 'success' | 'danger' | 'viol
 export interface StatusMeta {
   value: ServiceRequestStatus
   key: keyof typeof ServiceRequestStatus
+  /** English fallback — prefer statusLabel() / statusDescription() which are translated. */
   label: string
   tone: Tone
   description: string
+  /** i18n key suffix under common:status.* */
+  i18nKey: 'pending' | 'assigned' | 'inProgress' | 'completed' | 'cancelled'
 }
 
 export const STATUS_META: Record<ServiceRequestStatus, StatusMeta> = {
   [ServiceRequestStatus.Pending]: {
     value: ServiceRequestStatus.Pending,
     key: 'Pending',
+    i18nKey: 'pending',
     label: 'Pending',
     tone: 'warning',
     description: 'Waiting for a worker to be assigned',
@@ -21,6 +26,7 @@ export const STATUS_META: Record<ServiceRequestStatus, StatusMeta> = {
   [ServiceRequestStatus.Assigned]: {
     value: ServiceRequestStatus.Assigned,
     key: 'Assigned',
+    i18nKey: 'assigned',
     label: 'Assigned',
     tone: 'info',
     description: 'A worker has been assigned, work not started',
@@ -28,6 +34,7 @@ export const STATUS_META: Record<ServiceRequestStatus, StatusMeta> = {
   [ServiceRequestStatus.InProgress]: {
     value: ServiceRequestStatus.InProgress,
     key: 'InProgress',
+    i18nKey: 'inProgress',
     label: 'In progress',
     tone: 'violet',
     description: 'Work is underway',
@@ -35,6 +42,7 @@ export const STATUS_META: Record<ServiceRequestStatus, StatusMeta> = {
   [ServiceRequestStatus.Completed]: {
     value: ServiceRequestStatus.Completed,
     key: 'Completed',
+    i18nKey: 'completed',
     label: 'Completed',
     tone: 'success',
     description: 'Work finished — this request is closed',
@@ -42,6 +50,7 @@ export const STATUS_META: Record<ServiceRequestStatus, StatusMeta> = {
   [ServiceRequestStatus.Cancelled]: {
     value: ServiceRequestStatus.Cancelled,
     key: 'Cancelled',
+    i18nKey: 'cancelled',
     label: 'Cancelled',
     tone: 'neutral',
     description: 'Request was cancelled — this request is closed',
@@ -62,8 +71,15 @@ export const OPEN_STATUSES: ServiceRequestStatus[] = [
   ServiceRequestStatus.InProgress,
 ]
 
+/** Translated status label (re-renders with the app language because the tree is keyed by language). */
 export function statusLabel(status: ServiceRequestStatus) {
-  return STATUS_META[status]?.label ?? `Status ${status}`
+  const meta = STATUS_META[status]
+  return meta ? i18n.t(`common:status.${meta.i18nKey}`) : i18n.t('common:status.unknown', { value: status })
+}
+
+export function statusDescription(status: ServiceRequestStatus) {
+  const meta = STATUS_META[status]
+  return meta ? i18n.t(`common:status.description.${meta.i18nKey}`) : ''
 }
 
 export function isClosedStatus(status: ServiceRequestStatus) {
@@ -99,14 +115,16 @@ export function allowedTransitions(
 
 // ---- Roles ------------------------------------------------------------------
 
-export const ROLE_META: Record<UserRole, { label: string; tone: Tone; name: UserRoleName }> = {
-  [UserRole.Admin]: { label: 'Admin', tone: 'brand', name: 'Admin' },
-  [UserRole.Worker]: { label: 'Worker', tone: 'info', name: 'Worker' },
-  [UserRole.Customer]: { label: 'Customer', tone: 'neutral', name: 'Customer' },
+export const ROLE_META: Record<UserRole, { label: string; tone: Tone; name: UserRoleName; i18nKey: 'admin' | 'worker' | 'customer' }> = {
+  [UserRole.Admin]: { label: 'Admin', tone: 'brand', name: 'Admin', i18nKey: 'admin' },
+  [UserRole.Worker]: { label: 'Worker', tone: 'info', name: 'Worker', i18nKey: 'worker' },
+  [UserRole.Customer]: { label: 'Customer', tone: 'neutral', name: 'Customer', i18nKey: 'customer' },
 }
 
+/** Translated role label — prefer this over ROLE_META[role].label. */
 export function roleLabel(role: UserRole) {
-  return ROLE_META[role]?.label ?? `Role ${role}`
+  const meta = ROLE_META[role]
+  return meta ? i18n.t(`common:role.${meta.i18nKey}`) : i18n.t('common:role.unknown', { value: role })
 }
 
 export function parseRole(value: string | number | null | undefined): UserRole | undefined {

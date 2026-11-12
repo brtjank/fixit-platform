@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { DEMO_ACCOUNTS } from '@/mocks/data/seed'
-import { cn } from '@/shared/lib'
+import { cn, roleLabel } from '@/shared/lib'
 import { UserRole } from '@/shared/types'
 import { RoleBadge } from '@/shared/ui'
 
@@ -14,12 +15,13 @@ interface DemoAccountsProps {
 }
 
 export function DemoAccounts({ onPick, disabled, pendingEmail }: DemoAccountsProps) {
+  const { t } = useTranslation('auth')
   return (
     <section aria-labelledby="demo-accounts-heading" className="space-y-3">
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-border" aria-hidden />
         <h2 id="demo-accounts-heading" className="text-xs font-medium uppercase tracking-wide text-fg-subtle">
-          Demo accounts
+          {t('demo.heading')}
         </h2>
         <span className="h-px flex-1 bg-border" aria-hidden />
       </div>
@@ -32,7 +34,7 @@ export function DemoAccounts({ onPick, disabled, pendingEmail }: DemoAccountsPro
                 type="button"
                 disabled={disabled}
                 onClick={() => onPick(account)}
-                aria-label={`Sign in as ${account.name} (${account.role})`}
+                aria-label={t('demo.signInAs', { name: account.name, role: roleLabel(UserRole[account.role]) })}
                 className={cn(
                   'group flex w-full items-center gap-3 rounded-md border border-border bg-surface px-3 py-2.5 text-left transition-colors',
                   'hover:border-brand/50 hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60',
@@ -45,7 +47,7 @@ export function DemoAccounts({ onPick, disabled, pendingEmail }: DemoAccountsPro
                     <span className="truncate text-sm font-medium text-fg">{account.name}</span>
                     <span className="truncate text-xs text-fg-subtle">{account.email}</span>
                   </span>
-                  <span className="block truncate text-xs text-fg-muted">{account.hint}</span>
+                  <span className="block truncate text-xs text-fg-muted">{t(`demo.hints.${account.role}`, { defaultValue: account.hint })}</span>
                 </span>
                 <ArrowRight
                   className={cn(

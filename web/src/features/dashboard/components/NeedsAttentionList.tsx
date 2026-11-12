@@ -1,4 +1,5 @@
 import { ChevronRight, Inbox } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useServiceRequests } from '@/features/service-requests/hooks'
 import { useUserDirectory } from '@/features/users/hooks'
@@ -8,6 +9,7 @@ import { ServiceRequestStatus } from '@/shared/types'
 import { Button, Card, CardContent, CardHeader, EmptyState, ErrorState, Skeleton, StatusBadge } from '@/shared/ui'
 
 export function NeedsAttentionList() {
+  const { t } = useTranslation('dashboard')
   const query = useServiceRequests({ status: ServiceRequestStatus.Pending, page: 1, pageSize: 5 })
   const directory = useUserDirectory()
   const items = query.data?.items ?? []
@@ -16,12 +18,12 @@ export function NeedsAttentionList() {
   return (
     <Card className="flex flex-col">
       <CardHeader
-        title="Needs attention"
-        description={query.data ? `${total} pending ${total === 1 ? 'request' : 'requests'} waiting for a worker` : 'Pending requests waiting for a worker'}
+        title={t('attention.title')}
+        description={query.data ? t('attention.pendingCount', { count: total }) : t('attention.pendingDescription')}
         actions={
           <Button variant="ghost" size="sm" asChild>
             <Link to="/requests?status=Pending">
-              View all <ChevronRight />
+              {t('attention.viewAll')} <ChevronRight />
             </Link>
           </Button>
         }
@@ -41,7 +43,7 @@ export function NeedsAttentionList() {
             <ErrorState message={errorMessage(query.error)} retry={() => void query.refetch()} />
           </div>
         ) : items.length === 0 ? (
-          <EmptyState icon={Inbox} title="All caught up" description="There are no pending requests waiting for assignment." />
+          <EmptyState icon={Inbox} title={t('attention.emptyTitle')} description={t('attention.emptyDescription')} />
         ) : (
           <ul className="divide-y divide-border">
             {items.map((sr) => (

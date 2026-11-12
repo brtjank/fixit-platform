@@ -1,3 +1,4 @@
+import { i18n } from '@/i18n'
 import { env } from '@/shared/config/env'
 import { ApiError } from './errors'
 
@@ -59,7 +60,7 @@ async function request<T>(method: string, path: string, options: RequestOptions 
     })
   } catch (cause) {
     if (cause instanceof DOMException && cause.name === 'AbortError') throw cause
-    throw new ApiError(0, null, 'Cannot reach the API. Is the backend running?')
+    throw new ApiError(0, null, i18n.t('common:errors.network'))
   }
 
   const data = await parseBody(response)

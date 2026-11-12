@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { i18n } from '@/i18n'
 import { errorMessage } from '@/shared/api'
 import { workersApi, type UpdateWorkerProfileRequest } from '../api/workersApi'
 
@@ -30,8 +31,8 @@ export function useUpdateWorkerProfile() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: workerKeys.all })
       void qc.invalidateQueries({ queryKey: ['dashboard'] })
-      toast.success('Profile updated')
+      toast.success(i18n.t('workers:toasts.profileUpdated'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not update the profile')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('workers:toasts.profileUpdateError'))),
   })
 }

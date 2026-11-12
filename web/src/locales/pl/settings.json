@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Ustawienia",
+    "description": "Zarządzaj profilem, organizacją i preferencjami.",
+    "sectionsNav": "Sekcje ustawień"
+  },
+  "nav": {
+    "profile": "Profil",
+    "organization": "Organizacja",
+    "notifications": "Powiadomienia",
+    "appearance": "Wygląd",
+    "language": "Język",
+    "developer": "Dla deweloperów"
+  },
+  "profile": {
+    "title": "Profil",
+    "description": "Twoje konto w tej organizacji.",
+    "organization": "Organizacja",
+    "userId": "ID użytkownika",
+    "tenantId": "ID organizacji (tenant)",
+    "editingUnavailable": "Edycja profilu nie jest jeszcze dostępna.",
+    "signOut": "Wyloguj z tego urządzenia"
+  },
+  "organization": {
+    "title": "Organizacja",
+    "description": "Dane widoczne dla Twojego zespołu i klientów.",
+    "plan": "Plan Team",
+    "created": "Utworzono {{date}}",
+    "adminOnly": "Tylko administratorzy mogą edytować ustawienia organizacji.",
+    "form": {
+      "name": "Nazwa",
+      "description": "Opis",
+      "contactEmail": "E-mail kontaktowy",
+      "phone": "Telefon",
+      "address": "Adres",
+      "timezone": "Strefa czasowa"
+    },
+    "validation": {
+      "nameMin": "Nazwa musi mieć co najmniej 2 znaki",
+      "descriptionMax": "Maksymalnie 500 znaków",
+      "email": "Podaj poprawny adres e-mail"
+    },
+    "reset": "Przywróć",
+    "save": "Zapisz zmiany"
+  },
+  "preferences": {
+    "title": "Powiadomienia",
+    "description": "Wybierz, które e-maile chcesz otrzymywać.",
+    "emailOnNewRequest": {
+      "title": "E-mail o nowym zgłoszeniu",
+      "description": "Wyślij mi e-mail, gdy zostanie utworzone nowe zgłoszenie serwisowe."
+    },
+    "emailOnAssignment": {
+      "title": "E-mail o przypisaniu",
+      "description": "Wyślij mi e-mail, gdy zgłoszenie zostanie przypisane do mnie lub do pracownika."
+    },
+    "emailOnStatusChange": {
+      "title": "E-mail o zmianie statusu",
+      "description": "Wyślij mi e-mail, gdy zmieni się status zgłoszenia."
+    },
+    "dailyDigest": {
+      "title": "Dzienne podsumowanie",
+      "description": "Poranne zestawienie otwartych i zakończonych zgłoszeń."
+    }
+  },
+  "appearance": {
+    "title": "Wygląd",
+    "description": "Zapisane na tym urządzeniu.",
+    "themeGroup": "Motyw",
+    "light": {
+      "title": "Jasny",
+      "description": "Jasne powierzchnie"
+    },
+    "dark": {
+      "title": "Ciemny",
+      "description": "Przyjazny dla oczu"
+    },
+    "system": {
+      "title": "Systemowy",
+      "description": "Zgodny z ustawieniami systemu"
+    }
+  },
+  "language": {
+    "title": "Język",
+    "description": "Wybierz język interfejsu. Zapisane na tym urządzeniu.",
+    "note": "Daty i liczby są formatowane zgodnie z wybranym językiem."
+  },
+  "developer": {
+    "title": "Dla deweloperów",
+    "description": "Diagnostyka połączenia z API i Twojej sesji.",
+    "api": {
+      "title": "Połączenie z API",
+      "mode": "Tryb API",
+      "mock": "Mock",
+      "live": "Na żywo",
+      "switchHintBefore": "Przełącz za pomocą",
+      "switchHintIn": "w pliku",
+      "switchHintAfter": ", a następnie zrestartuj serwer deweloperski. Endpointy mockowane nawet w trybie na żywo są wymienione w docs/API_GAPS.md.",
+      "baseUrl": "Bazowy URL API",
+      "sameOrigin": "(to samo źródło, proxy do http://localhost:5177)"
+    },
+    "health": {
+      "check": "Sprawdź stan backendu",
+      "healthy": "Działa"
+    },
+    "token": {
+      "title": "Token sesji",
+      "copy": "Kopiuj token",
+      "empty": "Brak czytelnego tokenu w tej sesji.",
+      "securityNote": "Traktuj ten token jak hasło. Każdy, kto go ma, może działać w Twoim imieniu, dopóki nie wygaśnie."
+    }
+  },
+  "copy": {
+    "label": "Kopiuj",
+    "failed": "Nie udało się skopiować"
+  },
+  "toasts": {
+    "organizationUpdated": "Zaktualizowano organizację",
+    "organizationFailed": "Nie udało się zapisać ustawień organizacji",
+    "preferencesSaved": "Zapisano preferencje",
+    "preferencesFailed": "Nie udało się zapisać preferencji"
+  }
+}

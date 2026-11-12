@@ -1,5 +1,6 @@
 import { Loader2, type LucideIcon } from 'lucide-react'
 import type { HTMLAttributes, ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn, initials } from '@/shared/lib'
 
 export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
@@ -12,7 +13,8 @@ export function Skeleton({ className, ...props }: HTMLAttributes<HTMLDivElement>
 }
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn('size-5 animate-spin text-fg-subtle', className)} aria-label="Loading" />
+  const { t } = useTranslation()
+  return <Loader2 className={cn('size-5 animate-spin text-fg-subtle', className)} aria-label={t('actions.loading')} />
 }
 
 export function PageSpinner() {
@@ -104,25 +106,27 @@ export function PageHeader({
 }
 
 /** Small inline marker for UI backed by mock-only endpoints. */
-export function MockBadge({ className, label = 'Mocked' }: { className?: string; label?: string }) {
+export function MockBadge({ className, label }: { className?: string; label?: string }) {
+  const { t } = useTranslation()
   return (
     <span
       className={cn('inline-flex items-center gap-1 rounded border border-dashed border-warning-fg/40 bg-warning-soft px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-warning-fg', className)}
-      title="This data comes from a mock endpoint — the backend does not implement it yet (see docs/API_GAPS.md)."
+      title={t('mock.hint')}
     >
-      {label}
+      {label ?? t('mock.badge')}
     </span>
   )
 }
 
-export function ErrorState({ title = 'Something went wrong', message, retry }: { title?: string; message?: string; retry?: () => void }) {
+export function ErrorState({ title, message, retry }: { title?: string; message?: string; retry?: () => void }) {
+  const { t } = useTranslation()
   return (
     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-danger-fg/30 bg-danger-soft/40 px-6 py-10 text-center">
-      <h3 className="text-sm font-semibold text-danger-fg">{title}</h3>
+      <h3 className="text-sm font-semibold text-danger-fg">{title ?? t('errors.generic')}</h3>
       {message ? <p className="mt-1 max-w-md text-sm text-fg-muted">{message}</p> : null}
       {retry ? (
         <button type="button" onClick={retry} className="mt-4 text-sm font-medium text-brand-fg underline-offset-4 hover:underline">
-          Try again
+          {t('actions.retry')}
         </button>
       ) : null}
     </div>

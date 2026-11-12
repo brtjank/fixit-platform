@@ -1,0 +1,76 @@
+{
+  "app": { "name": "FixIt", "tagline": "Service operations", "version": "FixIt Platform · v0.1", "workspace": "Workspace" },
+  "nav": {
+    "dashboard": "Dashboard",
+    "myRequests": "My requests",
+    "newRequest": "New request",
+    "serviceRequests": "Service requests",
+    "myAssignments": "My assignments",
+    "workers": "Workers",
+    "users": "Users",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "sections": { "operations": "Operations", "administration": "Administration" },
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "topbar": {
+    "mockApi": "Mock API",
+    "liveApi": "Live API",
+    "mockApiHint": "All API calls are served by Mock Service Worker. Set VITE_API_MODE=live to use the backend.",
+    "liveApiHint": "Real backend endpoints are live; endpoints not implemented yet are still mocked.",
+    "toggleTheme": "Toggle theme",
+    "theme": "Theme: {{theme}}",
+    "language": "Language",
+    "accountMenu": "Account menu",
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign out"
+  },
+  "theme": { "light": "Light", "dark": "Dark", "system": "System" },
+  "status": {
+    "pending": "Pending",
+    "assigned": "Assigned",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "unknown": "Status {{value}}",
+    "description": {
+      "pending": "Waiting for a worker to be assigned",
+      "assigned": "A worker has been assigned, work not started",
+      "inProgress": "Work is underway",
+      "completed": "Work finished — this request is closed",
+      "cancelled": "Request was cancelled — this request is closed"
+    }
+  },
+  "role": { "admin": "Admin", "worker": "Worker", "customer": "Customer", "unknown": "Role {{value}}" },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "retry": "Try again",
+    "back": "Back",
+    "backHome": "Back to home",
+    "view": "View",
+    "edit": "Edit",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "clearFilters": "Clear filters",
+    "search": "Search",
+    "loading": "Loading"
+  },
+  "pagination": { "range": "{{from}}–{{to}} of {{total}}", "rows": "Rows", "page": "Page {{page}} / {{total}}", "previous": "Previous page", "next": "Next page" },
+  "errors": {
+    "generic": "Something went wrong",
+    "network": "Cannot reach the API. Is the backend running?",
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you are looking for does not exist or was moved.",
+    "forbiddenTitle": "You don't have access to this page",
+    "forbiddenDescription": "This area is restricted to other roles in your organization."
+  },
+  "placeholder": { "underConstruction": "Under construction", "notImplemented": "This screen has not been implemented yet." },
+  "mock": { "badge": "Mocked", "hint": "This data comes from a mock endpoint — the backend does not implement it yet (see docs/API_GAPS.md)." },
+  "format": { "unknownUser": "Unknown", "ago": "{{distance}} ago", "never": "—" },
+  "language": { "label": "Language", "en": "English", "pl": "Polish" }
+}

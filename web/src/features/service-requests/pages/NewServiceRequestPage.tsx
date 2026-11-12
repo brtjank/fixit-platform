@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useIsCustomer } from '@/features/auth'
 import { ServiceRequestStatus } from '@/shared/types'
@@ -6,13 +7,14 @@ import { Card, CardContent, CardHeader, PageHeader, StatusBadge } from '@/shared
 import { NewRequestForm } from '../components/NewRequestForm'
 
 const FLOW = [
-  { status: ServiceRequestStatus.Pending, text: 'Your request is received and waits in the queue.' },
-  { status: ServiceRequestStatus.Assigned, text: 'A technician is assigned to it.' },
-  { status: ServiceRequestStatus.InProgress, text: 'The technician is working on it.' },
-  { status: ServiceRequestStatus.Completed, text: 'Work is done — the request is closed.' },
+  { status: ServiceRequestStatus.Pending, textKey: 'new.next.pending' },
+  { status: ServiceRequestStatus.Assigned, textKey: 'new.next.assigned' },
+  { status: ServiceRequestStatus.InProgress, textKey: 'new.next.inProgress' },
+  { status: ServiceRequestStatus.Completed, textKey: 'new.next.completed' },
 ]
 
 export default function NewServiceRequestPage() {
+  const { t } = useTranslation('requests')
   const isCustomer = useIsCustomer()
   const backTo = isCustomer ? '/' : '/requests'
 
@@ -20,21 +22,21 @@ export default function NewServiceRequestPage() {
     <>
       <PageHeader
         breadcrumb={
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1">
+          <nav aria-label={t('breadcrumb')} className="flex items-center gap-1">
             <Link to={backTo} className="hover:text-fg">
-              {isCustomer ? 'My requests' : 'Requests'}
+              {isCustomer ? t('shared.myRequests') : t('shared.requests')}
             </Link>
             <ChevronRight className="size-3" />
-            <span className="text-fg-muted">New</span>
+            <span className="text-fg-muted">{t('new.breadcrumb')}</span>
           </nav>
         }
-        title="New service request"
-        description="Tell us what needs fixing — we will take it from there."
+        title={t('new.title')}
+        description={t('new.description')}
       />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <NewRequestForm />
         <Card className="h-fit">
-          <CardHeader title="What happens next" />
+          <CardHeader title={t('new.next.title')} />
           <CardContent>
             <ol className="space-y-4">
               {FLOW.map((step, i) => (
@@ -44,7 +46,7 @@ export default function NewServiceRequestPage() {
                   </span>
                   <div className="space-y-1">
                     <StatusBadge status={step.status} />
-                    <p className="text-xs text-fg-muted">{step.text}</p>
+                    <p className="text-xs text-fg-muted">{t(step.textKey)}</p>
                   </div>
                 </li>
               ))}

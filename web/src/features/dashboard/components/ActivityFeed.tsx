@@ -1,4 +1,5 @@
 import { CheckCircle2, History, PlusCircle, RefreshCw, UserCheck, XCircle, type LucideIcon } from 'lucide-react'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { errorMessage } from '@/shared/api'
 import { cn, formatDateTime, formatRelative } from '@/shared/lib'
@@ -6,21 +7,28 @@ import { Card, CardContent, CardHeader, EmptyState, ErrorState, MockBadge, Skele
 import type { ActivityItem } from '../api/dashboardApi'
 import { useActivity } from '../hooks'
 
-const TYPE_META: Record<ActivityItem['type'], { icon: LucideIcon; verb: string; className: string }> = {
-  created: { icon: PlusCircle, verb: 'created', className: 'bg-brand-soft text-brand-fg' },
-  assigned: { icon: UserCheck, verb: 'assigned a worker to', className: 'bg-info-soft text-info-fg' },
-  status_changed: { icon: RefreshCw, verb: 'updated', className: 'bg-violet-soft text-violet-fg' },
-  completed: { icon: CheckCircle2, verb: 'completed', className: 'bg-success-soft text-success-fg' },
-  cancelled: { icon: XCircle, verb: 'cancelled', className: 'bg-neutral-soft text-neutral-fg' },
+const TYPE_META: Record<ActivityItem['type'], { icon: LucideIcon; className: string }> = {
+  created: { icon: PlusCircle, className: 'bg-brand-soft text-brand-fg' },
+  assigned: { icon: UserCheck, className: 'bg-info-soft text-info-fg' },
+  status_changed: { icon: RefreshCw, className: 'bg-violet-soft text-violet-fg' },
+  completed: { icon: CheckCircle2, className: 'bg-success-soft text-success-fg' },
+  cancelled: { icon: XCircle, className: 'bg-neutral-soft text-neutral-fg' },
 }
 
 export function ActivityFeed({ limit = 10 }: { limit?: number }) {
+  const { t } = useTranslation('dashboard')
   const query = useActivity(limit)
   const items = query.data ?? []
 
   return (
     <Card className="flex flex-col">
-      <CardHeader title={<span className="inline-flex items-center gap-2">Recent activity <MockBadge /></span>} description="Latest changes across all requests" />
+      <CardHeader title={
+          <span className="inline-flex items-center gap-2">
+            {t('activity.title')} <MockBadge />
+          </span>
+        }
+        description={t('activity.description')}
+      />
       <CardContent className="flex-1">
         {query.isLoading ? (
           <ul className="space-y-4">
@@ -37,11 +45,12 @@ export function ActivityFeed({ limit = 10 }: { limit?: number }) {
         ) : query.isError ? (
           <ErrorState message={errorMessage(query.error)} retry={() => void query.refetch()} />
         ) : items.length === 0 ? (
-          <EmptyState icon={History} title="No activity yet" description="Changes to service requests will show up here." />
+          <EmptyState icon={History} title={t('activity.emptyTitle')} description={t('activity.emptyDescription')} />
         ) : (
           <ol className="relative space-y-4">
             {items.map((item, i) => {
-              const meta = TYPE_META[item.type] ?? TYPE_META.status_changed
+              const type = item.type in TYPE_META ? item.type : 'status_changed'
+              const meta = TYPE_META[type]
               const Icon = meta.icon
               return (
                 <li key={item.id} className="relative flex gap-3">
@@ -51,10 +60,20 @@ export function ActivityFeed({ limit = 10 }: { limit?: number }) {
                   </span>
                   <div className="min-w-0 flex-1 pt-0.5">
                     <p className="text-sm text-fg-muted">
-                      <span className="font-medium text-fg">{item.actorName}</span> {meta.verb}{' '}
-                      <Link to={`/requests/${item.serviceRequestId}`} className="font-medium text-fg hover:text-brand-fg hover:underline underline-offset-4">
-                        {item.serviceRequestTitle}
-                      </Link>
+                      <Trans
+                        t={t}
+                        i18nKey={`activity.types.${type}`}
+                        values={{ actor: item.actorName, title: item.serviceRequestTitle }}
+                        components={{
+                          actor: <span className="font-medium text-fg" />,
+                          link: (
+                            <Link
+                              to={`/requests/${item.serviceRequestId}`}
+                              className="font-medium text-fg hover:text-brand-fg hover:underline underline-offset-4"
+                            />
+                          ),
+                        }}
+                      />
                     </p>
                     {item.detail ? (
                       <p className="mt-0.5 truncate text-xs text-fg-muted" title={item.detail}>

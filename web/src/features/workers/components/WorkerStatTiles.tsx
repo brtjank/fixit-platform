@@ -1,5 +1,6 @@
 import { CheckCircle2, CircleDot, Timer } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
 import { Card, MockBadge, Skeleton } from '@/shared/ui'
 import type { WorkerWorkload } from '../api/workersApi'
@@ -12,10 +13,11 @@ interface Tile {
 }
 
 export function WorkerStatTiles({ workload, loading }: { workload: WorkerWorkload | null; loading?: boolean }) {
+  const { t } = useTranslation('workers')
   const tiles: Tile[] = [
-    { label: 'Open', value: workload?.open, icon: CircleDot, tone: 'bg-info-soft text-info-fg' },
-    { label: 'In progress', value: workload?.inProgress, icon: Timer, tone: 'bg-violet-soft text-violet-fg' },
-    { label: 'Completed (30d)', value: workload?.completedLast30Days, icon: CheckCircle2, tone: 'bg-success-soft text-success-fg' },
+    { label: t('workload.open'), value: workload?.open, icon: CircleDot, tone: 'bg-info-soft text-info-fg' },
+    { label: t('workload.inProgress'), value: workload?.inProgress, icon: Timer, tone: 'bg-violet-soft text-violet-fg' },
+    { label: t('workload.completed30d'), value: workload?.completedLast30Days, icon: CheckCircle2, tone: 'bg-success-soft text-success-fg' },
   ]
   return (
     <div className="grid gap-4 sm:grid-cols-3">

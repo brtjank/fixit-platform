@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { errorMessage } from '@/shared/api'
-import { ALL_STATUSES, STATUS_META, type Tone } from '@/shared/lib'
+import { ALL_STATUSES, STATUS_META, statusDescription, statusLabel, type Tone } from '@/shared/lib'
 import { Card, CardContent, CardHeader, ErrorState, MockBadge, Skeleton, Tooltip } from '@/shared/ui'
 import { useStatusBreakdown } from '../hooks'
 
@@ -15,6 +16,7 @@ const TONE_FILL: Record<Tone, string> = {
 }
 
 export function StatusBreakdownChart() {
+  const { t } = useTranslation('dashboard')
   const query = useStatusBreakdown()
   const counts = new Map((query.data ?? []).map((b) => [b.status, b.count]))
   const rows = ALL_STATUSES.map((status) => ({ meta: STATUS_META[status], count: counts.get(status) ?? 0 }))
@@ -24,8 +26,12 @@ export function StatusBreakdownChart() {
   return (
     <Card className="flex flex-col">
       <CardHeader
-        title={<span className="inline-flex items-center gap-2">By status <MockBadge /></span>}
-        description={query.data ? `${total} requests in total` : 'All requests in this tenant'}
+        title={
+          <span className="inline-flex items-center gap-2">
+            {t('breakdown.title')} <MockBadge />
+          </span>
+        }
+        description={query.data ? t('breakdown.total', { count: total }) : t('breakdown.allRequests')}
       />
       <CardContent className="flex-1">
         {query.isLoading ? (
@@ -40,16 +46,17 @@ export function StatusBreakdownChart() {
         ) : query.isError ? (
           <ErrorState message={errorMessage(query.error)} retry={() => void query.refetch()} />
         ) : (
-          <ul className="space-y-4" aria-label="Requests by status">
+          <ul className="space-y-4" aria-label={t('breakdown.listLabel')}>
             {rows.map(({ meta, count }) => {
               const share = total === 0 ? 0 : Math.round((count / total) * 100)
+              const label = statusLabel(meta.value)
               return (
                 <li key={meta.value}>
-                  <Tooltip content={`${meta.label}: ${count} (${share}%) — ${meta.description}`}>
-                    <div className="group rounded-md outline-none" tabIndex={0} aria-label={`${meta.label}: ${count} requests, ${share}%`}>
+                  <Tooltip content={t('breakdown.tooltip', { status: label, count, share, description: statusDescription(meta.value) })}>
+                    <div className="group rounded-md outline-none" tabIndex={0} aria-label={t('breakdown.rowLabel', { status: label, count, share })}>
                       <div className="mb-1.5 flex items-center gap-2 text-sm">
                         <span className={`size-2 rounded-full ${TONE_FILL[meta.tone]}`} aria-hidden />
-                        <span className="text-fg">{meta.label}</span>
+                        <span className="text-fg">{label}</span>
                         <span className="ml-auto font-medium text-fg tabular">{count}</span>
                         <span className="w-10 text-right text-xs text-fg-subtle tabular">{share}%</span>
                       </div>

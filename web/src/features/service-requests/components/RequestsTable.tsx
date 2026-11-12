@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useUserDirectory } from '@/features/users/hooks'
 import { formatDateTime, formatRelative, fullName, shortId } from '@/shared/lib'
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function RequestsTable({ items, loading, onAssign, onChangeStatus }: Props) {
+  const { t } = useTranslation('requests')
   const navigate = useNavigate()
   const directory = useUserDirectory()
 
@@ -20,14 +22,14 @@ export function RequestsTable({ items, loading, onAssign, onChangeStatus }: Prop
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-28">Reference</TableHead>
-          <TableHead>Title</TableHead>
-          <TableHead>Customer</TableHead>
-          <TableHead>Worker</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Created</TableHead>
+          <TableHead className="w-28">{t('list.columns.reference')}</TableHead>
+          <TableHead>{t('list.columns.title')}</TableHead>
+          <TableHead>{t('list.columns.customer')}</TableHead>
+          <TableHead>{t('list.columns.worker')}</TableHead>
+          <TableHead>{t('list.columns.status')}</TableHead>
+          <TableHead>{t('list.columns.created')}</TableHead>
           <TableHead className="w-12">
-            <span className="sr-only">Actions</span>
+            <span className="sr-only">{t('list.columns.actions')}</span>
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -59,7 +61,7 @@ export function RequestsTable({ items, loading, onAssign, onChangeStatus }: Prop
                         <span className="text-fg">{worker ? fullName(worker) : shortId(sr.assignedWorkerId, 'USR')}</span>
                       </span>
                     ) : (
-                      <span className="text-fg-subtle">Unassigned</span>
+                      <span className="text-fg-subtle">{t('shared.unassigned')}</span>
                     )}
                   </TableCell>
                   <TableCell>

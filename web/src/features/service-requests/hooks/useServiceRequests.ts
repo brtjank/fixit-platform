@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { i18n } from '@/i18n'
 import { errorMessage } from '@/shared/api'
 import type { ServiceRequestListParams, ServiceRequestStatus } from '@/shared/types'
 import { serviceRequestsApi } from '../api/serviceRequestsApi'
@@ -59,9 +60,9 @@ export function useCreateServiceRequest() {
     mutationFn: serviceRequestsApi.create,
     onSuccess: () => {
       invalidate()
-      toast.success('Service request created')
+      toast.success(i18n.t('requests:toasts.created'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not create the request')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('requests:toasts.createError'))),
   })
 }
 
@@ -72,9 +73,9 @@ export function useAssignWorker() {
     mutationFn: ({ id, workerId }: { id: string; workerId: string }) => serviceRequestsApi.assignWorker(id, workerId),
     onSuccess: (_, { id }) => {
       invalidate(id)
-      toast.success('Worker assigned')
+      toast.success(i18n.t('requests:toasts.assigned'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not assign the worker')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('requests:toasts.assignError'))),
   })
 }
 
@@ -86,8 +87,8 @@ export function useChangeStatus() {
       serviceRequestsApi.changeStatus(id, status, notes),
     onSuccess: (_, { id }) => {
       invalidate(id)
-      toast.success('Status updated')
+      toast.success(i18n.t('requests:toasts.statusUpdated'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not change the status')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('requests:toasts.statusError'))),
   })
 }

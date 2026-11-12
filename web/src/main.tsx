@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@/styles/globals.css'
+import '@/i18n'
 import { App } from '@/app/App'
 import { initTheme } from '@/shared/hooks'
 // Side-effect import: wires the auth store into the http client.

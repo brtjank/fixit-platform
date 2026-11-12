@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRole } from '@/features/auth'
-import { cn, STATUS_META, shortId, type Tone } from '@/shared/lib'
+import { cn, STATUS_META, shortId, statusDescription, statusLabel, type Tone } from '@/shared/lib'
 import { ServiceRequestStatus, type ServiceRequest } from '@/shared/types'
 import { Button, Dialog, DialogClose, DialogContent, FormField, StatusBadge, Textarea } from '@/shared/ui'
 import { useChangeStatus } from '../hooks'
@@ -30,6 +31,7 @@ export function ChangeStatusDialog({ request, open, onOpenChange }: Props) {
 }
 
 function ChangeStatusBody({ request, onDone }: { request: ServiceRequest; onDone: () => void }) {
+  const { t } = useTranslation('requests')
   const role = useRole()
   const { transitions, statusReason } = getRequestPermissions(request, role)
   const change = useChangeStatus()
@@ -45,28 +47,32 @@ function ChangeStatusBody({ request, onDone }: { request: ServiceRequest; onDone
 
   return (
     <DialogContent
-      title="Change status"
+      title={t('dialogs.status.title')}
       description={
         <span className="inline-flex flex-wrap items-center gap-1.5">
-          {shortId(request.id, 'SR')} · currently <StatusBadge status={request.status} />
+          {shortId(request.id, 'SR')} · {t('dialogs.status.currently')} <StatusBadge status={request.status} />
         </span>
       }
       footer={
         <>
           <DialogClose asChild>
-            <Button variant="secondary">Cancel</Button>
+            <Button variant="secondary">{t('common:actions.cancel')}</Button>
           </DialogClose>
           <Button variant={isCancel ? 'danger' : 'primary'} onClick={submit} disabled={!status || tooLong} loading={change.isPending}>
-            {isCancel ? 'Cancel request' : status ? `Set to ${STATUS_META[status].label}` : 'Update status'}
+            {isCancel
+              ? t('dialogs.status.cancelRequest')
+              : status
+                ? t('dialogs.status.setTo', { status: statusLabel(status) })
+                : t('dialogs.status.submit')}
           </Button>
         </>
       }
     >
       {transitions.length === 0 ? (
-        <p className="text-sm text-fg-muted">{statusReason ?? 'No status changes are available.'}</p>
+        <p className="text-sm text-fg-muted">{statusReason ?? t('dialogs.status.noTransitions')}</p>
       ) : (
         <div className="space-y-4">
-          <div role="radiogroup" aria-label="New status" className="grid gap-2">
+          <div role="radiogroup" aria-label={t('dialogs.status.newStatus')} className="grid gap-2">
             {transitions.map((s) => {
               const meta = STATUS_META[s]
               const active = status === s
@@ -83,8 +89,8 @@ function ChangeStatusBody({ request, onDone }: { request: ServiceRequest; onDone
                   )}
                 >
                   <span className="min-w-0">
-                    <span className="block text-sm font-medium text-fg">{meta.label}</span>
-                    <span className="block text-xs text-fg-muted">{meta.description}</span>
+                    <span className="block text-sm font-medium text-fg">{statusLabel(s)}</span>
+                    <span className="block text-xs text-fg-muted">{statusDescription(s)}</span>
                   </span>
                   <StatusBadge status={s} />
                 </button>
@@ -93,16 +99,16 @@ function ChangeStatusBody({ request, onDone }: { request: ServiceRequest; onDone
           </div>
           {isCancel ? (
             <p className="rounded-md bg-danger-soft px-3 py-2 text-xs text-danger-fg">
-              Cancelling is final — cancelled requests can no longer be changed.
+              {t('dialogs.status.cancelWarning')}
             </p>
           ) : null}
           <FormField
-            label="Notes"
-            hint={<span className={cn('tabular', tooLong && 'text-danger-fg')}>Optional · {notes.length}/{NOTES_MAX}</span>}
-            error={tooLong ? `Notes must not exceed ${NOTES_MAX} characters` : undefined}
+            label={t('dialogs.status.notesLabel')}
+            hint={<span className={cn('tabular', tooLong && 'text-danger-fg')}>{t('dialogs.status.notesHint', { length: notes.length, max: NOTES_MAX })}</span>}
+            error={tooLong ? t('dialogs.status.notesTooLong', { max: NOTES_MAX }) : undefined}
           >
             {(field) => (
-              <Textarea {...field} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="What changed? Visible in the request history." rows={4} />
+              <Textarea {...field} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('dialogs.status.notesPlaceholder')} rows={4} />
             )}
           </FormField>
         </div>

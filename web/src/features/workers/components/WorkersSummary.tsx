@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
 import { MockBadge, Skeleton } from '@/shared/ui'
 
@@ -8,10 +9,11 @@ interface Chip {
 }
 
 export function WorkersSummary({ total, available, busy, loading }: { total: number; available: number; busy: number; loading?: boolean }) {
+  const { t } = useTranslation('workers')
   const chips: Chip[] = [
-    { label: 'Total', value: total, dot: 'bg-fg-subtle' },
-    { label: 'Available now', value: available, dot: 'bg-success-fg' },
-    { label: 'Busy', value: busy, dot: 'bg-violet-fg' },
+    { label: t('summary.total'), value: total, dot: 'bg-fg-subtle' },
+    { label: t('summary.availableNow'), value: available, dot: 'bg-success-fg' },
+    { label: t('summary.busy'), value: busy, dot: 'bg-violet-fg' },
   ]
   return (
     <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -22,7 +24,7 @@ export function WorkersSummary({ total, available, busy, loading }: { total: num
           {loading ? <Skeleton className="h-3.5 w-5" /> : <span className="font-semibold text-fg tabular">{c.value}</span>}
         </div>
       ))}
-      <MockBadge label="Profiles & workload mocked" />
+      <MockBadge label={t('summary.mocked')} />
     </div>
   )
 }

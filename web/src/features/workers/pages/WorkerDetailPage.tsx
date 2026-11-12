@@ -1,5 +1,6 @@
 import { ArrowLeft, UserX } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { useSession, useIsAdmin } from '@/features/auth'
 import { useUser } from '@/features/users/hooks'
@@ -15,6 +16,7 @@ import { WorkerStatTiles } from '../components/WorkerStatTiles'
 import { useWorkerRoster } from '../hooks'
 
 export default function WorkerDetailPage() {
+  const { t } = useTranslation('workers')
   const { id = '' } = useParams()
   const session = useSession()
   const isAdmin = useIsAdmin()
@@ -33,7 +35,7 @@ export default function WorkerDetailPage() {
   const backLink = (
     <Button variant="ghost" size="sm" asChild className="-ml-2 mb-3">
       <Link to="/workers">
-        <ArrowLeft /> All workers
+        <ArrowLeft /> {t('detail.allWorkers')}
       </Link>
     </Button>
   )
@@ -44,7 +46,7 @@ export default function WorkerDetailPage() {
     return (
       <>
         {backLink}
-        <ErrorState title="Could not load the worker" message={errorMessage(workersQuery.error)} retry={() => void workersQuery.refetch()} />
+        <ErrorState title={t('detail.loadError')} message={errorMessage(workersQuery.error)} retry={() => void workersQuery.refetch()} />
       </>
     )
 
@@ -54,11 +56,11 @@ export default function WorkerDetailPage() {
         {backLink}
         <EmptyState
           icon={UserX}
-          title="Worker not found"
-          description="This worker does not exist or belongs to another organization."
+          title={t('detail.notFoundTitle')}
+          description={t('detail.notFoundDescription')}
           action={
             <Button variant="secondary" asChild>
-              <Link to="/workers">Back to workers</Link>
+              <Link to="/workers">{t('detail.backToWorkers')}</Link>
             </Button>
           }
         />

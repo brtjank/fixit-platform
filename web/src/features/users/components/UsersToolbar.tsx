@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Input, NativeSelect } from '@/shared/ui'
 import { UserRoleFilter, type RoleFilterValue } from './UserRoleFilter'
 
@@ -14,6 +15,7 @@ interface UsersToolbarProps {
 }
 
 export function UsersToolbar({ search, onSearchChange, role, onRoleChange, status, onStatusChange }: UsersToolbarProps) {
+  const { t } = useTranslation('users')
   return (
     <div className="flex flex-col gap-3 border-b border-border px-4 py-3 lg:flex-row lg:items-center">
       <div className="relative w-full lg:max-w-xs">
@@ -22,17 +24,17 @@ export function UsersToolbar({ search, onSearchChange, role, onRoleChange, statu
           type="search"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search name or email…"
-          aria-label="Search users"
+          placeholder={t('toolbar.searchPlaceholder')}
+          aria-label={t('toolbar.searchLabel')}
           className="pl-9"
         />
       </div>
       <UserRoleFilter value={role} onChange={onRoleChange} />
       <div className="lg:ml-auto lg:w-40">
-        <NativeSelect value={status} onChange={(e) => onStatusChange(e.target.value as StatusFilterValue)} aria-label="Filter by status">
-          <option value="all">All statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+        <NativeSelect value={status} onChange={(e) => onStatusChange(e.target.value as StatusFilterValue)} aria-label={t('toolbar.statusLabel')}>
+          <option value="all">{t('toolbar.allStatuses')}</option>
+          <option value="active">{t('status.active')}</option>
+          <option value="inactive">{t('status.inactive')}</option>
         </NativeSelect>
       </div>
     </div>

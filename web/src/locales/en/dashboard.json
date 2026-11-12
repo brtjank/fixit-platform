@@ -1,0 +1,77 @@
+{
+  "page": {
+    "title": "Dashboard",
+    "viewAllRequests": "View all requests",
+    "newRequest": "New request"
+  },
+  "stats": {
+    "loadError": "Could not load stats",
+    "openRequests": "Open requests",
+    "pendingUnassigned": "Pending (unassigned)",
+    "pendingHint": "Waiting for a worker",
+    "inProgress": "In progress",
+    "inProgressHint": "Work underway right now",
+    "completed30Days": "Completed (30 days)",
+    "avgResolution": "Avg resolution",
+    "hours_one": "hour",
+    "hours_other": "hours",
+    "availableWorkers": "Available workers",
+    "activeWorkers_one": "/ {{count}} active",
+    "activeWorkers_other": "/ {{count}} active"
+  },
+  "trend": {
+    "vsPrev30Days": "vs prev. 30 days",
+    "vsPrev": "vs prev.",
+    "noChange": "No change {{value}} {{period}}",
+    "up": "Up {{value}} {{period}}",
+    "down": "Down {{value}} {{period}}"
+  },
+  "volume": {
+    "title": "Requests volume",
+    "description": "Created vs completed per day — last {{count}} days",
+    "showTable": "Show as table",
+    "showChart": "Show as chart",
+    "legend": "Legend",
+    "series": {
+      "created": "Created",
+      "completed": "Completed"
+    },
+    "chartLabel": "Area chart: {{created}} requests created and {{completed}} completed in the last {{days}} days",
+    "table": {
+      "caption": "Requests created and completed per day",
+      "date": "Date"
+    }
+  },
+  "breakdown": {
+    "title": "By status",
+    "total_one": "{{count}} request in total",
+    "total_other": "{{count}} requests in total",
+    "allRequests": "All requests in this tenant",
+    "listLabel": "Requests by status",
+    "tooltip": "{{status}}: {{count}} ({{share}}%) — {{description}}",
+    "rowLabel_one": "{{status}}: {{count}} request, {{share}}%",
+    "rowLabel_other": "{{status}}: {{count}} requests, {{share}}%"
+  },
+  "attention": {
+    "title": "Needs attention",
+    "pendingCount_one": "{{count}} pending request waiting for a worker",
+    "pendingCount_other": "{{count}} pending requests waiting for a worker",
+    "pendingDescription": "Pending requests waiting for a worker",
+    "viewAll": "View all",
+    "emptyTitle": "All caught up",
+    "emptyDescription": "There are no pending requests waiting for assignment."
+  },
+  "activity": {
+    "title": "Recent activity",
+    "description": "Latest changes across all requests",
+    "emptyTitle": "No activity yet",
+    "emptyDescription": "Changes to service requests will show up here.",
+    "types": {
+      "created": "<actor>{{actor}}</actor> created <link>{{title}}</link>",
+      "assigned": "<actor>{{actor}}</actor> assigned a worker to <link>{{title}}</link>",
+      "status_changed": "<actor>{{actor}}</actor> updated <link>{{title}}</link>",
+      "completed": "<actor>{{actor}}</actor> completed <link>{{title}}</link>",
+      "cancelled": "<actor>{{actor}}</actor> cancelled <link>{{title}}</link>"
+    }
+  }
+}

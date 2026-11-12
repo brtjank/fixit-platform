@@ -1,4 +1,5 @@
 import { Mail, Pencil, Phone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { fullName } from '@/shared/lib'
 import type { User, WorkerProfile } from '@/shared/types'
 import { Avatar, Button, Card, MockBadge, RoleBadge, Skeleton } from '@/shared/ui'
@@ -13,6 +14,7 @@ interface WorkerDetailHeaderProps {
 }
 
 export function WorkerDetailHeader({ user, profile, profileLoading, canEdit, onEdit }: WorkerDetailHeaderProps) {
+  const { t } = useTranslation('workers')
   return (
     <Card className="mb-6 p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -35,12 +37,12 @@ export function WorkerDetailHeader({ user, profile, profileLoading, canEdit, onE
               </a>
             ) : null}
             {profile?.specialization ? <span>{profile.specialization}</span> : null}
-            <MockBadge label="Profile mocked" />
+            <MockBadge label={t('detail.profileMocked')} />
           </div>
         </div>
         {canEdit ? (
           <Button variant="secondary" onClick={onEdit} disabled={profileLoading}>
-            <Pencil /> Edit profile
+            <Pencil /> {t('detail.editProfile')}
           </Button>
         ) : null}
       </div>

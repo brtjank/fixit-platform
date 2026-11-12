@@ -1,4 +1,5 @@
 import { LogOut } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useLogout, useMe, useProfile, useSession } from '@/features/auth'
 import { fullName } from '@/shared/lib'
 import { Avatar, Button, Card, CardContent, RoleBadge, Separator, Skeleton } from '@/shared/ui'
@@ -6,15 +7,17 @@ import { CopyButton } from './CopyButton'
 import { Row, SectionHeading } from './SectionCard'
 
 function Mono({ value }: { value: string }) {
+  const { t } = useTranslation('settings')
   return (
     <span className="flex items-center gap-1">
       <code className="truncate font-mono text-xs text-fg-muted">{value}</code>
-      <CopyButton value={value} label="Copy" iconOnly />
+      <CopyButton value={value} label={t('copy.label')} iconOnly />
     </span>
   )
 }
 
 export function ProfileSection() {
+  const { t } = useTranslation('settings')
   const session = useSession()
   const profile = useProfile()
   const me = useMe()
@@ -25,7 +28,7 @@ export function ProfileSection() {
 
   return (
     <section>
-      <SectionHeading title="Profile" description="Your account in this organization." mock />
+      <SectionHeading title={t('profile.title')} description={t('profile.description')} mock />
       <Card>
         <CardContent>
           {me.isLoading && !user ? (
@@ -44,18 +47,18 @@ export function ProfileSection() {
           )}
           <Separator className="my-4" />
           <dl className="divide-y divide-border">
-            <Row label="Organization">{user?.tenantName ?? '—'}</Row>
-            <Row label="User ID">
+            <Row label={t('profile.organization')}>{user?.tenantName ?? '—'}</Row>
+            <Row label={t('profile.userId')}>
               <Mono value={session.userId} />
             </Row>
-            <Row label="Tenant ID">
+            <Row label={t('profile.tenantId')}>
               <Mono value={session.tenantId} />
             </Row>
           </dl>
-          <p className="mt-3 text-xs text-fg-subtle">Profile editing is not available yet.</p>
+          <p className="mt-3 text-xs text-fg-subtle">{t('profile.editingUnavailable')}</p>
           <Separator className="my-4" />
           <Button variant="secondary" onClick={logout}>
-            <LogOut /> Sign out of this device
+            <LogOut /> {t('profile.signOut')}
           </Button>
         </CardContent>
       </Card>

@@ -1,4 +1,5 @@
-import { ALL_STATUSES, cn, STATUS_META } from '@/shared/lib'
+import { useTranslation } from 'react-i18next'
+import { ALL_STATUSES, cn, statusLabel } from '@/shared/lib'
 import type { ServiceRequestStatus } from '@/shared/types'
 
 interface Props {
@@ -8,12 +9,13 @@ interface Props {
 
 /** Pill-style status filter: "All" + each status. */
 export function StatusFilterTabs({ value, onChange }: Props) {
+  const { t } = useTranslation('requests')
   const options: { key: string; label: string; value: ServiceRequestStatus | undefined }[] = [
-    { key: 'all', label: 'All', value: undefined },
-    ...ALL_STATUSES.map((s) => ({ key: String(s), label: STATUS_META[s].label, value: s })),
+    { key: 'all', label: t('list.filters.all'), value: undefined },
+    ...ALL_STATUSES.map((s) => ({ key: String(s), label: statusLabel(s), value: s })),
   ]
   return (
-    <div role="tablist" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
+    <div role="tablist" aria-label={t('list.filters.byStatus')} className="flex flex-wrap gap-1.5">
       {options.map((o) => {
         const active = o.value === value
         return (

@@ -1,4 +1,5 @@
 import { Bell, ClipboardList } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn, formatRelative } from '@/shared/lib'
 import { Button } from '@/shared/ui'
 import type { Notification } from '../api/notificationsApi'
@@ -12,11 +13,12 @@ export function NotificationItem({
   onOpen: (n: Notification) => void
   onMarkRead: (n: Notification) => void
 }) {
+  const { t } = useTranslation('notifications')
   const unread = !n.readAt
   const Icon = n.serviceRequestId ? ClipboardList : Bell
   return (
     <div className={cn('group relative flex items-start gap-3 px-4 py-3 transition-colors hover:bg-surface-hover', unread && 'bg-brand-soft/30')}>
-      <span className={cn('mt-2 size-2 shrink-0 rounded-full', unread ? 'bg-brand' : 'bg-transparent')} aria-label={unread ? 'Unread' : undefined} />
+      <span className={cn('mt-2 size-2 shrink-0 rounded-full', unread ? 'bg-brand' : 'bg-transparent')} aria-label={unread ? t('list.unreadIndicator') : undefined} />
       <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-bg-subtle text-fg-muted">
         <Icon className="size-4" />
       </span>
@@ -32,7 +34,7 @@ export function NotificationItem({
           className="shrink-0 opacity-100 transition-opacity md:opacity-0 md:group-focus-within:opacity-100 md:group-hover:opacity-100"
           onClick={() => onMarkRead(n)}
         >
-          Mark as read
+          {t('list.markRead')}
         </Button>
       ) : null}
     </div>

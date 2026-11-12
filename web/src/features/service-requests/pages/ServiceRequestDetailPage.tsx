@@ -1,4 +1,5 @@
 import { ChevronRight, FileQuestion } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { useRole } from '@/features/auth'
 import { errorMessage, isApiError } from '@/shared/api'
@@ -14,6 +15,7 @@ import { useServiceRequest } from '../hooks'
 import { getRequestPermissions } from '../lib/permissions'
 
 export default function ServiceRequestDetailPage() {
+  const { t } = useTranslation('requests')
   const { id } = useParams<{ id: string }>()
   const role = useRole()
   const query = useServiceRequest(id)
@@ -28,11 +30,11 @@ export default function ServiceRequestDetailPage() {
       return (
         <EmptyState
           icon={FileQuestion}
-          title="Request not found"
-          description="It may have been removed, or it belongs to another organization."
+          title={t('detail.notFound.title')}
+          description={t('detail.notFound.description')}
           action={
             <Button variant="secondary" asChild>
-              <Link to={backTo}>Back to requests</Link>
+              <Link to={backTo}>{t('detail.notFound.back')}</Link>
             </Button>
           }
         />
@@ -49,9 +51,9 @@ export default function ServiceRequestDetailPage() {
     <>
       <PageHeader
         breadcrumb={
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1">
+          <nav aria-label={t('breadcrumb')} className="flex items-center gap-1">
             <Link to={backTo} className="hover:text-fg">
-              {role === UserRole.Customer ? 'My requests' : 'Requests'}
+              {role === UserRole.Customer ? t('shared.myRequests') : t('shared.requests')}
             </Link>
             <ChevronRight className="size-3" />
             <span className="font-mono text-fg-muted">{ref}</span>
@@ -68,7 +70,7 @@ export default function ServiceRequestDetailPage() {
             <span className="font-mono text-xs">{ref}</span>
             <span aria-hidden>·</span>
             <Tooltip content={formatDateTime(request.createdAt)}>
-              <span>Created {formatRelative(request.createdAt)}</span>
+              <span>{t('detail.created', { time: formatRelative(request.createdAt) })}</span>
             </Tooltip>
           </span>
         }
@@ -78,18 +80,18 @@ export default function ServiceRequestDetailPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-6">
           <Card>
-            <CardHeader title="Description" />
+            <CardHeader title={t('detail.description.title')} />
             <CardContent>
               <p className="whitespace-pre-line text-sm leading-relaxed text-fg">{request.description}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader title="Latest notes" description="From the most recent status change" />
+            <CardHeader title={t('detail.notes.title')} description={t('detail.notes.description')} />
             <CardContent>
               {request.notes ? (
                 <p className="whitespace-pre-line text-sm leading-relaxed text-fg">{request.notes}</p>
               ) : (
-                <p className="text-sm text-fg-subtle">No notes yet.</p>
+                <p className="text-sm text-fg-subtle">{t('detail.notes.empty')}</p>
               )}
             </CardContent>
           </Card>

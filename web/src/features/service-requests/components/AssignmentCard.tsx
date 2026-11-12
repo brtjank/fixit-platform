@@ -1,4 +1,5 @@
 import { ArrowRightLeft, Clock } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { formatDateTime, formatRelative, shortId } from '@/shared/lib'
 import type { ServiceRequest } from '@/shared/types'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function AssignmentCard({ request, customerLabel, canUpdate, onUpdateStatus }: Props) {
+  const { t } = useTranslation('requests')
   return (
     <Card className="p-3.5 transition-colors hover:border-border-strong">
       <div className="flex items-center justify-between gap-2">
@@ -30,7 +32,7 @@ export function AssignmentCard({ request, customerLabel, canUpdate, onUpdateStat
         </Tooltip>
         {canUpdate ? (
           <Button size="sm" variant="secondary" onClick={() => onUpdateStatus(request)}>
-            <ArrowRightLeft /> Update status
+            <ArrowRightLeft /> {t('actions.updateStatus')}
           </Button>
         ) : null}
       </div>

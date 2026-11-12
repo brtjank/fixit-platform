@@ -1,0 +1,87 @@
+{
+  "page": {
+    "title": "Pulpit",
+    "viewAllRequests": "Zobacz wszystkie zgłoszenia",
+    "newRequest": "Nowe zgłoszenie"
+  },
+  "stats": {
+    "loadError": "Nie udało się wczytać statystyk",
+    "openRequests": "Otwarte zgłoszenia",
+    "pendingUnassigned": "Oczekujące (nieprzypisane)",
+    "pendingHint": "Czekają na pracownika",
+    "inProgress": "W trakcie",
+    "inProgressHint": "Prace trwają w tej chwili",
+    "completed30Days": "Zakończone (30 dni)",
+    "avgResolution": "Średni czas realizacji",
+    "hours_one": "godzina",
+    "hours_few": "godziny",
+    "hours_many": "godzin",
+    "hours_other": "godziny",
+    "availableWorkers": "Dostępni pracownicy",
+    "activeWorkers_one": "/ {{count}} aktywny",
+    "activeWorkers_few": "/ {{count}} aktywnych",
+    "activeWorkers_many": "/ {{count}} aktywnych",
+    "activeWorkers_other": "/ {{count}} aktywnych"
+  },
+  "trend": {
+    "vsPrev30Days": "vs poprz. 30 dni",
+    "vsPrev": "vs poprz. okres",
+    "noChange": "Bez zmian {{value}} {{period}}",
+    "up": "Wzrost o {{value}} {{period}}",
+    "down": "Spadek o {{value}} {{period}}"
+  },
+  "volume": {
+    "title": "Liczba zgłoszeń",
+    "description": "Utworzone i zakończone dziennie — ostatnie {{count}} dni",
+    "showTable": "Pokaż jako tabelę",
+    "showChart": "Pokaż jako wykres",
+    "legend": "Legenda",
+    "series": {
+      "created": "Utworzone",
+      "completed": "Zakończone"
+    },
+    "chartLabel": "Wykres warstwowy: {{created}} utworzonych i {{completed}} zakończonych zgłoszeń w ciągu ostatnich {{days}} dni",
+    "table": {
+      "caption": "Zgłoszenia utworzone i zakończone dziennie",
+      "date": "Data"
+    }
+  },
+  "breakdown": {
+    "title": "Według statusu",
+    "total_one": "Łącznie {{count}} zgłoszenie",
+    "total_few": "Łącznie {{count}} zgłoszenia",
+    "total_many": "Łącznie {{count}} zgłoszeń",
+    "total_other": "Łącznie {{count}} zgłoszenia",
+    "allRequests": "Wszystkie zgłoszenia w tej organizacji",
+    "listLabel": "Zgłoszenia według statusu",
+    "tooltip": "{{status}}: {{count}} ({{share}}%) — {{description}}",
+    "rowLabel_one": "{{status}}: {{count}} zgłoszenie, {{share}}%",
+    "rowLabel_few": "{{status}}: {{count}} zgłoszenia, {{share}}%",
+    "rowLabel_many": "{{status}}: {{count}} zgłoszeń, {{share}}%",
+    "rowLabel_other": "{{status}}: {{count}} zgłoszenia, {{share}}%"
+  },
+  "attention": {
+    "title": "Wymagają uwagi",
+    "pendingCount_one": "{{count}} oczekujące zgłoszenie czeka na pracownika",
+    "pendingCount_few": "{{count}} oczekujące zgłoszenia czekają na pracownika",
+    "pendingCount_many": "{{count}} oczekujących zgłoszeń czeka na pracownika",
+    "pendingCount_other": "{{count}} oczekującego zgłoszenia czeka na pracownika",
+    "pendingDescription": "Oczekujące zgłoszenia czekające na pracownika",
+    "viewAll": "Zobacz wszystkie",
+    "emptyTitle": "Wszystko na bieżąco",
+    "emptyDescription": "Brak oczekujących zgłoszeń do przypisania."
+  },
+  "activity": {
+    "title": "Ostatnia aktywność",
+    "description": "Najnowsze zmiany we wszystkich zgłoszeniach",
+    "emptyTitle": "Brak aktywności",
+    "emptyDescription": "Tutaj pojawią się zmiany w zgłoszeniach.",
+    "types": {
+      "created": "<actor>{{actor}}</actor> utworzył(a) zgłoszenie <link>{{title}}</link>",
+      "assigned": "<actor>{{actor}}</actor> przypisał(a) pracownika do zgłoszenia <link>{{title}}</link>",
+      "status_changed": "<actor>{{actor}}</actor> zaktualizował(a) zgłoszenie <link>{{title}}</link>",
+      "completed": "<actor>{{actor}}</actor> zakończył(a) zgłoszenie <link>{{title}}</link>",
+      "cancelled": "<actor>{{actor}}</actor> anulował(a) zgłoszenie <link>{{title}}</link>"
+    }
+  }
+}

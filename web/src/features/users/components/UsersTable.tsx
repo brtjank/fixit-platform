@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { formatDate, fullName } from '@/shared/lib'
 import type { User } from '@/shared/types'
 import { Avatar, Badge, RoleBadge, Skeleton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/ui'
@@ -13,16 +14,17 @@ interface UsersTableProps {
 }
 
 export function UsersTable({ users, loading, currentUserId, ...actions }: UsersTableProps) {
+  const { t } = useTranslation('users')
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>User</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Joined</TableHead>
+          <TableHead>{t('table.user')}</TableHead>
+          <TableHead>{t('table.role')}</TableHead>
+          <TableHead>{t('table.status')}</TableHead>
+          <TableHead>{t('table.joined')}</TableHead>
           <TableHead className="w-12">
-            <span className="sr-only">Actions</span>
+            <span className="sr-only">{t('table.actions')}</span>
           </TableHead>
         </TableRow>
       </TableHeader>
@@ -39,7 +41,7 @@ export function UsersTable({ users, loading, currentUserId, ...actions }: UsersT
                       <div className="min-w-0">
                         <div className="truncate font-medium text-fg">
                           {fullName(user)}
-                          {isSelf ? <span className="ml-1.5 text-xs font-normal text-fg-subtle">(you)</span> : null}
+                          {isSelf ? <span className="ml-1.5 text-xs font-normal text-fg-subtle">{t('table.you')}</span> : null}
                         </div>
                         <div className="truncate text-xs text-fg-muted">{user.email}</div>
                       </div>
@@ -51,11 +53,11 @@ export function UsersTable({ users, loading, currentUserId, ...actions }: UsersT
                   <TableCell>
                     {user.isActive ? (
                       <Badge tone="success" dot>
-                        Active
+                        {t('status.active')}
                       </Badge>
                     ) : (
                       <Badge tone="neutral" dot>
-                        Inactive
+                        {t('status.inactive')}
                       </Badge>
                     )}
                   </TableCell>

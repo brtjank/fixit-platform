@@ -1,10 +1,10 @@
 import { Inbox, Plus } from 'lucide-react'
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useIsAdmin } from '@/features/auth'
 import { errorMessage } from '@/shared/api'
 import { usePagination } from '@/shared/hooks'
-import { pluralize } from '@/shared/lib'
 import { Button, Card, EmptyState, ErrorState, PageHeader, Pagination } from '@/shared/ui'
 import { RequestFilterBar } from '../components/RequestFilterBar'
 import { RequestsTable } from '../components/RequestsTable'
@@ -13,6 +13,7 @@ import { useRequestFilters } from '../components/useRequestFilters'
 import { useServiceRequests } from '../hooks'
 
 export default function ServiceRequestsListPage() {
+  const { t } = useTranslation('requests')
   const isAdmin = useIsAdmin()
   const { page, pageSize, setPage, setPageSize } = usePagination(20)
   const filters = useRequestFilters()
@@ -36,13 +37,13 @@ export default function ServiceRequestsListPage() {
   return (
     <>
       <PageHeader
-        title="Service requests"
-        description={total !== undefined ? pluralize(total, 'request') : 'Loading…'}
+        title={t('list.title')}
+        description={total !== undefined ? t('list.count', { count: total }) : t('list.loading')}
         actions={
           isAdmin ? (
             <Button asChild>
               <Link to="/requests/new">
-                <Plus /> New request
+                <Plus /> {t('shared.newRequest')}
               </Link>
             </Button>
           ) : null
@@ -57,12 +58,12 @@ export default function ServiceRequestsListPage() {
         ) : !query.isLoading && items.length === 0 ? (
           <EmptyState
             icon={Inbox}
-            title="No requests match these filters"
-            description={filters.hasFilters ? 'Try a different status, worker or search term.' : 'There are no service requests yet.'}
+            title={t('list.empty.title')}
+            description={filters.hasFilters ? t('list.empty.filtered') : t('list.empty.none')}
             action={
               filters.hasFilters ? (
                 <Button variant="secondary" onClick={filters.clear}>
-                  Clear filters
+                  {t('common:actions.clearFilters')}
                 </Button>
               ) : null
             }

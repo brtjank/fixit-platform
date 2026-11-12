@@ -12,7 +12,8 @@ import {
 import { UserRole } from '@/shared/types'
 
 export interface NavItem {
-  label: string
+  /** i18n key under common:nav.* */
+  labelKey: string
   to: string
   icon: LucideIcon
   roles: UserRole[]
@@ -21,7 +22,8 @@ export interface NavItem {
 }
 
 export interface NavSection {
-  title?: string
+  /** i18n key under common:nav.sections.* */
+  titleKey?: string
   items: NavItem[]
 }
 
@@ -31,25 +33,25 @@ const ALL = [UserRole.Admin, UserRole.Worker, UserRole.Customer]
 export const NAV_SECTIONS: NavSection[] = [
   {
     items: [
-      { label: 'Dashboard', to: '/', icon: LayoutDashboard, roles: [UserRole.Admin, UserRole.Worker], end: true },
-      { label: 'My requests', to: '/', icon: ClipboardList, roles: [UserRole.Customer], end: true },
-      { label: 'New request', to: '/requests/new', icon: PlusCircle, roles: [UserRole.Customer] },
+      { labelKey: 'dashboard', to: '/', icon: LayoutDashboard, roles: [UserRole.Admin, UserRole.Worker], end: true },
+      { labelKey: 'myRequests', to: '/', icon: ClipboardList, roles: [UserRole.Customer], end: true },
+      { labelKey: 'newRequest', to: '/requests/new', icon: PlusCircle, roles: [UserRole.Customer] },
     ],
   },
   {
-    title: 'Operations',
+    titleKey: 'operations',
     items: [
-      { label: 'Service requests', to: '/requests', icon: ClipboardList, roles: [UserRole.Admin, UserRole.Worker] },
-      { label: 'My assignments', to: '/my-assignments', icon: Briefcase, roles: [UserRole.Worker] },
-      { label: 'Workers', to: '/workers', icon: HardHat, roles: [UserRole.Admin, UserRole.Worker] },
+      { labelKey: 'serviceRequests', to: '/requests', icon: ClipboardList, roles: [UserRole.Admin, UserRole.Worker] },
+      { labelKey: 'myAssignments', to: '/my-assignments', icon: Briefcase, roles: [UserRole.Worker] },
+      { labelKey: 'workers', to: '/workers', icon: HardHat, roles: [UserRole.Admin, UserRole.Worker] },
     ],
   },
   {
-    title: 'Administration',
+    titleKey: 'administration',
     items: [
-      { label: 'Users', to: '/users', icon: Users, roles: [UserRole.Admin] },
-      { label: 'Settings', to: '/settings', icon: Settings, roles: ALL },
-      { label: 'Notifications', to: '/notifications', icon: Bell, roles: ALL },
+      { labelKey: 'users', to: '/users', icon: Users, roles: [UserRole.Admin] },
+      { labelKey: 'settings', to: '/settings', icon: Settings, roles: ALL },
+      { labelKey: 'notifications', to: '/notifications', icon: Bell, roles: ALL },
     ],
   },
 ]

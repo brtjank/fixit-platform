@@ -1,0 +1,94 @@
+{
+  "list": {
+    "title": "Pracownicy",
+    "description": "Technicy terenowi, ich specjalizacje i bieżące obciążenie",
+    "invite": "Zaproś pracownika",
+    "loadError": "Nie udało się wczytać pracowników",
+    "emptyFilteredTitle": "Brak pracowników pasujących do filtrów",
+    "emptyFilteredDescription": "Zmień wyszukiwanie lub wyczyść filtry.",
+    "emptyTitle": "Nie ma jeszcze pracowników",
+    "emptyDescription": "Zaproś pracowników, aby można było przypisywać ich do zgłoszeń."
+  },
+  "summary": {
+    "total": "Łącznie",
+    "availableNow": "Dostępni teraz",
+    "busy": "Zajęci",
+    "mocked": "Profile i obciążenie są zamockowane"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Szukaj po nazwisku lub specjalizacji…",
+    "searchLabel": "Szukaj pracowników",
+    "specializationLabel": "Filtruj według specjalizacji",
+    "allSpecializations": "Wszystkie specjalizacje",
+    "availableOnly": "Tylko dostępni"
+  },
+  "availability": {
+    "available": "Dostępny",
+    "unavailable": "Niedostępny",
+    "inactive": "Nieaktywny"
+  },
+  "workload": {
+    "open": "Otwarte",
+    "inProgress": "W trakcie",
+    "done30d": "Zakończone (30 dni)",
+    "completed30d": "Zakończone (30 dni)"
+  },
+  "card": {
+    "open": "Otwórz: {{name}}",
+    "noSpecialization": "Brak specjalizacji",
+    "noPhone": "Brak telefonu",
+    "noProfile": "Brak profilu"
+  },
+  "detail": {
+    "allWorkers": "Wszyscy pracownicy",
+    "loadError": "Nie udało się wczytać pracownika",
+    "notFoundTitle": "Nie znaleziono pracownika",
+    "notFoundDescription": "Ten pracownik nie istnieje lub należy do innej organizacji.",
+    "backToWorkers": "Wróć do pracowników",
+    "editProfile": "Edytuj profil",
+    "profileMocked": "Profil zamockowany",
+    "assigned": {
+      "title": "Przypisane zgłoszenia",
+      "showingLatest": "Wyświetlono 50 najnowszych z {{total}}",
+      "open": "Otwarte",
+      "closed": "Zamknięte",
+      "loadError": "Nie udało się wczytać zgłoszeń",
+      "emptyOpenTitle": "Brak otwartych zgłoszeń",
+      "emptyOpenDescription": "Ten pracownik nie ma obecnie przypisanych zgłoszeń.",
+      "emptyClosedTitle": "Brak zamkniętych zgłoszeń",
+      "emptyClosedDescription": "Tutaj pojawią się zgłoszenia zakończone i anulowane.",
+      "reference": "Numer",
+      "requestTitle": "Tytuł",
+      "customer": "Klient",
+      "status": "Status",
+      "created": "Utworzono"
+    },
+    "profile": {
+      "title": "Profil",
+      "noProfile": "Brak profilu",
+      "notSet": "Nie ustawiono",
+      "specialization": "Specjalizacja",
+      "phone": "Telefon",
+      "memberSince": "W zespole od",
+      "userId": "ID użytkownika"
+    }
+  },
+  "editProfile": {
+    "title": "Edytuj profil",
+    "submit": "Zapisz profil",
+    "error": "Nie udało się zaktualizować profilu",
+    "specialization": "Specjalizacja",
+    "specializationHint": "np. hydraulika, elektryka",
+    "phone": "Numer telefonu",
+    "availability": "Dostępny do nowych przydziałów",
+    "availabilityHint": "Niedostępni pracownicy są ukryci w podpowiedziach szybkiego przypisania.",
+    "validation": {
+      "maxLength": "Maksymalnie {{max}} znaków",
+      "phoneFormat": "Tylko cyfry, spacje oraz znaki +, -, ( i )"
+    }
+  },
+  "toasts": {
+    "profileUpdated": "Zaktualizowano profil",
+    "profileUpdateError": "Nie udało się zaktualizować profilu"
+  }
+}

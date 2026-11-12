@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
+import { i18n } from '@/i18n'
 import { queryClient } from '@/shared/api/queryClient'
 import { parseRole } from '@/shared/lib'
 import { UserRole, type LoginRequest } from '@/shared/types'
@@ -24,7 +25,7 @@ export function useLogin() {
         const me = await authApi.me()
         setProfile({ firstName: me.firstName, lastName: me.lastName, email: me.email, tenantName: me.tenantName })
       } catch {
-        setProfile({ firstName: body.email.split('@')[0] ?? 'User', lastName: '', email: body.email, tenantName: 'FixIt' })
+        setProfile({ firstName: body.email.split('@')[0] ?? i18n.t('auth:profile.fallbackName'), lastName: '', email: body.email, tenantName: 'FixIt' })
       }
       return res
     },

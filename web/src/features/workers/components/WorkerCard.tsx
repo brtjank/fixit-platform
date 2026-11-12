@@ -1,4 +1,5 @@
 import { Mail, Phone, Wrench } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { cn, fullName } from '@/shared/lib'
 import { Avatar, Card, Skeleton } from '@/shared/ui'
@@ -7,12 +8,13 @@ import { AvailabilityBadge } from './AvailabilityBadge'
 import { WorkloadNumbers } from './WorkloadNumbers'
 
 export function WorkerCard({ entry, extrasLoading }: { entry: WorkerRosterEntry; extrasLoading?: boolean }) {
+  const { t } = useTranslation('workers')
   const { user, profile, workload } = entry
   return (
     <Link
       to={`/workers/${user.id}`}
       className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      aria-label={`Open ${fullName(user)}`}
+      aria-label={t('card.open', { name: fullName(user) })}
     >
       <Card className={cn('h-full p-5 transition-colors group-hover:border-border-strong group-hover:bg-surface-hover', !user.isActive && 'opacity-75')}>
         <div className="flex items-start gap-3">
@@ -39,15 +41,15 @@ export function WorkerCard({ entry, extrasLoading }: { entry: WorkerRosterEntry;
             <>
               <p className="flex items-center gap-2 text-fg">
                 <Wrench className="size-3.5 shrink-0 text-fg-subtle" />
-                <span className="truncate">{profile.specialization ?? <span className="text-fg-subtle">No specialization</span>}</span>
+                <span className="truncate">{profile.specialization ?? <span className="text-fg-subtle">{t('card.noSpecialization')}</span>}</span>
               </p>
               <p className="flex items-center gap-2 text-fg-muted">
                 <Phone className="size-3.5 shrink-0 text-fg-subtle" />
-                {profile.phoneNumber ? <span className="font-mono text-xs">{profile.phoneNumber}</span> : <span className="text-fg-subtle">No phone</span>}
+                {profile.phoneNumber ? <span className="font-mono text-xs">{profile.phoneNumber}</span> : <span className="text-fg-subtle">{t('card.noPhone')}</span>}
               </p>
             </>
           ) : (
-            <p className="text-sm italic text-fg-subtle">No profile yet</p>
+            <p className="text-sm italic text-fg-subtle">{t('card.noProfile')}</p>
           )}
         </div>
 

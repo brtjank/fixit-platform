@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import type { HTMLAttributes } from 'react'
-import { cn, ROLE_META, STATUS_META, type Tone } from '@/shared/lib'
+import { cn, ROLE_META, roleLabel, STATUS_META, statusLabel, type Tone } from '@/shared/lib'
 import type { ServiceRequestStatus, UserRole } from '@/shared/types'
 
 export const badgeVariants = cva(
@@ -41,7 +41,7 @@ export function StatusBadge({ status, className }: { status: ServiceRequestStatu
   const meta = STATUS_META[status]
   return (
     <Badge tone={meta?.tone ?? 'neutral'} dot className={className}>
-      {meta?.label ?? `Status ${status}`}
+      {statusLabel(status)}
     </Badge>
   )
 }
@@ -50,7 +50,7 @@ export function RoleBadge({ role, className }: { role: UserRole; className?: str
   const meta = ROLE_META[role]
   return (
     <Badge tone={meta?.tone ?? 'neutral'} className={className}>
-      {meta?.label ?? `Role ${role}`}
+      {roleLabel(role)}
     </Badge>
   )
 }

@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import { Dialog as RadixDialog } from 'radix-ui'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
 import { Button } from './Button'
 
@@ -20,6 +21,7 @@ interface DialogContentProps {
 const sizes = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl' }
 
 export function DialogContent({ title, description, children, footer, className, size = 'md' }: DialogContentProps) {
+  const { t } = useTranslation()
   return (
     <RadixDialog.Portal>
       <RadixDialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] data-[state=open]:animate-in" />
@@ -40,7 +42,7 @@ export function DialogContent({ title, description, children, footer, className,
             )}
           </div>
           <RadixDialog.Close asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Close">
+            <Button variant="ghost" size="icon-sm" aria-label={t('actions.close')}>
               <X />
             </Button>
           </RadixDialog.Close>

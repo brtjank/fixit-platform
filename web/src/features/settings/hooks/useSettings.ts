@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useSessionStore } from '@/features/auth'
+import { i18n } from '@/i18n'
 import { errorMessage } from '@/shared/api'
 import { settingsApi, type NotificationPreferences, type UpdateTenantRequest } from '../api/settingsApi'
 
@@ -20,9 +21,9 @@ export function useUpdateTenant() {
       void qc.invalidateQueries({ queryKey: settingsKeys.tenant })
       const { profile, setProfile } = useSessionStore.getState()
       if (profile) setProfile({ ...profile, tenantName: tenant.name })
-      toast.success('Organization updated')
+      toast.success(i18n.t('settings:toasts.organizationUpdated'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not save organization settings')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('settings:toasts.organizationFailed'))),
   })
 }
 
@@ -35,8 +36,8 @@ export function useUpdateNotificationPreferences() {
     mutationFn: (body: NotificationPreferences) => settingsApi.updateNotificationPreferences(body),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: settingsKeys.notificationPreferences })
-      toast.success('Preferences saved')
+      toast.success(i18n.t('settings:toasts.preferencesSaved'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not save preferences')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('settings:toasts.preferencesFailed'))),
   })
 }

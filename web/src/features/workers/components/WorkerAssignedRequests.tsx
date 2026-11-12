@@ -1,5 +1,6 @@
 import { ClipboardList } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useServiceRequests } from '@/features/service-requests/hooks'
 import { useUserDirectory } from '@/features/users/hooks'
@@ -26,6 +27,7 @@ import {
 type TabValue = 'open' | 'closed'
 
 export function WorkerAssignedRequests({ workerId }: { workerId: string }) {
+  const { t } = useTranslation('workers')
   const navigate = useNavigate()
   const directory = useUserDirectory()
   const query = useServiceRequests({ assignedWorkerId: workerId, pageSize: 50 })
@@ -41,16 +43,16 @@ export function WorkerAssignedRequests({ workerId }: { workerId: string }) {
   return (
     <Card>
       <CardHeader
-        title="Assigned requests"
-        description={total > 50 ? `Showing the latest 50 of ${total}` : undefined}
+        title={t('detail.assigned.title')}
+        description={total > 50 ? t('detail.assigned.showingLatest', { total }) : undefined}
         actions={
           <Tabs value={tab} onValueChange={(v) => setTab(v as TabValue)}>
             <TabsList>
               <TabsTrigger value="open">
-                Open <span className="text-xs text-fg-subtle tabular">{open.length}</span>
+                {t('detail.assigned.open')} <span className="text-xs text-fg-subtle tabular">{open.length}</span>
               </TabsTrigger>
               <TabsTrigger value="closed">
-                Closed <span className="text-xs text-fg-subtle tabular">{closed.length}</span>
+                {t('detail.assigned.closed')} <span className="text-xs text-fg-subtle tabular">{closed.length}</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -58,7 +60,7 @@ export function WorkerAssignedRequests({ workerId }: { workerId: string }) {
       />
       {query.isError ? (
         <div className="p-5">
-          <ErrorState title="Could not load requests" message={errorMessage(query.error)} retry={() => void query.refetch()} />
+          <ErrorState title={t('detail.assigned.loadError')} message={errorMessage(query.error)} retry={() => void query.refetch()} />
         </div>
       ) : query.isLoading ? (
         <div className="space-y-3 p-5">
@@ -69,18 +71,18 @@ export function WorkerAssignedRequests({ workerId }: { workerId: string }) {
       ) : rows.length === 0 ? (
         <EmptyState
           icon={ClipboardList}
-          title={tab === 'open' ? 'No open requests' : 'No closed requests'}
-          description={tab === 'open' ? 'Nothing is currently assigned to this worker.' : 'Completed and cancelled requests will show up here.'}
+          title={tab === 'open' ? t('detail.assigned.emptyOpenTitle') : t('detail.assigned.emptyClosedTitle')}
+          description={tab === 'open' ? t('detail.assigned.emptyOpenDescription') : t('detail.assigned.emptyClosedDescription')}
         />
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Reference</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Created</TableHead>
+              <TableHead>{t('detail.assigned.reference')}</TableHead>
+              <TableHead>{t('detail.assigned.requestTitle')}</TableHead>
+              <TableHead>{t('detail.assigned.customer')}</TableHead>
+              <TableHead>{t('detail.assigned.status')}</TableHead>
+              <TableHead className="text-right">{t('detail.assigned.created')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

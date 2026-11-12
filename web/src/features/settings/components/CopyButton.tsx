@@ -1,14 +1,17 @@
 import { Copy } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/shared/ui'
 
-export function CopyButton({ value, label = 'Copy', iconOnly }: { value: string; label?: string; iconOnly?: boolean }) {
+export function CopyButton({ value, label: labelProp, iconOnly }: { value: string; label?: string; iconOnly?: boolean }) {
+  const { t } = useTranslation('settings')
+  const label = labelProp ?? t('copy.label')
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(value)
-      toast.success('Copied to clipboard')
+      toast.success(t('common:actions.copied'))
     } catch {
-      toast.error('Could not copy')
+      toast.error(t('copy.failed'))
     }
   }
   return iconOnly ? (

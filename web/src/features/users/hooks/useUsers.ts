@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { useMemo } from 'react'
 import { toast } from 'sonner'
 import { useRole } from '@/features/auth'
+import { i18n } from '@/i18n'
 import { errorMessage } from '@/shared/api'
 import { fullName, shortId } from '@/shared/lib'
 import { UserRole, type PagedParams, type User } from '@/shared/types'
@@ -101,9 +102,9 @@ export function useInviteUser() {
     mutationFn: (body: InviteUserRequest) => usersApi.invite(body),
     onSuccess: (u) => {
       invalidate()
-      toast.success(`Invitation sent to ${u.email}`)
+      toast.success(i18n.t('users:toasts.invited', { email: u.email }))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not invite the user')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('users:toasts.inviteError'))),
   })
 }
 
@@ -114,9 +115,9 @@ export function useUpdateUser() {
     mutationFn: ({ id, body }: { id: string; body: UpdateUserRequest }) => usersApi.update(id, body),
     onSuccess: () => {
       invalidate()
-      toast.success('User updated')
+      toast.success(i18n.t('users:toasts.updated'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not update the user')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('users:toasts.updateError'))),
   })
 }
 
@@ -127,8 +128,8 @@ export function useSetUserActive() {
     mutationFn: ({ id, active }: { id: string; active: boolean }) => (active ? usersApi.activate(id) : usersApi.deactivate(id)),
     onSuccess: (u) => {
       invalidate()
-      toast.success(u.isActive ? 'User activated' : 'User deactivated')
+      toast.success(u.isActive ? i18n.t('users:toasts.activated') : i18n.t('users:toasts.deactivated'))
     },
-    onError: (e) => toast.error(errorMessage(e, 'Could not update the user')),
+    onError: (e) => toast.error(errorMessage(e, i18n.t('users:toasts.updateError'))),
   })
 }

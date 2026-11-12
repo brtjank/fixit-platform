@@ -1,4 +1,5 @@
 import { ArrowRight, CirclePlus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useUser, useUserDirectory } from '@/features/users/hooks'
 import { errorMessage } from '@/shared/api'
 import { formatDateTime, formatRelative, fullName } from '@/shared/lib'
@@ -17,6 +18,7 @@ function When({ at }: { at: string }) {
 }
 
 export function RequestTimeline({ request }: { request: ServiceRequest }) {
+  const { t } = useTranslation('requests')
   const logs = useServiceRequestLogs(request.id)
   const directory = useUserDirectory()
   // The directory cannot resolve customers for Workers/Customers; fall back to the (mock-only) single-user lookup.
@@ -28,10 +30,10 @@ export function RequestTimeline({ request }: { request: ServiceRequest }) {
       <CardHeader
         title={
           <span className="flex items-center gap-2">
-            History <MockBadge />
+            {t('detail.history.title')} <MockBadge />
           </span>
         }
-        description="Every status change on this request"
+        description={t('detail.history.description')}
       />
       <CardContent>
         {logs.isLoading ? (
@@ -50,11 +52,11 @@ export function RequestTimeline({ request }: { request: ServiceRequest }) {
               </span>
               <div className="min-w-0 flex-1 pt-0.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-medium text-fg">Created</span>
+                  <span className="text-sm font-medium text-fg">{t('detail.history.created')}</span>
                   <StatusBadge status={ServiceRequestStatus.Pending} />
                   <When at={request.createdAt} />
                 </div>
-                <p className="mt-0.5 text-xs text-fg-muted">Submitted for {customerLabel}</p>
+                <p className="mt-0.5 text-xs text-fg-muted">{t('detail.history.submittedFor', { name: customerLabel })}</p>
               </div>
             </li>
             {(logs.data ?? []).map((log) => (
@@ -65,14 +67,16 @@ export function RequestTimeline({ request }: { request: ServiceRequest }) {
                 <div className="min-w-0 flex-1 pt-0.5">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <StatusBadge status={log.previousStatus} />
-                    <ArrowRight className="size-3.5 text-fg-subtle" aria-label="to" />
+                    <ArrowRight className="size-3.5 text-fg-subtle" aria-label={t('detail.history.to')} />
                     <StatusBadge status={log.newStatus} />
                     <When at={log.createdAt} />
                   </div>
                   {log.notes ? (
                     <p className="mt-1.5 whitespace-pre-line rounded-md bg-bg-subtle px-3 py-2 text-sm text-fg">{log.notes}</p>
                   ) : null}
-                  <p className="mt-1 text-xs text-fg-muted">by {log.changedByUserId ? directory.label(log.changedByUserId) : 'System'}</p>
+                  <p className="mt-1 text-xs text-fg-muted">
+                    {t('detail.history.by', { name: log.changedByUserId ? directory.label(log.changedByUserId) : t('detail.history.system') })}
+                  </p>
                 </div>
               </li>
             ))}

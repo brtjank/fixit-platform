@@ -1,5 +1,6 @@
 import { HardHat, UserPlus } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useIsAdmin } from '@/features/auth'
 import { errorMessage } from '@/shared/api'
@@ -13,6 +14,7 @@ import { useWorkerRoster } from '../hooks'
 import { isWorkerAvailable } from '../lib'
 
 export default function WorkersPage() {
+  const { t } = useTranslation('workers')
   const isAdmin = useIsAdmin()
   const navigate = useNavigate()
   const { entries, workersQuery, extrasLoading } = useWorkerRoster()
@@ -57,19 +59,19 @@ export default function WorkersPage() {
   return (
     <>
       <PageHeader
-        title="Workers"
-        description="Field technicians, their specializations and current workload"
+        title={t('list.title')}
+        description={t('list.description')}
         actions={
           isAdmin ? (
             <Button onClick={() => navigate('/users')}>
-              <UserPlus /> Invite worker
+              <UserPlus /> {t('list.invite')}
             </Button>
           ) : undefined
         }
       />
 
       {workersQuery.isError ? (
-        <ErrorState title="Could not load workers" message={errorMessage(workersQuery.error)} retry={() => void workersQuery.refetch()} />
+        <ErrorState title={t('list.loadError')} message={errorMessage(workersQuery.error)} retry={() => void workersQuery.refetch()} />
       ) : (
         <>
           <WorkersSummary {...summary} loading={workersQuery.isLoading || extrasLoading} />
@@ -92,16 +94,16 @@ export default function WorkersPage() {
           ) : filtered.length === 0 ? (
             <EmptyState
               icon={HardHat}
-              title={hasFilters ? 'No workers match your filters' : 'No workers yet'}
-              description={hasFilters ? 'Try a different search or clear the filters.' : 'Invite workers so they can be assigned to service requests.'}
+              title={hasFilters ? t('list.emptyFilteredTitle') : t('list.emptyTitle')}
+              description={hasFilters ? t('list.emptyFilteredDescription') : t('list.emptyDescription')}
               action={
                 hasFilters ? (
                   <Button variant="secondary" onClick={clear}>
-                    Clear filters
+                    {t('common:actions.clearFilters')}
                   </Button>
                 ) : isAdmin ? (
                   <Button onClick={() => navigate('/users')}>
-                    <UserPlus /> Invite worker
+                    <UserPlus /> {t('list.invite')}
                   </Button>
                 ) : undefined
               }

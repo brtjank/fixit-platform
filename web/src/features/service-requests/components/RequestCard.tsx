@@ -1,4 +1,5 @@
 import { ChevronRight, Clock, User as UserIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { formatDateTime, formatRelative, shortId } from '@/shared/lib'
 import type { ServiceRequest } from '@/shared/types'
@@ -6,6 +7,7 @@ import { Card, StatusBadge, Tooltip } from '@/shared/ui'
 
 /** Customer-facing card (My requests). Worker names are not resolvable for customers without the users endpoint. */
 export function RequestCard({ request, workerLabel }: { request: ServiceRequest; workerLabel: string | null }) {
+  const { t } = useTranslation('requests')
   return (
     <Link to={`/requests/${request.id}`} className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
       <Card className="p-4 transition-colors group-hover:border-border-strong group-hover:bg-surface-hover">
@@ -18,7 +20,7 @@ export function RequestCard({ request, workerLabel }: { request: ServiceRequest;
         </div>
         {request.notes ? (
           <p className="mt-2 line-clamp-2 text-sm text-fg-muted">
-            <span className="text-fg-subtle">Latest note: </span>
+            <span className="text-fg-subtle">{t('my.card.latestNote')} </span>
             {request.notes}
           </p>
         ) : (
@@ -32,7 +34,7 @@ export function RequestCard({ request, workerLabel }: { request: ServiceRequest;
           </Tooltip>
           <span className="inline-flex items-center gap-1">
             <UserIcon className="size-3.5" />
-            {workerLabel ?? <span className="text-warning-fg">Waiting for assignment</span>}
+            {workerLabel ?? <span className="text-warning-fg">{t('my.card.waiting')}</span>}
           </span>
           <ChevronRight className="ml-auto size-4 transition-transform group-hover:translate-x-0.5" />
         </div>

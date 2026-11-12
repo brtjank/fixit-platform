@@ -89,3 +89,20 @@ Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders
   Both themes must look right — never use raw grays/whites.
 - Forms: react-hook-form + zod schema colocated with the form component; `FormField` wires labels/errors.
 - Keep components under ~200 lines; split into `components/` when a page grows.
+
+## Internationalisation (i18n)
+
+- Library: `i18next` + `react-i18next`. Setup in `src/i18n/index.ts`; the active language lives in a
+  persisted zustand store (`useLanguage()`), defaults from `navigator.language` (pl → Polish, else English).
+- Resources: `src/locales/<lang>/<namespace>.json`, auto-registered via `import.meta.glob`. One namespace
+  per feature (`common`, `auth`, `dashboard`, `requests`, `users`, `workers`, `settings`, `notifications`).
+  English is the source language; every key must exist in both files.
+- Usage: `const { t } = useTranslation('requests')` then `t('list.title')`; cross-namespace keys as
+  `t('common:actions.save')`. Interpolation `{{name}}`; plurals with `count` and `_one/_few/_many/_other`
+  suffixes (Polish needs all four, English `_one/_other`).
+- Shared helpers already translated: `statusLabel()`, `statusDescription()`, `roleLabel()`,
+  `formatDate/formatDateTime/formatRelative` (date-fns locale), `errorMessage()`. Never read
+  `STATUS_META[x].label` / `ROLE_META[x].label` directly in UI.
+- The whole tree is remounted on language change (`<AppProviders key={language}>`), so helpers that call
+  `i18n.t` outside React hooks stay in sync.
+- Switcher: `LanguageSwitcher` (top bar) and `LanguageSegmented` (settings) in `shared/ui`.
