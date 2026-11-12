@@ -1,5 +1,6 @@
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
+using FixIt.Domain.Entities;
 using FixIt.Domain.Enums;
 using FixIt.Domain.Exceptions;
 using MediatR;
@@ -10,14 +11,17 @@ public class AssignWorkerCommandHandler : IRequestHandler<AssignWorkerCommand, A
 {
     private readonly IServiceRequestRepository _serviceRequestRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IServiceLogRepository _serviceLogRepository;
     private readonly ICurrentUserService _currentUser;
 
     public AssignWorkerCommandHandler(
         IServiceRequestRepository serviceRequestRepository,
         IUserRepository userRepository,
+        IServiceLogRepository serviceLogRepository,
         ICurrentUserService currentUser
     )
     {
+        _serviceLogRepository = serviceLogRepository;
         _serviceRequestRepository = serviceRequestRepository;
         _userRepository = userRepository;
         _currentUser = currentUser;
@@ -64,9 +68,22 @@ public class AssignWorkerCommandHandler : IRequestHandler<AssignWorkerCommand, A
         if (worker.Role != UserRole.Worker)
             throw new UserRoleInvalidException(request.WorkerId, UserRole.Worker, worker.Role);
 
+        var previousStatus = serviceRequest.Status;
+
         serviceRequest.AssignWorker(request.WorkerId);
 
         await _serviceRequestRepository.UpdateAsync(serviceRequest, cancellationToken);
+
+        var serviceLog = new ServiceLog(
+            tenantId,
+            request.ServiceRequestId,
+            previousStatus,
+            serviceRequest.Status,
+            null,
+            _currentUser.UserId
+        );
+
+        await _serviceLogRepository.AddAsync(serviceLog, cancellationToken);
 
         return new AssignWorkerResponse(
             serviceRequest.Id,

@@ -1,6 +1,7 @@
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
 using FixIt.Domain.Entities;
+using FixIt.Domain.Enums;
 using FixIt.Domain.Exceptions;
 using MediatR;
 
@@ -34,7 +35,14 @@ public class GetServiceRequestByIdQueryHandler
             cancellationToken
         );
 
-        if (serviceRequest == null)
+        if (serviceRequest == null || serviceRequest.TenantId != tenantId)
+            throw new ResourceNotFoundException("ServiceRequest", request.Id.ToString());
+
+        // Customers may only view their own service requests (do not reveal existence)
+        if (
+            _currentUser.Role == nameof(UserRole.Customer)
+            && serviceRequest.CustomerId != _currentUser.UserId
+        )
             throw new ResourceNotFoundException("ServiceRequest", request.Id.ToString());
 
         return new GetServiceRequestByIdResponse(serviceRequest);

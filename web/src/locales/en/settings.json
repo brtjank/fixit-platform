@@ -1,0 +1,123 @@
+{
+  "page": {
+    "title": "Settings",
+    "description": "Manage your profile, organization and preferences.",
+    "sectionsNav": "Settings sections"
+  },
+  "nav": {
+    "profile": "Profile",
+    "organization": "Organization",
+    "notifications": "Notifications",
+    "appearance": "Appearance",
+    "language": "Language",
+    "developer": "Developer"
+  },
+  "profile": {
+    "title": "Profile",
+    "description": "Your account in this organization.",
+    "organization": "Organization",
+    "userId": "User ID",
+    "tenantId": "Tenant ID",
+    "editingUnavailable": "Profile editing is not available yet.",
+    "signOut": "Sign out of this device"
+  },
+  "organization": {
+    "title": "Organization",
+    "description": "Details shown to your team and customers.",
+    "plan": "Team plan",
+    "created": "Created {{date}}",
+    "adminOnly": "Only administrators can edit organization settings.",
+    "form": {
+      "name": "Name",
+      "description": "Description",
+      "contactEmail": "Contact email",
+      "phone": "Phone",
+      "address": "Address",
+      "timezone": "Timezone"
+    },
+    "validation": {
+      "nameMin": "Name must have at least 2 characters",
+      "descriptionMax": "Max 500 characters",
+      "email": "Enter a valid email"
+    },
+    "reset": "Reset",
+    "save": "Save changes"
+  },
+  "preferences": {
+    "title": "Notifications",
+    "description": "Choose which emails you receive.",
+    "emailOnNewRequest": {
+      "title": "New requests",
+      "description": "Email me when a new service request is created."
+    },
+    "emailOnAssignment": {
+      "title": "Assignments",
+      "description": "Email me when a request is assigned to me or a worker."
+    },
+    "emailOnStatusChange": {
+      "title": "Status changes",
+      "description": "Email me when the status of a request changes."
+    },
+    "dailyDigest": {
+      "title": "Daily digest",
+      "description": "A morning summary of open and completed requests."
+    }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "Saved on this device.",
+    "themeGroup": "Theme",
+    "light": {
+      "title": "Light",
+      "description": "Bright surfaces"
+    },
+    "dark": {
+      "title": "Dark",
+      "description": "Easy on the eyes"
+    },
+    "system": {
+      "title": "System",
+      "description": "Follows your OS"
+    }
+  },
+  "language": {
+    "title": "Language",
+    "description": "Choose the language of the interface. Saved on this device.",
+    "note": "Dates and numbers are formatted according to the selected language."
+  },
+  "developer": {
+    "title": "Developer",
+    "description": "Diagnostics for the API connection and your session.",
+    "api": {
+      "title": "API connection",
+      "mode": "Mode",
+      "mock": "Mock",
+      "live": "Live",
+      "switchHintBefore": "Switch with",
+      "switchHintIn": "in",
+      "switchHintAfter": ", then restart the dev server. Endpoints that are mocked even in live mode are listed in docs/API_GAPS.md.",
+      "baseUrl": "API base URL",
+      "sameOrigin": "(same origin, proxied to http://localhost:5177)"
+    },
+    "health": {
+      "check": "Check backend health",
+      "healthy": "Healthy"
+    },
+    "token": {
+      "title": "Session token",
+      "copy": "Copy token",
+      "empty": "No readable token in this session.",
+      "securityNote": "Treat this token like a password. Anyone holding it can act as you until it expires."
+    }
+  },
+  "copy": {
+    "label": "Copy",
+    "failed": "Could not copy"
+  },
+  "toasts": {
+    "organizationUpdated": "Organization updated",
+    "organizationFailed": "Could not save organization settings",
+    "preferencesSaved": "Preferences saved",
+    "preferencesFailed": "Could not save preferences"
+  }
+}

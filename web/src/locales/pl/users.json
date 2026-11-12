@@ -1,0 +1,89 @@
+{
+  "list": {
+    "title": "Użytkownicy",
+    "description": "Osoby w Twojej organizacji",
+    "loadError": "Nie udało się wczytać użytkowników",
+    "loading": "Wczytywanie…",
+    "count_one": "{{count}} użytkownik",
+    "count_few": "{{count}} użytkowników",
+    "count_many": "{{count}} użytkowników",
+    "count_other": "{{count}} użytkownika",
+    "filteredFrom": " (przefiltrowano z {{total}} na tej stronie)",
+    "emptyFilteredTitle": "Brak użytkowników pasujących do filtrów",
+    "emptyFilteredDescription": "Zmień wyszukiwanie lub filtry. Filtry dotyczą bieżącej strony.",
+    "emptyTitle": "Nie ma jeszcze użytkowników",
+    "emptyDescription": "Zaproś osoby do swojej organizacji, aby zacząć."
+  },
+  "actions": {
+    "invite": "Zaproś użytkownika"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Szukaj po imieniu, nazwisku lub e-mailu…",
+    "searchLabel": "Szukaj użytkowników",
+    "statusLabel": "Filtruj według statusu",
+    "allStatuses": "Wszystkie statusy",
+    "roleLabel": "Filtruj według roli",
+    "allRoles": "Wszyscy"
+  },
+  "status": {
+    "active": "Aktywny",
+    "inactive": "Nieaktywny"
+  },
+  "table": {
+    "user": "Użytkownik",
+    "role": "Rola",
+    "status": "Status",
+    "joined": "Dołączono",
+    "actions": "Akcje",
+    "you": "(Ty)"
+  },
+  "rowActions": {
+    "menuLabel": "Akcje dla {{email}}",
+    "edit": "Edytuj",
+    "viewAsWorker": "Zobacz jako pracownika",
+    "deactivate": "Dezaktywuj",
+    "activate": "Aktywuj",
+    "cannotDeactivateSelf": "Nie możesz dezaktywować własnego konta"
+  },
+  "form": {
+    "email": "E-mail",
+    "emailPlaceholder": "imie@firma.pl",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "role": "Rola",
+    "validation": {
+      "email": "Podaj poprawny adres e-mail",
+      "role": "Wybierz rolę",
+      "firstNameRequired": "Imię jest wymagane",
+      "lastNameRequired": "Nazwisko jest wymagane",
+      "maxLength": "Maksymalnie {{max}} znaków"
+    }
+  },
+  "invite": {
+    "title": "Zaproś użytkownika",
+    "description": "Otrzyma e-mail z zaproszeniem do Twojej organizacji.",
+    "submit": "Wyślij zaproszenie",
+    "roleHint": "Pracownicy otrzymują profil i mogą być przypisywani do zgłoszeń.",
+    "error": "Nie udało się zaprosić użytkownika"
+  },
+  "edit": {
+    "title": "Edytuj użytkownika",
+    "submit": "Zapisz zmiany",
+    "roleLocked": "Nie możesz zmienić własnej roli.",
+    "error": "Nie udało się zaktualizować użytkownika"
+  },
+  "deactivate": {
+    "title": "Dezaktywować: {{name}}?",
+    "description": "Ta osoba nie będzie mogła się zalogować ani być przypisywana do zgłoszeń. Możesz ją ponownie aktywować w dowolnym momencie.",
+    "confirm": "Dezaktywuj",
+    "account": "Konto:"
+  },
+  "toasts": {
+    "invited": "Wysłano zaproszenie na adres {{email}}",
+    "inviteError": "Nie udało się zaprosić użytkownika",
+    "updated": "Zaktualizowano użytkownika",
+    "updateError": "Nie udało się zaktualizować użytkownika",
+    "activated": "Aktywowano użytkownika",
+    "deactivated": "Dezaktywowano użytkownika"
+  }
+}

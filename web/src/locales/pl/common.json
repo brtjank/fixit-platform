@@ -1,0 +1,76 @@
+{
+  "app": { "name": "FixIt", "tagline": "Obsługa zleceń serwisowych", "version": "FixIt Platform · v0.1", "workspace": "Przestrzeń robocza" },
+  "nav": {
+    "dashboard": "Pulpit",
+    "myRequests": "Moje zgłoszenia",
+    "newRequest": "Nowe zgłoszenie",
+    "serviceRequests": "Zgłoszenia",
+    "myAssignments": "Moje zadania",
+    "workers": "Pracownicy",
+    "users": "Użytkownicy",
+    "settings": "Ustawienia",
+    "notifications": "Powiadomienia",
+    "sections": { "operations": "Operacje", "administration": "Administracja" },
+    "openMenu": "Otwórz menu",
+    "closeMenu": "Zamknij menu"
+  },
+  "topbar": {
+    "mockApi": "Mock API",
+    "liveApi": "Live API",
+    "mockApiHint": "Wszystkie wywołania API obsługuje Mock Service Worker. Ustaw VITE_API_MODE=live, aby użyć backendu.",
+    "liveApiHint": "Prawdziwe endpointy backendu są aktywne; te jeszcze niezaimplementowane nadal są mockowane.",
+    "toggleTheme": "Przełącz motyw",
+    "theme": "Motyw: {{theme}}",
+    "language": "Język",
+    "accountMenu": "Menu konta",
+    "profile": "Profil",
+    "settings": "Ustawienia",
+    "signOut": "Wyloguj"
+  },
+  "theme": { "light": "Jasny", "dark": "Ciemny", "system": "Systemowy" },
+  "status": {
+    "pending": "Oczekujące",
+    "assigned": "Przypisane",
+    "inProgress": "W trakcie",
+    "completed": "Zakończone",
+    "cancelled": "Anulowane",
+    "unknown": "Status {{value}}",
+    "description": {
+      "pending": "Czeka na przypisanie pracownika",
+      "assigned": "Pracownik przypisany, prace jeszcze nie rozpoczęte",
+      "inProgress": "Prace w toku",
+      "completed": "Prace zakończone — zgłoszenie zamknięte",
+      "cancelled": "Zgłoszenie anulowane — zgłoszenie zamknięte"
+    }
+  },
+  "role": { "admin": "Administrator", "worker": "Pracownik", "customer": "Klient", "unknown": "Rola {{value}}" },
+  "actions": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "confirm": "Potwierdź",
+    "retry": "Spróbuj ponownie",
+    "back": "Wstecz",
+    "backHome": "Wróć na stronę główną",
+    "view": "Zobacz",
+    "edit": "Edytuj",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano do schowka",
+    "clearFilters": "Wyczyść filtry",
+    "search": "Szukaj",
+    "loading": "Ładowanie"
+  },
+  "pagination": { "range": "{{from}}–{{to}} z {{total}}", "rows": "Wiersze", "page": "Strona {{page}} / {{total}}", "previous": "Poprzednia strona", "next": "Następna strona" },
+  "errors": {
+    "generic": "Coś poszło nie tak",
+    "network": "Brak połączenia z API. Czy backend jest uruchomiony?",
+    "notFoundTitle": "Nie znaleziono strony",
+    "notFoundDescription": "Strona, której szukasz, nie istnieje lub została przeniesiona.",
+    "forbiddenTitle": "Nie masz dostępu do tej strony",
+    "forbiddenDescription": "Ten obszar jest dostępny tylko dla innych ról w Twojej organizacji."
+  },
+  "placeholder": { "underConstruction": "W budowie", "notImplemented": "Ten ekran nie został jeszcze zaimplementowany." },
+  "mock": { "badge": "Mock", "hint": "Te dane pochodzą z mockowanego endpointu — backend jeszcze go nie implementuje (zob. docs/API_GAPS.md)." },
+  "format": { "unknownUser": "Nieznany", "ago": "{{distance}} temu", "never": "—" },
+  "language": { "label": "Język", "en": "Angielski", "pl": "Polski" }
+}

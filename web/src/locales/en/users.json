@@ -1,0 +1,87 @@
+{
+  "list": {
+    "title": "Users",
+    "description": "People in your organization",
+    "loadError": "Could not load users",
+    "loading": "Loading…",
+    "count_one": "{{count}} user",
+    "count_other": "{{count}} users",
+    "filteredFrom": " (filtered from {{total}} on this page)",
+    "emptyFilteredTitle": "No users match your filters",
+    "emptyFilteredDescription": "Try a different search or filter. Filters apply to the current page.",
+    "emptyTitle": "No users yet",
+    "emptyDescription": "Invite people to your organization to get started."
+  },
+  "actions": {
+    "invite": "Invite user"
+  },
+  "toolbar": {
+    "searchPlaceholder": "Search name or email…",
+    "searchLabel": "Search users",
+    "statusLabel": "Filter by status",
+    "allStatuses": "All statuses",
+    "roleLabel": "Filter by role",
+    "allRoles": "All"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "table": {
+    "user": "User",
+    "role": "Role",
+    "status": "Status",
+    "joined": "Joined",
+    "actions": "Actions",
+    "you": "(you)"
+  },
+  "rowActions": {
+    "menuLabel": "Actions for {{email}}",
+    "edit": "Edit",
+    "viewAsWorker": "View as worker",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "cannotDeactivateSelf": "You cannot deactivate your own account"
+  },
+  "form": {
+    "email": "Email",
+    "emailPlaceholder": "name@company.com",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "role": "Role",
+    "validation": {
+      "email": "Enter a valid email address",
+      "role": "Select a role",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "maxLength": "Max {{max}} characters"
+    }
+  },
+  "invite": {
+    "title": "Invite user",
+    "description": "They will receive an email invitation to join your organization.",
+    "submit": "Send invitation",
+    "roleHint": "Workers get a profile and can be assigned to requests.",
+    "error": "Could not invite the user"
+  },
+  "edit": {
+    "title": "Edit user",
+    "submit": "Save changes",
+    "roleLocked": "You cannot change your own role.",
+    "error": "Could not update the user"
+  },
+  "deactivate": {
+    "title": "Deactivate {{name}}?",
+    "description": "They will no longer be able to sign in or be assigned to requests. You can reactivate them at any time.",
+    "confirm": "Deactivate",
+    "account": "Account:"
+  },
+  "toasts": {
+    "invited": "Invitation sent to {{email}}",
+    "inviteError": "Could not invite the user",
+    "updated": "User updated",
+    "updateError": "Could not update the user",
+    "activated": "User activated",
+    "deactivated": "User deactivated"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "page": {
+    "title": "Powiadomienia",
+    "description": "Aktualności o zgłoszeniach w Twojej organizacji"
+  },
+  "list": {
+    "markAllRead": "Oznacz wszystkie jako przeczytane",
+    "markRead": "Oznacz jako przeczytane",
+    "unreadIndicator": "Nieprzeczytane"
+  },
+  "filters": {
+    "label": "Filtr",
+    "all": "Wszystkie",
+    "unread": "Nieprzeczytane",
+    "unreadCount_one": "Nieprzeczytane ({{count}})",
+    "unreadCount_few": "Nieprzeczytane ({{count}})",
+    "unreadCount_many": "Nieprzeczytane ({{count}})",
+    "unreadCount_other": "Nieprzeczytane ({{count}})"
+  },
+  "groups": {
+    "today": "Dzisiaj",
+    "yesterday": "Wczoraj"
+  },
+  "empty": {
+    "title": "Wszystko przeczytane",
+    "unread": "Brak nieprzeczytanych powiadomień.",
+    "all": "Tutaj pojawią się nowe informacje o zgłoszeniach."
+  }
+}

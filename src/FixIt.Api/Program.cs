@@ -7,12 +7,10 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog
+// Sinks and enrichers come from the "Serilog" section in appsettings (adding WriteTo.Console()
+// here as well would log every line twice).
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .Enrich.WithEnvironmentName()
-    .Enrich.WithThreadId()
-    .WriteTo.Console()
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -38,6 +36,23 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddHealthChecks();
 
+// CORS: only origins listed in configuration are allowed; no permissive fallback
+const string CorsPolicyName = "FrontendCors";
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        CorsPolicyName,
+        policy =>
+        {
+            if (allowedOrigins.Length > 0)
+            {
+                policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+            }
+        }
+    );
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -52,6 +67,8 @@ app.UseSerilogRequestLogging();
 
 app.UseMiddleware<RequestIdMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
+
+app.UseCors(CorsPolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();

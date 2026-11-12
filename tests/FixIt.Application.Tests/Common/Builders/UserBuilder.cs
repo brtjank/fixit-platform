@@ -6,7 +6,6 @@ namespace FixIt.Application.Tests.Common.Builders;
 public class UserBuilder
 {
     private Guid _tenantId = Guid.NewGuid();
-    private Guid _id = Guid.NewGuid();
     private string _email = "test@example.com";
     private string _firstName = "John";
     private string _lastName = "Doe";
@@ -16,12 +15,6 @@ public class UserBuilder
     public UserBuilder WithTenantId(Guid tenantId)
     {
         _tenantId = tenantId;
-        return this;
-    }
-
-    public UserBuilder WithId(Guid id)
-    {
-        _id = id;
         return this;
     }
 
