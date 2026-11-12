@@ -38,7 +38,6 @@ public class JwtTokenService : IJwtTokenService
                     new Claim("sub", user.Id.ToString()),
                     new Claim("TenantId", user.TenantId.ToString()),
                     new Claim(ClaimTypes.Role, user.Role.ToString()),
-                    new Claim("role", user.Role.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
                 }
             ),

@@ -1,5 +1,6 @@
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
+using FixIt.Domain.Enums;
 using MediatR;
 
 namespace FixIt.Application.Features.ServiceRequests.GetServiceRequests;
@@ -41,6 +42,17 @@ public class GetServiceRequestsQueryHandler
             queryable = queryable.Where(sr =>
                 sr.AssignedWorkerId == request.AssignedWorkerId.Value
             );
+        }
+
+        // Customers may only ever see their own service requests; any customerId filter is ignored
+        if (_currentUser.Role == nameof(UserRole.Customer))
+        {
+            var currentUserId = _currentUser.UserId;
+            queryable = queryable.Where(sr => sr.CustomerId == currentUserId);
+        }
+        else if (request.CustomerId.HasValue)
+        {
+            queryable = queryable.Where(sr => sr.CustomerId == request.CustomerId.Value);
         }
 
         var totalCount = await _queryableExecutor.CountAsync(queryable, cancellationToken);

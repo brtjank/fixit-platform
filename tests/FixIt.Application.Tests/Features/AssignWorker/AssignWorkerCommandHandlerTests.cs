@@ -14,6 +14,7 @@ public class AssignWorkerCommandHandlerTests
 {
     private readonly Mock<IServiceRequestRepository> _serviceRequestRepositoryMock;
     private readonly Mock<IUserRepository> _userRepositoryMock;
+    private readonly Mock<IServiceLogRepository> _serviceLogRepositoryMock;
     private readonly Mock<ICurrentUserService> _currentUserServiceMock;
     private readonly AssignWorkerCommandHandler _handler;
 
@@ -21,10 +22,12 @@ public class AssignWorkerCommandHandlerTests
     {
         _serviceRequestRepositoryMock = new Mock<IServiceRequestRepository>();
         _userRepositoryMock = new Mock<IUserRepository>();
+        _serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
         _currentUserServiceMock = new Mock<ICurrentUserService>();
         _handler = new AssignWorkerCommandHandler(
             _serviceRequestRepositoryMock.Object,
             _userRepositoryMock.Object,
+            _serviceLogRepositoryMock.Object,
             _currentUserServiceMock.Object
         );
     }
@@ -189,5 +192,58 @@ public class AssignWorkerCommandHandlerTests
 
         // Assert
         await act.Should().ThrowAsync<NotFoundException>();
+    }
+
+    [Fact]
+    public async Task Handle_ValidRequest_WritesServiceLogWithPendingToAssigned()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var currentUserId = Guid.NewGuid();
+        var serviceRequestId = Guid.NewGuid();
+        var workerId = Guid.NewGuid();
+
+        var serviceRequest = new ServiceRequest(
+            tenantId,
+            "Fix sink",
+            "Leaking sink",
+            Guid.NewGuid()
+        );
+        var worker = new User(tenantId, "worker@example.com", "Jane", "Smith", UserRole.Worker);
+
+        _serviceRequestRepositoryMock
+            .Setup(x => x.GetByIdAsync(serviceRequestId, tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(serviceRequest);
+
+        _userRepositoryMock
+            .Setup(x => x.GetByIdAsync(workerId, tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(worker);
+
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+        _currentUserServiceMock.Setup(x => x.UserId).Returns(currentUserId);
+
+        ServiceLog? capturedLog = null;
+        _serviceLogRepositoryMock
+            .Setup(x => x.AddAsync(It.IsAny<ServiceLog>(), It.IsAny<CancellationToken>()))
+            .Callback<ServiceLog, CancellationToken>((log, _) => capturedLog = log)
+            .ReturnsAsync((ServiceLog log, CancellationToken _) => log);
+
+        var command = new AssignWorkerCommand(serviceRequestId, workerId);
+
+        // Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        _serviceLogRepositoryMock.Verify(
+            x => x.AddAsync(It.IsAny<ServiceLog>(), It.IsAny<CancellationToken>()),
+            Times.Once
+        );
+        capturedLog.Should().NotBeNull();
+        capturedLog!.TenantId.Should().Be(tenantId);
+        capturedLog.ServiceRequestId.Should().Be(serviceRequestId);
+        capturedLog.PreviousStatus.Should().Be(ServiceRequestStatus.Pending);
+        capturedLog.NewStatus.Should().Be(ServiceRequestStatus.Assigned);
+        capturedLog.Notes.Should().BeNull();
+        capturedLog.ChangedByUserId.Should().Be(currentUserId);
     }
 }

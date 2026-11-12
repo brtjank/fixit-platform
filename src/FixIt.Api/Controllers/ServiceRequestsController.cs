@@ -2,6 +2,7 @@ using FixIt.Application.Features.ServiceRequests.AssignWorker;
 using FixIt.Application.Features.ServiceRequests.ChangeServiceStatus;
 using FixIt.Application.Features.ServiceRequests.CreateServiceRequest;
 using FixIt.Application.Features.ServiceRequests.GetServiceRequestById;
+using FixIt.Application.Features.ServiceRequests.GetServiceRequestLogs;
 using FixIt.Application.Features.ServiceRequests.GetServiceRequests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -45,6 +46,7 @@ public class ServiceRequestsController : ControllerBase
         [FromQuery] int pageSize = 20,
         [FromQuery] string? status = null,
         [FromQuery] Guid? assignedWorkerId = null,
+        [FromQuery] Guid? customerId = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -54,7 +56,8 @@ public class ServiceRequestsController : ControllerBase
             Status: status != null
                 ? Enum.Parse<FixIt.Domain.Enums.ServiceRequestStatus>(status, ignoreCase: true)
                 : null,
-            AssignedWorkerId: assignedWorkerId
+            AssignedWorkerId: assignedWorkerId,
+            CustomerId: customerId
         );
 
         var response = await _mediator.Send(query, cancellationToken);
@@ -75,6 +78,18 @@ public class ServiceRequestsController : ControllerBase
             return NotFound();
 
         return Ok(response.ServiceRequest);
+    }
+
+    [HttpGet("{id}/logs")]
+    public async Task<ActionResult<IEnumerable<Domain.Entities.ServiceLog>>> GetServiceRequestLogs(
+        Guid id,
+        CancellationToken cancellationToken
+    )
+    {
+        var query = new GetServiceRequestLogsQuery(id);
+        var response = await _mediator.Send(query, cancellationToken);
+
+        return Ok(response.Logs);
     }
 
     [HttpPut("{id}/assign-worker")]

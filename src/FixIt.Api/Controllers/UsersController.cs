@@ -1,3 +1,4 @@
+using FixIt.Application.Features.Users.GetCurrentUser;
 using FixIt.Application.Features.Users.GetUsers;
 using FixIt.Application.Features.Users.GetWorkers;
 using MediatR;
@@ -42,6 +43,16 @@ public class UsersController : ControllerBase
     {
         var query = new GetWorkersQuery(Page: page, PageSize: pageSize);
         var response = await _mediator.Send(query, cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("me")]
+    public async Task<ActionResult<GetCurrentUserResponse>> GetCurrentUser(
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await _mediator.Send(new GetCurrentUserQuery(), cancellationToken);
 
         return Ok(response);
     }
