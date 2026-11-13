@@ -9,5 +9,6 @@ public interface IServiceLogRepository
         Guid tenantId,
         CancellationToken cancellationToken = default
     );
+    IQueryable<ServiceLog> GetByTenantId(Guid tenantId);
     Task<ServiceLog> AddAsync(ServiceLog serviceLog, CancellationToken cancellationToken = default);
 }

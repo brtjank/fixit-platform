@@ -31,12 +31,17 @@ public static class DependencyInjection
         services.AddScoped<IServiceLogRepository, ServiceLogRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IWorkerProfileRepository, WorkerProfileRepository>();
+        services.AddScoped<
+            IUserNotificationPreferencesRepository,
+            UserNotificationPreferencesRepository
+        >();
 
         // Register services
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IQueryableExecutor, QueryableExecutor>();
         services.AddSingleton<IPasswordHasher, PasswordHasherService>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         return services;
     }

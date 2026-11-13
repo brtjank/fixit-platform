@@ -13,6 +13,7 @@ public class FixItDbContext : DbContext
     public DbSet<WorkerProfile> WorkerProfiles { get; set; } = null!;
     public DbSet<ServiceRequest> ServiceRequests { get; set; } = null!;
     public DbSet<ServiceLog> ServiceLogs { get; set; } = null!;
+    public DbSet<UserNotificationPreferences> UserNotificationPreferences { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,5 +28,6 @@ public class FixItDbContext : DbContext
         modelBuilder.Entity<WorkerProfile>().HasQueryFilter(wp => !wp.IsDeleted);
         modelBuilder.Entity<ServiceRequest>().HasQueryFilter(sr => !sr.IsDeleted);
         modelBuilder.Entity<ServiceLog>().HasQueryFilter(sl => !sl.IsDeleted);
+        modelBuilder.Entity<UserNotificationPreferences>().HasQueryFilter(np => !np.IsDeleted);
     }
 }

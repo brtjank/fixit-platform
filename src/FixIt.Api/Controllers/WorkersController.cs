@@ -1,5 +1,6 @@
 using FixIt.Application.Features.Workers.GetWorkerProfile;
 using FixIt.Application.Features.Workers.GetWorkerProfiles;
+using FixIt.Application.Features.Workers.GetWorkerWorkload;
 using FixIt.Application.Features.Workers.UpdateWorkerProfile;
 using FixIt.Domain.Entities;
 using MediatR;
@@ -29,6 +30,17 @@ public class WorkersController : ControllerBase
         var response = await _mediator.Send(new GetWorkerProfilesQuery(), cancellationToken);
 
         return Ok(response.Profiles);
+    }
+
+    [HttpGet("workload")]
+    [Authorize(Policy = "WorkerOrAdmin")]
+    public async Task<ActionResult<IEnumerable<WorkerWorkload>>> GetWorkerWorkload(
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await _mediator.Send(new GetWorkerWorkloadQuery(), cancellationToken);
+
+        return Ok(response.Workers);
     }
 
     [HttpGet("{userId:guid}/profile")]
