@@ -2,7 +2,7 @@ import { CheckCircle2, CircleDot, Timer } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
-import { Card, MockBadge, Skeleton } from '@/shared/ui'
+import { Card, Skeleton } from '@/shared/ui'
 import type { WorkerWorkload } from '../api/workersApi'
 
 interface Tile {
@@ -27,10 +27,7 @@ export function WorkerStatTiles({ workload, loading }: { workload: WorkerWorkloa
             <t.icon className="size-5" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-xs text-fg-muted">
-              {t.label}
-              <MockBadge className="px-1 py-0 text-[9px]" />
-            </div>
+            <div className="text-xs text-fg-muted">{t.label}</div>
             {loading ? (
               <Skeleton className="mt-1 h-6 w-10" />
             ) : (

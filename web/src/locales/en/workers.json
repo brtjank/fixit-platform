@@ -12,8 +12,7 @@
   "summary": {
     "total": "Total",
     "availableNow": "Available now",
-    "busy": "Busy",
-    "mocked": "Workload mocked"
+    "busy": "Busy"
   },
   "toolbar": {
     "searchPlaceholder": "Search name or specialization…",

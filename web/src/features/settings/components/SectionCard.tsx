@@ -1,13 +1,9 @@
 import type { ReactNode } from 'react'
-import { MockBadge } from '@/shared/ui'
 
-export function SectionHeading({ title, description, mock }: { title: string; description?: string; mock?: boolean }) {
+export function SectionHeading({ title, description }: { title: string; description?: string }) {
   return (
     <div className="mb-4">
-      <div className="flex items-center gap-2">
-        <h2 className="text-lg font-semibold text-fg">{title}</h2>
-        {mock ? <MockBadge /> : null}
-      </div>
+      <h2 className="text-lg font-semibold text-fg">{title}</h2>
       {description ? <p className="mt-0.5 text-sm text-fg-muted">{description}</p> : null}
     </div>
   )

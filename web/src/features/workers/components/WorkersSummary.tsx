@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
-import { MockBadge, Skeleton } from '@/shared/ui'
+import { Skeleton } from '@/shared/ui'
 
 interface Chip {
   label: string
@@ -24,7 +24,6 @@ export function WorkersSummary({ total, available, busy, loading }: { total: num
           {loading ? <Skeleton className="h-3.5 w-5" /> : <span className="font-semibold text-fg tabular">{c.value}</span>}
         </div>
       ))}
-      <MockBadge label={t('summary.mocked')} />
     </div>
   )
 }

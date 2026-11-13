@@ -4,7 +4,7 @@ import { i18n } from '@/i18n'
 import { errorMessage } from '@/shared/api'
 import { workersApi, type UpdateWorkerProfileRequest } from '../api/workersApi'
 
-/** Profiles: ✅ real endpoints. Workload: ⚠ MOCK-ONLY (GET /api/workers/workload). */
+/** Profiles and workload: ✅ real endpoints. */
 export const workerKeys = {
   all: ['workers'] as const,
   profiles: () => [...workerKeys.all, 'profiles'] as const,

@@ -13,7 +13,8 @@ export function NotificationPreferencesSection() {
 
   return (
     <section>
-      <SectionHeading title={t('preferences.title')} description={t('preferences.description')} mock />
+      <SectionHeading title={t('preferences.title')} description={t('preferences.description')} />
+      <p className="mb-3 rounded-md bg-bg-subtle px-3 py-2 text-xs text-fg-muted">{t('preferences.notSentYet')}</p>
       {prefs.isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : prefs.isError || !prefs.data ? (

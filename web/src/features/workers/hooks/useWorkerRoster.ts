@@ -6,15 +6,13 @@ import { useWorkerProfiles, useWorkerWorkload } from './useWorkerProfiles'
 
 export interface WorkerRosterEntry {
   user: User
-  /** ⚠ mock-only */
   profile: WorkerProfile | null
-  /** ⚠ mock-only */
   workload: WorkerWorkload | null
 }
 
 /**
- * Joins the real worker list (✅ GET /api/users/workers) with the mock-only
- * profiles and workload, keyed by userId.
+ * Joins the worker list (✅ GET /api/users/workers) with profiles (✅ GET /api/workers/profiles)
+ * and workload (✅ GET /api/workers/workload), keyed by userId.
  */
 export function useWorkerRoster() {
   const workersQuery = useWorkers({ page: 1, pageSize: 100 })
@@ -36,7 +34,7 @@ export function useWorkerRoster() {
     workersQuery,
     profilesQuery,
     workloadQuery,
-    /** Mock-only enrichments still loading (people are already rendered). */
+    /** Profile / workload enrichments still loading (people are already rendered). */
     extrasLoading: profilesQuery.isLoading || workloadQuery.isLoading,
   }
 }

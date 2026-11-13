@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from '@/shared/api'
 import { ALL_STATUSES, STATUS_META, statusDescription, statusLabel, type Tone } from '@/shared/lib'
-import { Card, CardContent, CardHeader, ErrorState, MockBadge, Skeleton, Tooltip } from '@/shared/ui'
+import { Card, CardContent, CardHeader, ErrorState, Skeleton, Tooltip } from '@/shared/ui'
 import { useStatusBreakdown } from '../hooks'
 
 /** Status fills reuse the status tone tokens so bars match StatusBadge in both themes. */
@@ -28,7 +28,7 @@ export function StatusBreakdownChart() {
       <CardHeader
         title={
           <span className="inline-flex items-center gap-2">
-            {t('breakdown.title')} <MockBadge />
+            {t('breakdown.title')}
           </span>
         }
         description={query.data ? t('breakdown.total', { count: total }) : t('breakdown.allRequests')}

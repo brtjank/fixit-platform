@@ -35,7 +35,11 @@
   "organization": {
     "title": "Organization",
     "description": "Details shown to your team and customers.",
-    "plan": "Team plan",
+    "plans": {
+      "starter": "Starter plan",
+      "team": "Team plan",
+      "business": "Business plan"
+    },
     "created": "Created {{date}}",
     "adminOnly": "Only administrators can edit organization settings.",
     "form": {
@@ -47,9 +51,10 @@
       "timezone": "Timezone"
     },
     "validation": {
-      "nameMin": "Name must have at least 2 characters",
-      "descriptionMax": "Max 500 characters",
-      "email": "Enter a valid email"
+      "nameRequired": "Name is required",
+      "maxLength": "Max {{max}} characters",
+      "email": "Enter a valid email",
+      "timezone": "Choose a valid timezone"
     },
     "reset": "Reset",
     "save": "Save changes"
@@ -57,6 +62,7 @@
   "preferences": {
     "title": "Notifications",
     "description": "Choose which emails you receive.",
+    "notSentYet": "Preferences are saved, but e-mails are not sent yet — e-mail delivery is coming in a later release.",
     "emailOnNewRequest": {
       "title": "New requests",
       "description": "Email me when a new service request is created."

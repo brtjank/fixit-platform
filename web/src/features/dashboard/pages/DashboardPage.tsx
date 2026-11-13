@@ -5,7 +5,7 @@ import { Link } from 'react-router'
 import { useIsAdmin } from '@/features/auth'
 import { errorMessage } from '@/shared/api'
 import { formatDate } from '@/shared/lib'
-import { Button, Card, ErrorState, MockBadge, PageHeader } from '@/shared/ui'
+import { Button, Card, ErrorState, PageHeader } from '@/shared/ui'
 import { ActivityFeed } from '../components/ActivityFeed'
 import { NeedsAttentionList } from '../components/NeedsAttentionList'
 import { StatTile, StatTileSkeleton, TrendChip } from '../components/StatTile'
@@ -31,7 +31,7 @@ function KpiRow() {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-      <StatTile label={t('stats.openRequests')} icon={Inbox} value={fmt(stats.openRequests)} trend={{ value: stats.trends.openRequests, upIsGood: false }} />
+      <StatTile label={t('stats.openRequests')} icon={Inbox} value={fmt(stats.openRequests)} trend={{ value: stats.trends.openRequests, upIsGood: false, period: t('trend.newVsPrev30Days') }} />
       <StatTile label={t('stats.pendingUnassigned')} icon={Hourglass} value={fmt(stats.pendingUnassigned)} hint={t('stats.pendingHint')} />
       <StatTile label={t('stats.inProgress')} icon={Wrench} value={fmt(stats.inProgress)} hint={t('stats.inProgressHint')} />
       <StatTile
@@ -76,7 +76,7 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <PageHeader
         className="mb-0"
-        title={<span className="inline-flex items-center gap-2.5">{t('page.title')} <MockBadge /></span>}
+        title={t('page.title')}
         description={formatDate(today, 'EEEE, d MMMM yyyy')}
         actions={
           <>

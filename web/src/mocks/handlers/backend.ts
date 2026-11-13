@@ -25,7 +25,20 @@ import {
   WORKER_PHONE_MAX_LENGTH,
   WORKER_SPECIALIZATION_MAX_LENGTH,
   type UpdateWorkerProfileRequest,
+  type WorkerWorkload,
 } from '@/features/workers/api/workersApi'
+import type { ActivityItem, DailyVolumePoint, DashboardStats, StatusBreakdown } from '@/features/dashboard/api/dashboardApi'
+import {
+  DEFAULT_NOTIFICATION_PREFERENCES,
+  TENANT_ADDRESS_MAX_LENGTH,
+  TENANT_CONTACT_EMAIL_MAX_LENGTH,
+  TENANT_DESCRIPTION_MAX_LENGTH,
+  TENANT_NAME_MAX_LENGTH,
+  TENANT_PHONE_MAX_LENGTH,
+  TenantErrorCodes,
+  type NotificationPreferences,
+  type UpdateTenantRequest,
+} from '@/features/settings/api/settingsApi'
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
@@ -87,6 +100,64 @@ function checkPassword(password: string | null | undefined) {
 function normalize(value: string | null | undefined) {
   const trimmed = value?.trim()
   return trimmed ? trimmed : null
+}
+
+// ---- Dashboard / workload helpers ------------------------------------------------
+
+const DAY_MS = 86_400_000
+const OPEN_STATUSES: ServiceRequestStatus[] = [ServiceRequestStatus.Pending, ServiceRequestStatus.Assigned, ServiceRequestStatus.InProgress]
+
+/** `(now - 30d, now]` / `(now - 60d, now - 30d]` membership for an ISO timestamp. */
+function windows(now = Date.now()) {
+  const inRange = (from: number, to: number) => (iso: string | null | undefined) => {
+    if (!iso) return false
+    const t = new Date(iso).getTime()
+    return t > from && t <= to
+  }
+  return { last30: inRange(now - 30 * DAY_MS, now), prev30: inRange(now - 60 * DAY_MS, now - 30 * DAY_MS) }
+}
+
+/** completedAt per request id = createdAt of the LATEST ServiceLog with newStatus Completed. */
+function completedAtMap(tenantId: string) {
+  const map = new Map<string, string>()
+  for (const l of db.serviceLogs) {
+    if (l.tenantId !== tenantId || l.isDeleted || l.newStatus !== ServiceRequestStatus.Completed) continue
+    const current = map.get(l.serviceRequestId)
+    if (!current || l.createdAt > current) map.set(l.serviceRequestId, l.createdAt)
+  }
+  return map
+}
+
+const tenantRequests = (tenantId: string) => db.serviceRequests.filter((sr) => sr.tenantId === tenantId && !sr.isDeleted)
+
+/** `pct(cur, prev) = prev == 0 ? (cur == 0 ? 0 : 100) : round((cur - prev) / prev * 100, 1)` */
+const pct = (cur: number, prev: number) => (prev === 0 ? (cur === 0 ? 0 : 100) : Math.round(((cur - prev) / prev) * 1000) / 10)
+
+/** Integer query param clamped to [min, max]; missing / non-numeric → fallback. */
+function clampParam(raw: string | null, fallback: number, min: number, max: number) {
+  const n = raw === null || raw.trim() === '' ? NaN : Number(raw)
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, Math.trunc(n))) : fallback
+}
+
+const displayName = (id: string | null | undefined) => {
+  const u = id ? findUser(id) : null
+  return u ? `${u.firstName} ${u.lastName}` : 'System'
+}
+
+/** TEN_004 rule: exactly one `@`, text on both sides, a dot in the domain. */
+function isContactEmail(value: string) {
+  const parts = value.split('@')
+  return parts.length === 2 && parts[0].length > 0 && parts[1].length > 0 && parts[1].includes('.')
+}
+
+/** Stand-in for TimeZoneInfo.TryFindSystemTimeZoneById: Intl rejects unknown IANA ids with a RangeError. */
+function isKnownTimezone(id: string) {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: id })
+    return true
+  } catch {
+    return false
+  }
 }
 
 export const backendHandlers = [
@@ -273,6 +344,27 @@ export const backendHandlers = [
     return HttpResponse.json({ ...user, tenantName: db.tenant.name })
   }),
 
+  // GET / PUT /api/users/me/notification-preferences (any role, the caller's own) — before any /api/users/:id route
+  http.get('/api/users/me/notification-preferences', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    return HttpResponse.json(db.notificationPreferences[auth.userId] ?? DEFAULT_NOTIFICATION_PREFERENCES)
+  }),
+  http.put('/api/users/me/notification-preferences', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const body = (await request.json()) as Partial<NotificationPreferences>
+    const keys = Object.keys(DEFAULT_NOTIFICATION_PREFERENCES) as (keyof NotificationPreferences)[]
+    // Full replacement: all four bools are required.
+    const missing = keys.filter((k) => typeof body?.[k] !== 'boolean')
+    if (missing.length) return errors.badRequest('VAL_001_VALIDATION', `${missing.join(', ')} must be provided as boolean.`)
+    const saved = Object.fromEntries(keys.map((k) => [k, body[k]])) as unknown as NotificationPreferences
+    db.notificationPreferences[auth.userId] = saved
+    return HttpResponse.json(saved)
+  }),
+
   // GET /api/users/workers (WorkerOrAdmin)
   http.get('/api/users/workers', async ({ request }) => {
     await LATENCY()
@@ -451,6 +543,183 @@ export const backendHandlers = [
     profile.phoneNumber = phoneNumber
     profile.isAvailable = body.isAvailable ?? profile.isAvailable
     return HttpResponse.json(profile)
+  }),
+
+  // GET /api/workers/workload (WorkerOrAdmin) — one row per Worker (inactive included), ordered by createdAt then id
+  http.get('/api/workers/workload', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.WorkerOrAdmin])
+    if (isResponse(auth)) return auth
+    const { last30 } = windows()
+    const completedAt = completedAtMap(auth.tenantId)
+    const requests = tenantRequests(auth.tenantId)
+    const result: WorkerWorkload[] = db.users
+      .filter((u) => u.tenantId === auth.tenantId && u.role === UserRole.Worker && !u.isDeleted)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id))
+      .map((w) => {
+        const mine = requests.filter((sr) => sr.assignedWorkerId === w.id)
+        return {
+          workerId: w.id,
+          open: mine.filter((sr) => sr.status === ServiceRequestStatus.Assigned || sr.status === ServiceRequestStatus.InProgress).length,
+          inProgress: mine.filter((sr) => sr.status === ServiceRequestStatus.InProgress).length,
+          completedLast30Days: mine.filter((sr) => sr.status === ServiceRequestStatus.Completed && last30(completedAt.get(sr.id))).length,
+        }
+      })
+    return HttpResponse.json(result)
+  }),
+
+  // GET /api/dashboard/stats (WorkerOrAdmin)
+  http.get('/api/dashboard/stats', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.WorkerOrAdmin])
+    if (isResponse(auth)) return auth
+    const { last30, prev30 } = windows()
+    const all = tenantRequests(auth.tenantId)
+    const completedAt = completedAtMap(auth.tenantId)
+    const completedIn = (inWindow: (iso: string | undefined) => boolean) => all.filter((sr) => inWindow(completedAt.get(sr.id)))
+    const avgHours = (list: ServiceRequest[]) =>
+      list.length === 0
+        ? 0
+        : list.reduce((sum, sr) => sum + (new Date(completedAt.get(sr.id)!).getTime() - new Date(sr.createdAt).getTime()) / 3_600_000, 0) / list.length
+    const completedLast = completedIn(last30)
+    const completedPrev = completedIn(prev30)
+    const avgLast = avgHours(completedLast)
+    const avgPrev = avgHours(completedPrev)
+    const workers = db.users.filter((u) => u.tenantId === auth.tenantId && u.role === UserRole.Worker && u.isActive && !u.isDeleted)
+    // A worker without a profile counts as available.
+    const available = workers.filter((w) => db.workerProfiles.find((p) => p.userId === w.id && !p.isDeleted)?.isAvailable !== false)
+    const stats: DashboardStats = {
+      openRequests: all.filter((sr) => OPEN_STATUSES.includes(sr.status)).length,
+      pendingUnassigned: all.filter((sr) => sr.status === ServiceRequestStatus.Pending).length,
+      inProgress: all.filter((sr) => sr.status === ServiceRequestStatus.InProgress).length,
+      completedLast30Days: completedLast.length,
+      avgResolutionHours: Math.round(avgLast * 10) / 10,
+      activeWorkers: workers.length,
+      availableWorkers: available.length,
+      trends: {
+        // The open backlog has no history: this is requests CREATED last 30 vs previous 30 days.
+        openRequests: pct(all.filter((sr) => last30(sr.createdAt)).length, all.filter((sr) => prev30(sr.createdAt)).length),
+        completedLast30Days: pct(completedLast.length, completedPrev.length),
+        avgResolutionHours: completedPrev.length === 0 ? 0 : pct(avgLast, avgPrev),
+      },
+    }
+    return HttpResponse.json(stats)
+  }),
+
+  // GET /api/dashboard/status-breakdown (WorkerOrAdmin) — exactly five rows, statuses 1..5, zero-filled
+  http.get('/api/dashboard/status-breakdown', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.WorkerOrAdmin])
+    if (isResponse(auth)) return auth
+    const all = tenantRequests(auth.tenantId)
+    const statuses = [ServiceRequestStatus.Pending, ServiceRequestStatus.Assigned, ServiceRequestStatus.InProgress, ServiceRequestStatus.Completed, ServiceRequestStatus.Cancelled]
+    const result: StatusBreakdown[] = statuses.map((status) => ({ status, count: all.filter((sr) => sr.status === status).length }))
+    return HttpResponse.json(result)
+  }),
+
+  // GET /api/dashboard/volume?days (WorkerOrAdmin) — days clamped [7, 90] (non-numeric → 30); exactly `days` UTC points ending today
+  http.get('/api/dashboard/volume', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.WorkerOrAdmin])
+    if (isResponse(auth)) return auth
+    const days = clampParam(new URL(request.url).searchParams.get('days'), 30, 7, 90)
+    const created = new Map<string, number>()
+    const completed = new Map<string, number>()
+    for (const sr of tenantRequests(auth.tenantId)) created.set(sr.createdAt.slice(0, 10), (created.get(sr.createdAt.slice(0, 10)) ?? 0) + 1)
+    for (const l of db.serviceLogs) {
+      if (l.tenantId !== auth.tenantId || l.isDeleted || l.newStatus !== ServiceRequestStatus.Completed) continue
+      const key = new Date(l.createdAt).toISOString().slice(0, 10)
+      completed.set(key, (completed.get(key) ?? 0) + 1)
+    }
+    const now = new Date()
+    const todayUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+    const points: DailyVolumePoint[] = Array.from({ length: days }, (_, i) => {
+      const date = new Date(todayUtc - (days - 1 - i) * DAY_MS).toISOString().slice(0, 10)
+      return { date, created: created.get(date) ?? 0, completed: completed.get(date) ?? 0 }
+    })
+    return HttpResponse.json(points)
+  }),
+
+  // GET /api/dashboard/activity?limit (WorkerOrAdmin) — limit clamped [1, 50] (non-numeric → 10), newest first
+  http.get('/api/dashboard/activity', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.WorkerOrAdmin])
+    if (isResponse(auth)) return auth
+    const limit = clampParam(new URL(request.url).searchParams.get('limit'), 10, 1, 50)
+    const requests = new Map(tenantRequests(auth.tenantId).map((sr) => [sr.id, sr]))
+    const newestFirst = (a: ActivityItem, b: ActivityItem) => b.occurredAt.localeCompare(a.occurredAt)
+    const fromLogs: ActivityItem[] = db.serviceLogs
+      .filter((l) => l.tenantId === auth.tenantId && !l.isDeleted && requests.has(l.serviceRequestId))
+      .map((l): ActivityItem => ({
+        id: l.id,
+        type:
+          l.newStatus === ServiceRequestStatus.Assigned
+            ? 'assigned'
+            : l.newStatus === ServiceRequestStatus.Completed
+              ? 'completed'
+              : l.newStatus === ServiceRequestStatus.Cancelled
+                ? 'cancelled'
+                : 'status_changed',
+        serviceRequestId: l.serviceRequestId,
+        serviceRequestTitle: requests.get(l.serviceRequestId)!.title,
+        actorName: displayName(l.changedByUserId),
+        occurredAt: l.createdAt,
+        detail: l.notes?.trim() ? l.notes : `${STATUS_NAMES[l.previousStatus]} → ${STATUS_NAMES[l.newStatus]}`,
+      }))
+      .sort(newestFirst)
+      .slice(0, limit)
+    const fromCreated: ActivityItem[] = [...requests.values()]
+      .map((sr): ActivityItem => ({
+        id: `created:${sr.id}`,
+        type: 'created',
+        serviceRequestId: sr.id,
+        serviceRequestTitle: sr.title,
+        actorName: displayName(sr.customerId),
+        occurredAt: sr.createdAt,
+        detail: null,
+      }))
+      .sort(newestFirst)
+      .slice(0, limit)
+    return HttpResponse.json([...fromLogs, ...fromCreated].sort(newestFirst).slice(0, limit))
+  }),
+
+  // GET /api/tenants/current (any role)
+  http.get('/api/tenants/current', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    if (db.tenant.id !== auth.tenantId) return errors.notFound('Tenant', auth.tenantId)
+    return HttpResponse.json(db.tenant)
+  }),
+
+  // PUT /api/tenants/current (AdminOnly) — full replacement, trimmed, empty → null; `plan` is read-only
+  http.put('/api/tenants/current', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.AdminOnly])
+    if (isResponse(auth)) return auth
+    if (db.tenant.id !== auth.tenantId) return errors.notFound('Tenant', auth.tenantId)
+    const body = ((await request.json()) ?? {}) as Partial<UpdateTenantRequest>
+    const name = body.name?.trim() ?? ''
+    const description = normalize(body.description)
+    const contactEmail = normalize(body.contactEmail)
+    const phone = normalize(body.phone)
+    const address = normalize(body.address)
+    const timezone = body.timezone?.trim() ?? ''
+    if (!name) return errors.badRequest(TenantErrorCodes.NameRequired, 'Tenant name is required.')
+    if (name.length > TENANT_NAME_MAX_LENGTH)
+      return errors.badRequest(TenantErrorCodes.NameTooLong, `Tenant name cannot be longer than ${TENANT_NAME_MAX_LENGTH} characters.`)
+    if (description && description.length > TENANT_DESCRIPTION_MAX_LENGTH)
+      return errors.badRequest(TenantErrorCodes.DescriptionTooLong, `Tenant description cannot be longer than ${TENANT_DESCRIPTION_MAX_LENGTH} characters.`)
+    if (contactEmail && (contactEmail.length > TENANT_CONTACT_EMAIL_MAX_LENGTH || !isContactEmail(contactEmail)))
+      return errors.badRequest(TenantErrorCodes.ContactEmailInvalid, `Contact email '${contactEmail}' is invalid.`)
+    if (phone && phone.length > TENANT_PHONE_MAX_LENGTH)
+      return errors.badRequest(TenantErrorCodes.PhoneTooLong, `Phone cannot be longer than ${TENANT_PHONE_MAX_LENGTH} characters.`)
+    if (address && address.length > TENANT_ADDRESS_MAX_LENGTH)
+      return errors.badRequest(TenantErrorCodes.AddressTooLong, `Address cannot be longer than ${TENANT_ADDRESS_MAX_LENGTH} characters.`)
+    if (!timezone || !isKnownTimezone(timezone))
+      return errors.badRequest(TenantErrorCodes.TimezoneInvalid, `Timezone '${timezone}' is not a known IANA time zone id.`)
+    Object.assign(db.tenant, { name, description, contactEmail, phone, address, timezone })
+    return HttpResponse.json(db.tenant)
   }),
 
   // GET /health

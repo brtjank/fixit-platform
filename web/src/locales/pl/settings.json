@@ -35,7 +35,11 @@
   "organization": {
     "title": "Organizacja",
     "description": "Dane widoczne dla Twojego zespołu i klientów.",
-    "plan": "Plan Team",
+    "plans": {
+      "starter": "Plan Starter",
+      "team": "Plan Team",
+      "business": "Plan Business"
+    },
     "created": "Utworzono {{date}}",
     "adminOnly": "Tylko administratorzy mogą edytować ustawienia organizacji.",
     "form": {
@@ -47,9 +51,10 @@
       "timezone": "Strefa czasowa"
     },
     "validation": {
-      "nameMin": "Nazwa musi mieć co najmniej 2 znaki",
-      "descriptionMax": "Maksymalnie 500 znaków",
-      "email": "Podaj poprawny adres e-mail"
+      "nameRequired": "Nazwa jest wymagana",
+      "maxLength": "Maksymalnie {{max}} znaków",
+      "email": "Podaj poprawny adres e-mail",
+      "timezone": "Wybierz poprawną strefę czasową"
     },
     "reset": "Przywróć",
     "save": "Zapisz zmiany"
@@ -57,6 +62,7 @@
   "preferences": {
     "title": "Powiadomienia",
     "description": "Wybierz, które e-maile chcesz otrzymywać.",
+    "notSentYet": "Preferencje są zapisywane, ale e-maile nie są jeszcze wysyłane — wysyłka pojawi się w kolejnej wersji.",
     "emailOnNewRequest": {
       "title": "E-mail o nowym zgłoszeniu",
       "description": "Wyślij mi e-mail, gdy zostanie utworzone nowe zgłoszenie serwisowe."

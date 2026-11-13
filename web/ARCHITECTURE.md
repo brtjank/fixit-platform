@@ -69,14 +69,14 @@ password endpoints); live mode checks the PBKDF2 hash stored by `dev/seed.sql`.
 
 | Route               | Admin | Worker | Customer | Notes                                            |
 | ------------------- | :---: | :----: | :------: | ------------------------------------------------ |
-| `/` (Home)          | Dashboard | Dashboard | My requests | `app/pages/HomePage.tsx` switches on role |
+| `/` (Home)          | Dashboard | Dashboard | My requests | `app/pages/HomePage.tsx` switches on role; dashboard endpoints real |
 | `/requests`         |  ✅   |   ✅   |    –     | list + filters + search/sort + pagination (real) |
 | `/requests/new`     |  ✅   |   –    |    ✅    | create (real)                                    |
 | `/requests/:id`     |  ✅   |   ✅   |    ✅    | detail, actions, timeline (real)                 |
 | `/my-assignments`   |   –   |   ✅   |    –     | `assignedWorkerId=me` (real)                     |
-| `/workers`, `/workers/:id` | ✅ | ✅  |    –     | users/workers + profiles (real) + workload (mock) |
+| `/workers`, `/workers/:id` | ✅ | ✅  |    –     | users/workers + profiles + workload (real)       |
 | `/users`            |  ✅   |   –    |    –     | list, invite, edit, (de)activate, reset password (real) |
-| `/settings`         |  ✅   |   ✅   |    ✅    | profile + change password (real), tenant/preferences (mock), appearance (local) |
+| `/settings`         |  ✅   |   ✅   |    ✅    | profile, password, organization, notification preferences (real), appearance (local) |
 | `/notifications`    |  ✅   |   ✅   |    ✅    | mock                                             |
 
 Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders a 403 state).
@@ -86,9 +86,10 @@ Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders
 - Pages: `export default function XPage()`, use `PageHeader`, handle loading (`Skeleton`/`PageSpinner`),
   error (`ErrorState` with retry) and empty (`EmptyState`) states explicitly.
 - Anything rendered from a mock-only endpoint shows a small `<MockBadge />` near its heading.
-- Field-level API errors (e.g. `USR_005_EMAIL_TAKEN`, `USR_007_PASSWORD_TOO_WEAK`, `USR_008_PASSWORD_MISMATCH`)
-  are mapped onto the form field with `setError` in the mutation's `onError`; the hook skips the toast for those
-  codes (`isFieldError`) and the dialog's banner shows only the remaining errors.
+- Field-level API errors (e.g. `USR_005_EMAIL_TAKEN`, `USR_007_PASSWORD_TOO_WEAK`, `USR_008_PASSWORD_MISMATCH`,
+  the organization form's `TEN_001`/`TEN_003`–`TEN_008`) are mapped onto the form field with `setError` in the
+  mutation's `onError`; the hook skips the toast for those codes (`isFieldError`, `isTenantFieldError`) and the
+  dialog's banner shows only the remaining errors.
 - Passwords use `PasswordInput` (`shared/ui/Input.tsx`, show/hide toggle); the 8–128 policy lives in `usersApi.ts`.
 - Status labels/colors come from `shared/lib/status.ts` — never hardcode.
 - Dates via `formatDate/formatDateTime/formatRelative`; names via `fullName`; GUIDs via `shortId(id, 'SR')`.

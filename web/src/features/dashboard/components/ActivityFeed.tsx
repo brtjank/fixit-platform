@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { errorMessage } from '@/shared/api'
 import { cn, formatDateTime, formatRelative } from '@/shared/lib'
-import { Card, CardContent, CardHeader, EmptyState, ErrorState, MockBadge, Skeleton } from '@/shared/ui'
+import { Card, CardContent, CardHeader, EmptyState, ErrorState, Skeleton } from '@/shared/ui'
 import type { ActivityItem } from '../api/dashboardApi'
 import { useActivity } from '../hooks'
 
@@ -24,7 +24,7 @@ export function ActivityFeed({ limit = 10 }: { limit?: number }) {
     <Card className="flex flex-col">
       <CardHeader title={
           <span className="inline-flex items-center gap-2">
-            {t('activity.title')} <MockBadge />
+            {t('activity.title')}
           </span>
         }
         description={t('activity.description')}
