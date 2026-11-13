@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { errorMessage } from '@/shared/api'
 import { fullName } from '@/shared/lib'
 import type { User } from '@/shared/types'
-import { Button, Dialog, DialogClose, DialogContent, FormField, Input, MockBadge, NativeSelect } from '@/shared/ui'
+import { Button, Dialog, DialogClose, DialogContent, FormField, Input, NativeSelect } from '@/shared/ui'
 import { useUpdateUser } from '../hooks'
 import { makeNameSchema, makeRoleSchema, roleOptions, toRole, type RoleValue } from './userForm'
 
@@ -50,11 +50,7 @@ function EditUserDialogBody({ user, lockRole, onDone }: { user: User; lockRole?:
 
   return (
     <DialogContent
-      title={
-        <span className="inline-flex items-center gap-2">
-          {t('edit.title')} <MockBadge />
-        </span>
-      }
+      title={t('edit.title')}
       description={`${fullName(user)} · ${user.email}`}
       footer={
         <>

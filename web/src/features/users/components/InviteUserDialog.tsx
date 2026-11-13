@@ -4,16 +4,18 @@ import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import { errorMessage } from '@/shared/api'
-import { Button, Dialog, DialogClose, DialogContent, FormField, Input, MockBadge, NativeSelect } from '@/shared/ui'
-import { useInviteUser } from '../hooks'
-import { makeNameSchema, makeRoleSchema, roleOptions, toRole } from './userForm'
+import { errorMessage, isApiError } from '@/shared/api'
+import { Button, Dialog, DialogClose, DialogContent, FormField, Input, NativeSelect, PasswordInput } from '@/shared/ui'
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, UserErrorCodes } from '../api/usersApi'
+import { isFieldError, useInviteUser } from '../hooks'
+import { makeNameSchema, makePasswordSchema, makeRoleSchema, passwordTooWeakMessage, roleOptions, toRole } from './userForm'
 
 const makeSchema = (t: TFunction<'users'>) =>
   z.object({
     email: z.email(t('form.validation.email')).trim(),
     ...makeNameSchema(t),
     role: makeRoleSchema(t),
+    password: makePasswordSchema(t),
   })
 type FormValues = z.infer<ReturnType<typeof makeSchema>>
 
@@ -39,23 +41,31 @@ function InviteUserDialogBody({ onDone }: { onDone: () => void }) {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: '', firstName: '', lastName: '', role: '2' },
+    defaultValues: { email: '', firstName: '', lastName: '', role: '2', password: '' },
   })
 
   const onSubmit = handleSubmit((values) =>
-    invite.mutate({ ...values, role: toRole(values.role) }, { onSuccess: onDone }),
+    invite.mutate(
+      { ...values, role: toRole(values.role) },
+      {
+        onSuccess: onDone,
+        // Field-level API errors go inline (the hook skips the toast for these codes).
+        onError: (e) => {
+          if (!isApiError(e)) return
+          if (e.errorCode === UserErrorCodes.EmailTaken) setError('email', { message: t('form.validation.emailTaken') }, { shouldFocus: true })
+          if (e.errorCode === UserErrorCodes.PasswordTooWeak) setError('password', { message: passwordTooWeakMessage(t) }, { shouldFocus: true })
+        },
+      },
+    ),
   )
 
   return (
     <DialogContent
-      title={
-        <span className="inline-flex items-center gap-2">
-          {t('invite.title')} <MockBadge />
-        </span>
-      }
+      title={t('invite.title')}
       description={t('invite.description')}
       footer={
         <>
@@ -69,7 +79,7 @@ function InviteUserDialogBody({ onDone }: { onDone: () => void }) {
       }
     >
       <form id={FORM_ID} onSubmit={onSubmit} className="space-y-4" noValidate>
-        {invite.error ? (
+        {invite.error && !isFieldError(invite.error) ? (
           <div role="alert" className="rounded-md border border-danger-fg/30 bg-danger-soft px-3 py-2 text-sm text-danger-fg">
             {errorMessage(invite.error, t('invite.error'))}
           </div>
@@ -85,6 +95,14 @@ function InviteUserDialogBody({ onDone }: { onDone: () => void }) {
             {(p) => <Input {...p} {...register('lastName')} />}
           </FormField>
         </div>
+        <FormField
+          label={t('form.temporaryPassword')}
+          required
+          error={errors.password?.message}
+          hint={t('form.temporaryPasswordHint', { min: PASSWORD_MIN_LENGTH, max: PASSWORD_MAX_LENGTH })}
+        >
+          {(p) => <PasswordInput {...p} autoComplete="new-password" {...register('password')} />}
+        </FormField>
         <FormField label={t('form.role')} required error={errors.role?.message} hint={t('invite.roleHint')}>
           {(p) => (
             <NativeSelect {...p} {...register('role')}>

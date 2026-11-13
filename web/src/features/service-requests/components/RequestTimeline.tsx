@@ -21,7 +21,7 @@ export function RequestTimeline({ request }: { request: ServiceRequest }) {
   const { t } = useTranslation('requests')
   const logs = useServiceRequestLogs(request.id)
   const directory = useUserDirectory()
-  // The directory cannot resolve customers for Workers/Customers; fall back to the (mock-only) single-user lookup.
+  // The directory cannot resolve customers for Workers/Customers; fall back to the single-user lookup (GET /api/users/{id}).
   const customer = useUser(request.customerId)
   const customerLabel = customer.data ? fullName(customer.data) : directory.label(request.customerId, 'CUST')
 

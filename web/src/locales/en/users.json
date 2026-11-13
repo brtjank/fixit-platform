@@ -41,7 +41,8 @@
     "viewAsWorker": "View as worker",
     "deactivate": "Deactivate",
     "activate": "Activate",
-    "cannotDeactivateSelf": "You cannot deactivate your own account"
+    "cannotDeactivateSelf": "You cannot deactivate your own account",
+    "resetPassword": "Reset password"
   },
   "form": {
     "email": "Email",
@@ -49,18 +50,33 @@
     "firstName": "First name",
     "lastName": "Last name",
     "role": "Role",
+    "temporaryPassword": "Temporary password",
+    "temporaryPasswordHint": "{{min}}–{{max}} characters. Share it with the person; they can change it in Settings.",
     "validation": {
       "email": "Enter a valid email address",
       "role": "Select a role",
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
-      "maxLength": "Max {{max}} characters"
+      "maxLength": "Max {{max}} characters",
+      "emailTaken": "A user with this email already exists"
+    }
+  },
+  "password": {
+    "new": "New password",
+    "confirm": "Confirm new password",
+    "hint": "{{min}}–{{max}} characters.",
+    "validation": {
+      "required": "Password is required",
+      "min": "Use at least {{min}} characters",
+      "max": "Use at most {{max}} characters",
+      "tooWeak": "Password must be between {{min}} and {{max}} characters",
+      "confirmMismatch": "Passwords do not match"
     }
   },
   "invite": {
     "title": "Invite user",
-    "description": "They will receive an email invitation to join your organization.",
-    "submit": "Send invitation",
+    "description": "Creates the account right away. Set a temporary password and share it with the person — no email is sent.",
+    "submit": "Create user",
     "roleHint": "Workers get a profile and can be assigned to requests.",
     "error": "Could not invite the user"
   },
@@ -76,12 +92,22 @@
     "confirm": "Deactivate",
     "account": "Account:"
   },
+  "resetPassword": {
+    "title": "Reset password",
+    "description": "Set a new password for {{name}} ({{email}}). Their current password stops working immediately.",
+    "submit": "Reset password",
+    "error": "Could not reset the password"
+  },
   "toasts": {
-    "invited": "Invitation sent to {{email}}",
+    "invited": "User {{email}} created",
     "inviteError": "Could not invite the user",
     "updated": "User updated",
     "updateError": "Could not update the user",
     "activated": "User activated",
-    "deactivated": "User deactivated"
+    "deactivated": "User deactivated",
+    "passwordReset": "Password reset",
+    "passwordResetError": "Could not reset the password",
+    "passwordChanged": "Password changed",
+    "passwordChangeError": "Could not change the password"
   }
 }

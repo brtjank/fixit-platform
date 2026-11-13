@@ -72,5 +72,6 @@
   "placeholder": { "underConstruction": "W budowie", "notImplemented": "Ten ekran nie został jeszcze zaimplementowany." },
   "mock": { "badge": "Mock", "hint": "Te dane pochodzą z mockowanego endpointu — backend jeszcze go nie implementuje (zob. docs/API_GAPS.md)." },
   "format": { "unknownUser": "Nieznany", "ago": "{{distance}} temu", "never": "—" },
-  "language": { "label": "Język", "en": "Angielski", "pl": "Polski" }
+  "language": { "label": "Język", "en": "Angielski", "pl": "Polski" },
+  "password": { "show": "Pokaż hasło", "hide": "Ukryj hasło" }
 }

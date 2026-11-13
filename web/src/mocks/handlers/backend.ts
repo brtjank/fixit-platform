@@ -4,7 +4,7 @@
  * Behaviour mirrors the controllers + use-case handlers (policies, validation, domain rules).
  */
 import { delay, http, HttpResponse } from 'msw'
-import { parseStatus } from '@/shared/lib'
+import { parseRole, parseStatus } from '@/shared/lib'
 import {
   SERVICE_REQUEST_SEARCH_MAX_LENGTH,
   SERVICE_REQUEST_SORT_FIELDS,
@@ -19,14 +19,24 @@ import {
   type LoginRequest,
   type LoginResponse,
   type ServiceRequest,
+  type User,
 } from '@/shared/types'
 import {
   WORKER_PHONE_MAX_LENGTH,
   WORKER_SPECIALIZATION_MAX_LENGTH,
   type UpdateWorkerProfileRequest,
 } from '@/features/workers/api/workersApi'
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  UserErrorCodes,
+  type ChangeOwnPasswordRequest,
+  type InviteUserRequest,
+  type ResetUserPasswordRequest,
+  type UpdateUserRequest,
+} from '@/features/users/api/usersApi'
 import { authorize, errors, isResponse, issueMockToken, Policies, resolveUser, type Principal } from '../auth'
-import { db, findServiceRequest, findUser, findUserByEmail, newId, nowIso, paginate, pushNotification } from '../db'
+import { db, findServiceRequest, findUser, findUserByEmail, newId, nowIso, paginate, passwordMatches, pushNotification, setPassword } from '../db'
 
 const LATENCY = () => delay(250 + Math.random() * 250)
 
@@ -61,6 +71,18 @@ function compareBy(field: ServiceRequestSortField, a: ServiceRequest, b: Service
   }
 }
 
+/** Live user in the caller's tenant, or null (→ 404, never reveals other tenants). */
+function findTenantUser(id: string, auth: Principal) {
+  const user = findUser(id)
+  return user && user.tenantId === auth.tenantId ? user : null
+}
+
+/** Password policy: 8–128 characters, otherwise 400 USR_007_PASSWORD_TOO_WEAK. */
+function checkPassword(password: string | null | undefined) {
+  if (typeof password === 'string' && password.length >= PASSWORD_MIN_LENGTH && password.length <= PASSWORD_MAX_LENGTH) return null
+  return errors.badRequest(UserErrorCodes.PasswordTooWeak, `Password must be between ${PASSWORD_MIN_LENGTH} and ${PASSWORD_MAX_LENGTH} characters.`)
+}
+
 /** Trim; empty → null. */
 function normalize(value: string | null | undefined) {
   const trimmed = value?.trim()
@@ -68,12 +90,12 @@ function normalize(value: string | null | undefined) {
 }
 
 export const backendHandlers = [
-  // POST /api/auth/login — no password verification (matches backend Phase 4 placeholder)
+  // POST /api/auth/login — unknown / inactive / deleted user or wrong password → the same 401 AUTH_001
   http.post('/api/auth/login', async ({ request }) => {
     await LATENCY()
     const body = (await request.json()) as Partial<LoginRequest>
     const user = body.email ? findUserByEmail(body.email) : null
-    if (!user || !user.isActive) return errors.unauthorized()
+    if (!user || !user.isActive || !passwordMatches(user.id, body.password)) return errors.unauthorized()
     const res: LoginResponse = {
       token: issueMockToken(user),
       userId: user.id,
@@ -270,6 +292,113 @@ export const backendHandlers = [
     const user = findUser(id)
     if (!user || user.tenantId !== auth.tenantId || user.isDeleted) return errors.notFound('User', id)
     return HttpResponse.json(user)
+  }),
+
+  // POST /api/users (AdminOnly) — 201 + Location; Worker → empty WorkerProfile
+  http.post('/api/users', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.AdminOnly])
+    if (isResponse(auth)) return auth
+    const body = (await request.json()) as Partial<InviteUserRequest>
+    const email = body.email?.trim() ?? ''
+    const firstName = body.firstName?.trim() ?? ''
+    const lastName = body.lastName?.trim() ?? ''
+    const role = parseRole(body.role)
+    if (!email) return errors.badRequest('USR_001_EMAIL_REQUIRED', 'User email is required and cannot be empty.')
+    if (!firstName) return errors.badRequest('USR_002_NAME_REQUIRED', 'User FirstName is required and cannot be empty.')
+    if (!lastName) return errors.badRequest('USR_002_NAME_REQUIRED', 'User LastName is required and cannot be empty.')
+    if (!role) return errors.badRequest('USR_004_ROLE_INVALID', 'User role is invalid.')
+    const weak = checkPassword(body.password)
+    if (weak) return weak
+    // Unique globally (login is by email across tenants), case-insensitive.
+    if (findUserByEmail(email)) return errors.badRequest(UserErrorCodes.EmailTaken, `A user with email '${email}' already exists.`)
+    const user: User = { id: newId(), tenantId: auth.tenantId, email, firstName, lastName, role, isActive: true, createdAt: nowIso(), isDeleted: false }
+    db.users.push(user)
+    setPassword(user.id, body.password!)
+    if (role === UserRole.Worker) {
+      db.workerProfiles.push({ id: newId(), tenantId: auth.tenantId, userId: user.id, specialization: null, phoneNumber: null, isAvailable: true, createdAt: nowIso(), isDeleted: false })
+    }
+    return HttpResponse.json(user, { status: 201, headers: { Location: `/api/users/${user.id}` } })
+  }),
+
+  // PUT /api/users/{id:guid} (AdminOnly) — full replacement of firstName/lastName/role
+  http.put('/api/users/:id', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.AdminOnly])
+    if (isResponse(auth)) return auth
+    const id = String(params.id)
+    const user = findTenantUser(id, auth)
+    if (!user) return errors.notFound('User', id)
+    const body = (await request.json()) as Partial<UpdateUserRequest>
+    const firstName = body.firstName?.trim() ?? ''
+    const lastName = body.lastName?.trim() ?? ''
+    const role = parseRole(body.role)
+    if (!firstName) return errors.badRequest('USR_002_NAME_REQUIRED', 'User FirstName is required and cannot be empty.')
+    if (!lastName) return errors.badRequest('USR_002_NAME_REQUIRED', 'User LastName is required and cannot be empty.')
+    if (!role) return errors.badRequest('USR_004_ROLE_INVALID', 'User role is invalid.')
+    if (user.id === auth.userId && role !== user.role)
+      return errors.badRequest(UserErrorCodes.SelfRoleChange, 'You cannot change your own role.')
+    user.firstName = firstName
+    user.lastName = lastName
+    user.role = role
+    return HttpResponse.json(user)
+  }),
+
+  // PUT /api/users/{id:guid}/deactivate (AdminOnly) — idempotent; self → 400 USR_006
+  http.put('/api/users/:id/deactivate', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.AdminOnly])
+    if (isResponse(auth)) return auth
+    const id = String(params.id)
+    const user = findTenantUser(id, auth)
+    if (!user) return errors.notFound('User', id)
+    if (user.id === auth.userId) return errors.badRequest(UserErrorCodes.SelfDeactivate, 'You cannot deactivate your own account.')
+    user.isActive = false
+    return HttpResponse.json(user)
+  }),
+
+  // PUT /api/users/{id:guid}/activate (AdminOnly) — idempotent; soft-deleted → 400 USR_003
+  http.put('/api/users/:id/activate', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.AdminOnly])
+    if (isResponse(auth)) return auth
+    const id = String(params.id)
+    const user = db.users.find((u) => u.id === id && u.tenantId === auth.tenantId)
+    if (!user) return errors.notFound('User', id)
+    if (user.isDeleted) return errors.badRequest('USR_003_CANNOT_ACTIVATE', `Cannot activate user ${id}. User is deleted.`)
+    user.isActive = true
+    return HttpResponse.json(user)
+  }),
+
+  // PUT /api/users/me/password (any role) — 204. Registered before /api/users/:id/password (first match wins).
+  http.put('/api/users/me/password', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const user = resolveUser(auth)
+    if (!user) return errors.notFound('User', auth.userId)
+    const body = (await request.json()) as Partial<ChangeOwnPasswordRequest>
+    if (!passwordMatches(user.id, body.currentPassword))
+      return errors.badRequest(UserErrorCodes.PasswordMismatch, 'Current password is incorrect.')
+    const weak = checkPassword(body.newPassword)
+    if (weak) return weak
+    setPassword(user.id, body.newPassword!)
+    return new HttpResponse(null, { status: 204 })
+  }),
+
+  // PUT /api/users/{id:guid}/password (AdminOnly) — admin reset, 204
+  http.put('/api/users/:id/password', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.AdminOnly])
+    if (isResponse(auth)) return auth
+    const id = String(params.id)
+    const user = findTenantUser(id, auth)
+    if (!user) return errors.notFound('User', id)
+    const body = (await request.json()) as Partial<ResetUserPasswordRequest>
+    const weak = checkPassword(body.newPassword)
+    if (weak) return weak
+    setPassword(user.id, body.newPassword!)
+    return new HttpResponse(null, { status: 204 })
   }),
 
   // GET /api/workers/profiles (WorkerOrAdmin) — plain array, ordered by createdAt asc then id

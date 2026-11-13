@@ -1,8 +1,10 @@
-import { LogOut } from 'lucide-react'
+import { KeyRound, LogOut } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLogout, useMe, useProfile, useSession } from '@/features/auth'
 import { fullName } from '@/shared/lib'
 import { Avatar, Button, Card, CardContent, RoleBadge, Separator, Skeleton } from '@/shared/ui'
+import { ChangePasswordDialog } from './ChangePasswordDialog'
 import { CopyButton } from './CopyButton'
 import { Row, SectionHeading } from './SectionCard'
 
@@ -22,6 +24,7 @@ export function ProfileSection() {
   const profile = useProfile()
   const me = useMe()
   const logout = useLogout()
+  const [changingPassword, setChangingPassword] = useState(false)
 
   const user = me.data ?? (profile ? { ...profile } : null)
   if (!session) return null
@@ -57,11 +60,17 @@ export function ProfileSection() {
           </dl>
           <p className="mt-3 text-xs text-fg-subtle">{t('profile.editingUnavailable')}</p>
           <Separator className="my-4" />
-          <Button variant="secondary" onClick={logout}>
-            <LogOut /> {t('profile.signOut')}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={() => setChangingPassword(true)}>
+              <KeyRound /> {t('profile.changePassword')}
+            </Button>
+            <Button variant="secondary" onClick={logout}>
+              <LogOut /> {t('profile.signOut')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
+      <ChangePasswordDialog open={changingPassword} onOpenChange={setChangingPassword} />
     </section>
   )
 }

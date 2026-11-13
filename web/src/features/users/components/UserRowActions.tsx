@@ -1,4 +1,4 @@
-import { Eye, MoreHorizontal, Pencil, UserCheck, UserX } from 'lucide-react'
+import { Eye, KeyRound, MoreHorizontal, Pencil, UserCheck, UserX } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { UserRole, type User } from '@/shared/types'
@@ -18,9 +18,10 @@ interface UserRowActionsProps {
   onEdit: (user: User) => void
   onDeactivate: (user: User) => void
   onActivate: (user: User) => void
+  onResetPassword: (user: User) => void
 }
 
-export function UserRowActions({ user, isSelf, onEdit, onDeactivate, onActivate }: UserRowActionsProps) {
+export function UserRowActions({ user, isSelf, onEdit, onDeactivate, onActivate, onResetPassword }: UserRowActionsProps) {
   const { t } = useTranslation('users')
   const navigate = useNavigate()
   return (
@@ -33,6 +34,9 @@ export function UserRowActions({ user, isSelf, onEdit, onDeactivate, onActivate 
       <DropdownMenuContent align="end">
         <DropdownMenuItem onSelect={() => onEdit(user)}>
           <Pencil /> {t('rowActions.edit')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => onResetPassword(user)}>
+          <KeyRound /> {t('rowActions.resetPassword')}
         </DropdownMenuItem>
         {user.role === UserRole.Worker ? (
           <DropdownMenuItem onSelect={() => navigate(`/workers/${user.id}`)}>

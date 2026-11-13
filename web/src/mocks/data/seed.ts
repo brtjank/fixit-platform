@@ -257,6 +257,12 @@ serviceRequests.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
 serviceLogs.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 
 // ---- Demo accounts shown on the login page ----------------------------------
+/**
+ * Password of every seeded account — in mock mode (MSW login) and in live mode (`dev/seed.sql` stores its
+ * PBKDF2 hash). Imported by the login page in both modes, so keep this module free of MSW imports.
+ */
+export const DEMO_PASSWORD = 'Demo123!'
+
 export const DEMO_ACCOUNTS = [
   { role: 'Admin' as const, email: admins[0]!.email, name: 'Marta Nowak', hint: 'Full access: dashboard, users, assignments' },
   { role: 'Worker' as const, email: workers[0]!.email, name: 'Tomasz Kowalczyk', hint: 'Sees assigned jobs, updates status' },

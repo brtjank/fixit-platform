@@ -11,6 +11,7 @@ interface UsersTableProps {
   onEdit: (user: User) => void
   onDeactivate: (user: User) => void
   onActivate: (user: User) => void
+  onResetPassword: (user: User) => void
 }
 
 export function UsersTable({ users, loading, currentUserId, ...actions }: UsersTableProps) {

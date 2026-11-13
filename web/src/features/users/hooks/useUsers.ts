@@ -3,10 +3,17 @@ import { useMemo } from 'react'
 import { toast } from 'sonner'
 import { useRole } from '@/features/auth'
 import { i18n } from '@/i18n'
-import { errorMessage } from '@/shared/api'
+import { errorMessage, isApiError } from '@/shared/api'
 import { fullName, shortId } from '@/shared/lib'
 import { UserRole, type PagedParams, type User } from '@/shared/types'
-import { usersApi, type InviteUserRequest, type UpdateUserRequest } from '../api/usersApi'
+import {
+  UserErrorCodes,
+  usersApi,
+  type ChangeOwnPasswordRequest,
+  type InviteUserRequest,
+  type ResetUserPasswordRequest,
+  type UpdateUserRequest,
+} from '../api/usersApi'
 
 export const userKeys = {
   all: ['users'] as const,
@@ -95,7 +102,22 @@ function useInvalidateUsers() {
   }
 }
 
-/** ⚠ mock-only */
+/** Codes the forms render inline on a field — no toast for those, the dialog shows them. */
+const FIELD_ERROR_CODES: ReadonlySet<string> = new Set([
+  UserErrorCodes.EmailTaken,
+  UserErrorCodes.PasswordTooWeak,
+  UserErrorCodes.PasswordMismatch,
+])
+
+export function isFieldError(error: unknown) {
+  return isApiError(error) && FIELD_ERROR_CODES.has(error.errorCode)
+}
+
+function toastError(error: unknown, fallbackKey: string) {
+  if (!isFieldError(error)) toast.error(errorMessage(error, i18n.t(fallbackKey)))
+}
+
+/** ✅ POST /api/users (AdminOnly) */
 export function useInviteUser() {
   const invalidate = useInvalidateUsers()
   return useMutation({
@@ -104,11 +126,11 @@ export function useInviteUser() {
       invalidate()
       toast.success(i18n.t('users:toasts.invited', { email: u.email }))
     },
-    onError: (e) => toast.error(errorMessage(e, i18n.t('users:toasts.inviteError'))),
+    onError: (e) => toastError(e, 'users:toasts.inviteError'),
   })
 }
 
-/** ⚠ mock-only */
+/** ✅ PUT /api/users/{id} (AdminOnly) */
 export function useUpdateUser() {
   const invalidate = useInvalidateUsers()
   return useMutation({
@@ -117,11 +139,11 @@ export function useUpdateUser() {
       invalidate()
       toast.success(i18n.t('users:toasts.updated'))
     },
-    onError: (e) => toast.error(errorMessage(e, i18n.t('users:toasts.updateError'))),
+    onError: (e) => toastError(e, 'users:toasts.updateError'),
   })
 }
 
-/** ⚠ mock-only */
+/** ✅ PUT /api/users/{id}/activate | deactivate (AdminOnly) */
 export function useSetUserActive() {
   const invalidate = useInvalidateUsers()
   return useMutation({
@@ -130,6 +152,24 @@ export function useSetUserActive() {
       invalidate()
       toast.success(u.isActive ? i18n.t('users:toasts.activated') : i18n.t('users:toasts.deactivated'))
     },
-    onError: (e) => toast.error(errorMessage(e, i18n.t('users:toasts.updateError'))),
+    onError: (e) => toastError(e, 'users:toasts.updateError'),
+  })
+}
+
+/** ✅ PUT /api/users/me/password (any role) */
+export function useChangeOwnPassword() {
+  return useMutation({
+    mutationFn: (body: ChangeOwnPasswordRequest) => usersApi.changeOwnPassword(body),
+    onSuccess: () => toast.success(i18n.t('users:toasts.passwordChanged')),
+    onError: (e) => toastError(e, 'users:toasts.passwordChangeError'),
+  })
+}
+
+/** ✅ PUT /api/users/{id}/password (AdminOnly) */
+export function useResetUserPassword() {
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: ResetUserPasswordRequest }) => usersApi.resetPassword(id, body),
+    onSuccess: () => toast.success(i18n.t('users:toasts.passwordReset')),
+    onError: (e) => toastError(e, 'users:toasts.passwordResetError'),
   })
 }

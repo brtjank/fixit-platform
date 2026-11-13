@@ -17,6 +17,8 @@ export interface MockDb {
   serviceLogs: ServiceLog[]
   notifications: Notification[]
   notificationPreferences: NotificationPreferences
+  /** userId → plain-text password (mock only; the real backend stores a PBKDF2 hash). Seeded with DEMO_PASSWORD. */
+  passwords: Record<string, string>
 }
 
 function clone<T>(value: T): T {
@@ -47,6 +49,7 @@ export function createDb(): MockDb {
       plan: 'team',
     },
     users: clone(seed.users),
+    passwords: Object.fromEntries(seed.users.map((u) => [u.id, seed.DEMO_PASSWORD])),
     workerProfiles: clone(seed.workerProfiles),
     serviceRequests: clone(seed.serviceRequests),
     serviceLogs: clone(seed.serviceLogs),
@@ -65,7 +68,7 @@ export function createDb(): MockDb {
  * a request created or updated through the mock API does not vanish on refresh. Bump the version
  * when the seed changes shape. Closing the tab or calling resetDb() returns to the seed.
  */
-const STORAGE_KEY = 'fixit.mockdb.v1'
+const STORAGE_KEY = 'fixit.mockdb.v2'
 
 function loadPersisted(): MockDb | null {
   try {
@@ -112,6 +115,16 @@ export function findUser(id: string) {
 export function findUserByEmail(email: string) {
   const needle = email.trim().toLowerCase()
   return db.users.find((u) => u.email.toLowerCase() === needle && !u.isDeleted) ?? null
+}
+
+/** Mock password check. Users missing from the map (e.g. an older persisted db) fall back to DEMO_PASSWORD. */
+export function passwordMatches(userId: string, password: string | null | undefined) {
+  return (db.passwords?.[userId] ?? seed.DEMO_PASSWORD) === password
+}
+
+export function setPassword(userId: string, password: string) {
+  db.passwords ??= {}
+  db.passwords[userId] = password
 }
 
 export function findServiceRequest(id: string) {

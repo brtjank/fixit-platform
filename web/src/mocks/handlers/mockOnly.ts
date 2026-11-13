@@ -5,13 +5,11 @@
  */
 import { delay, http, HttpResponse } from 'msw'
 import type { DashboardStats, StatusBreakdown, DailyVolumePoint, ActivityItem } from '@/features/dashboard/api/dashboardApi'
-import type { InviteUserRequest, UpdateUserRequest } from '@/features/users/api/usersApi'
 import type { WorkerWorkload } from '@/features/workers/api/workersApi'
 import type { NotificationPreferences, UpdateTenantRequest } from '@/features/settings/api/settingsApi'
-import { parseRole } from '@/shared/lib'
-import { ServiceRequestStatus, UserRole, type User } from '@/shared/types'
+import { ServiceRequestStatus, UserRole } from '@/shared/types'
 import { authorize, isResponse, errors, Policies } from '../auth'
-import { db, findUser, newId, nowIso } from '../db'
+import { db, findUser, nowIso } from '../db'
 
 const LATENCY = () => delay(200 + Math.random() * 200)
 const STATUS_NAMES = ['', 'Pending', 'Assigned', 'InProgress', 'Completed', 'Cancelled']
@@ -32,58 +30,6 @@ export const mockOnlyHandlers = [
     const body = (await request.json()) as NotificationPreferences
     db.notificationPreferences = { ...db.notificationPreferences, ...body }
     return HttpResponse.json(db.notificationPreferences)
-  }),
-
-  // ---- User management (Admin) ------------------------------------------------
-  http.post('/api/users', async ({ request }) => {
-    await LATENCY()
-    const auth = authorize(request, [...Policies.AdminOnly])
-    if (isResponse(auth)) return auth
-    const body = (await request.json()) as Partial<InviteUserRequest>
-    const role = parseRole(body.role)
-    if (!body.email?.includes('@')) return errors.badRequest('VAL_001_VALIDATION', 'A valid email is required.')
-    if (!body.firstName?.trim() || !body.lastName?.trim()) return errors.badRequest('VAL_001_VALIDATION', 'First and last name are required.')
-    if (!role) return errors.badRequest('VAL_001_VALIDATION', 'Role is invalid.')
-    if (db.users.some((u) => u.email.toLowerCase() === body.email!.toLowerCase() && !u.isDeleted))
-      return errors.badRequest('USR_005_EMAIL_TAKEN', `A user with email ${body.email} already exists.`)
-    const user: User = { id: newId(), tenantId: auth.tenantId, email: body.email.trim(), firstName: body.firstName.trim(), lastName: body.lastName.trim(), role, isActive: true, createdAt: nowIso(), isDeleted: false }
-    db.users.push(user)
-    if (role === UserRole.Worker) {
-      db.workerProfiles.push({ id: newId(), tenantId: auth.tenantId, userId: user.id, specialization: null, phoneNumber: null, isAvailable: true, createdAt: nowIso(), isDeleted: false })
-    }
-    return HttpResponse.json(user, { status: 201 })
-  }),
-  http.put('/api/users/:id', async ({ request, params }) => {
-    await LATENCY()
-    const auth = authorize(request, [...Policies.AdminOnly])
-    if (isResponse(auth)) return auth
-    const user = findUser(String(params.id))
-    if (!user || user.tenantId !== auth.tenantId) return errors.notFound('User', String(params.id))
-    const body = (await request.json()) as Partial<UpdateUserRequest>
-    if (body.firstName?.trim()) user.firstName = body.firstName.trim()
-    if (body.lastName?.trim()) user.lastName = body.lastName.trim()
-    const role = parseRole(body.role)
-    if (role) user.role = role
-    return HttpResponse.json(user)
-  }),
-  http.put('/api/users/:id/deactivate', async ({ request, params }) => {
-    await LATENCY()
-    const auth = authorize(request, [...Policies.AdminOnly])
-    if (isResponse(auth)) return auth
-    const user = findUser(String(params.id))
-    if (!user || user.tenantId !== auth.tenantId) return errors.notFound('User', String(params.id))
-    if (user.id === auth.userId) return errors.badRequest('USR_006_SELF_DEACTIVATE', 'You cannot deactivate your own account.')
-    user.isActive = false
-    return HttpResponse.json(user)
-  }),
-  http.put('/api/users/:id/activate', async ({ request, params }) => {
-    await LATENCY()
-    const auth = authorize(request, [...Policies.AdminOnly])
-    if (isResponse(auth)) return auth
-    const user = findUser(String(params.id))
-    if (!user || user.tenantId !== auth.tenantId) return errors.notFound('User', String(params.id))
-    user.isActive = true
-    return HttpResponse.json(user)
   }),
 
   // ---- Workers ---------------------------------------------------------

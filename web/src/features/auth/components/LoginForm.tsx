@@ -7,7 +7,8 @@ import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { errorMessage } from '@/shared/api'
-import { Button, Card, FormField, Input } from '@/shared/ui'
+import { Button, Card, FormField, Input, PasswordInput } from '@/shared/ui'
+import { DEMO_PASSWORD } from '@/mocks/data/seed'
 import { useLogin } from '../hooks'
 import { DemoAccounts, type DemoAccount } from './DemoAccounts'
 
@@ -45,7 +46,7 @@ export function LoginForm() {
 
   const pickDemo = (account: DemoAccount) => {
     setValue('email', account.email, { shouldValidate: true })
-    setValue('password', 'demo', { shouldValidate: true })
+    setValue('password', DEMO_PASSWORD, { shouldValidate: true })
     setDemoEmail(account.email)
     void handleSubmit(onSubmit)()
   }
@@ -73,7 +74,7 @@ export function LoginForm() {
           </FormField>
 
           <FormField label={t('login.password')} error={errors.password?.message}>
-            {(control) => <Input {...control} type="password" autoComplete="current-password" placeholder="••••••••" {...register('password')} />}
+            {(control) => <PasswordInput {...control} autoComplete="current-password" placeholder="••••••••" {...register('password')} />}
           </FormField>
 
           <Button type="submit" size="lg" className="w-full" loading={login.isPending}>
@@ -82,7 +83,7 @@ export function LoginForm() {
           </Button>
 
           <p className="text-center text-xs text-fg-subtle">
-            {t('login.passwordNotice')}
+            {t('login.passwordNotice', { password: DEMO_PASSWORD })}
           </p>
         </form>
       </Card>
