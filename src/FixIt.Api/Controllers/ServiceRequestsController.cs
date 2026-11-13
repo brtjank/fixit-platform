@@ -47,6 +47,8 @@ public class ServiceRequestsController : ControllerBase
         [FromQuery] string? status = null,
         [FromQuery] Guid? assignedWorkerId = null,
         [FromQuery] Guid? customerId = null,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sort = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -57,7 +59,9 @@ public class ServiceRequestsController : ControllerBase
                 ? Enum.Parse<FixIt.Domain.Enums.ServiceRequestStatus>(status, ignoreCase: true)
                 : null,
             AssignedWorkerId: assignedWorkerId,
-            CustomerId: customerId
+            CustomerId: customerId,
+            Search: search,
+            Sort: sort
         );
 
         var response = await _mediator.Send(query, cancellationToken);

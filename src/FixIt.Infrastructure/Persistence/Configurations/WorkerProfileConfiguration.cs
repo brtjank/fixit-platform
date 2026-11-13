@@ -18,9 +18,11 @@ public class WorkerProfileConfiguration : IEntityTypeConfiguration<WorkerProfile
 
         builder.Property(wp => wp.UserId).IsRequired();
 
-        builder.Property(wp => wp.Specialization).HasMaxLength(200);
+        builder
+            .Property(wp => wp.Specialization)
+            .HasMaxLength(WorkerProfile.SpecializationMaxLength);
 
-        builder.Property(wp => wp.PhoneNumber).HasMaxLength(20);
+        builder.Property(wp => wp.PhoneNumber).HasMaxLength(WorkerProfile.PhoneNumberMaxLength);
 
         builder.Property(wp => wp.IsAvailable).IsRequired().HasDefaultValue(true);
 
