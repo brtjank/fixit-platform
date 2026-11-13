@@ -31,8 +31,26 @@ public class UserRepository : IUserRepository
         CancellationToken cancellationToken = default
     )
     {
-        // Note: Used only for login - email should be unique across all tenants
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email, cancellationToken);
+        // Used for login: emails are unique across all tenants (enforced on creation) and compared
+        // case-insensitively, matching how EmailExistsAsync guards uniqueness
+        var normalized = NormalizeEmail(email);
+        return await _context.Users.FirstOrDefaultAsync(
+            u => u.Email.ToLower() == normalized,
+            cancellationToken
+        );
+    }
+
+    public async Task<bool> EmailExistsAsync(
+        string email,
+        CancellationToken cancellationToken = default
+    )
+    {
+        // Soft-deleted rows are included: they still occupy the (TenantId, Email) unique index,
+        // and reusing a deleted account's email would make login ambiguous if it were ever restored
+        var normalized = NormalizeEmail(email);
+        return await _context
+            .Users.IgnoreQueryFilters()
+            .AnyAsync(u => u.Email.ToLower() == normalized, cancellationToken);
     }
 
     public IQueryable<User> GetByTenantId(Guid tenantId)
@@ -52,4 +70,6 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    private static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
 }

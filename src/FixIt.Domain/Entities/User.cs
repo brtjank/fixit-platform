@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FixIt.Domain.Enums;
 using FixIt.Domain.Exceptions;
 
@@ -10,6 +11,11 @@ public class User : BaseEntity
     public string LastName { get; private set; } = string.Empty;
     public UserRole Role { get; private set; }
     public bool IsActive { get; private set; } = true;
+
+    // Entities are serialised directly by the API, so the hash must be excluded explicitly.
+    // Null means the account has no password yet and cannot sign in.
+    [JsonIgnore]
+    public string? PasswordHash { get; private set; }
 
     private User() { }
 
@@ -38,6 +44,14 @@ public class User : BaseEntity
 
         FirstName = firstName;
         LastName = lastName;
+    }
+
+    public void SetPasswordHash(string passwordHash)
+    {
+        if (string.IsNullOrWhiteSpace(passwordHash))
+            throw new ArgumentException("Password hash cannot be empty.", nameof(passwordHash));
+
+        PasswordHash = passwordHash;
     }
 
     public void ChangeRole(UserRole role)

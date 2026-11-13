@@ -1,7 +1,13 @@
+using FixIt.Application.Features.Users.ActivateUser;
+using FixIt.Application.Features.Users.ChangeOwnPassword;
+using FixIt.Application.Features.Users.CreateUser;
+using FixIt.Application.Features.Users.DeactivateUser;
 using FixIt.Application.Features.Users.GetCurrentUser;
 using FixIt.Application.Features.Users.GetUserById;
 using FixIt.Application.Features.Users.GetUsers;
 using FixIt.Application.Features.Users.GetWorkers;
+using FixIt.Application.Features.Users.ResetUserPassword;
+using FixIt.Application.Features.Users.UpdateUser;
 using FixIt.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -69,5 +75,90 @@ public class UsersController : ControllerBase
         var response = await _mediator.Send(new GetUserByIdQuery(id), cancellationToken);
 
         return Ok(response.User);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<User>> CreateUser(
+        [FromBody] CreateUserRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var command = new CreateUserCommand(
+            request.Email,
+            request.FirstName,
+            request.LastName,
+            request.Role,
+            request.Password
+        );
+        var response = await _mediator.Send(command, cancellationToken);
+
+        return CreatedAtAction(nameof(GetUserById), new { id = response.User.Id }, response.User);
+    }
+
+    [HttpPut("{id:guid}")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<User>> UpdateUser(
+        Guid id,
+        [FromBody] UpdateUserRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var command = new UpdateUserCommand(id, request.FirstName, request.LastName, request.Role);
+        var response = await _mediator.Send(command, cancellationToken);
+
+        return Ok(response.User);
+    }
+
+    [HttpPut("{id:guid}/activate")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<User>> ActivateUser(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await _mediator.Send(new ActivateUserCommand(id), cancellationToken);
+
+        return Ok(response.User);
+    }
+
+    [HttpPut("{id:guid}/deactivate")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<ActionResult<User>> DeactivateUser(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await _mediator.Send(new DeactivateUserCommand(id), cancellationToken);
+
+        return Ok(response.User);
+    }
+
+    // "me" is not a guid, so this never collides with the {id:guid}/password route below
+    [HttpPut("me/password")]
+    public async Task<IActionResult> ChangeOwnPassword(
+        [FromBody] ChangeOwnPasswordRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await _mediator.Send(
+            new ChangeOwnPasswordCommand(request.CurrentPassword, request.NewPassword),
+            cancellationToken
+        );
+
+        return NoContent();
+    }
+
+    [HttpPut("{id:guid}/password")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> ResetUserPassword(
+        Guid id,
+        [FromBody] ResetUserPasswordRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await _mediator.Send(new ResetUserPasswordCommand(id, request.NewPassword), cancellationToken);
+
+        return NoContent();
     }
 }

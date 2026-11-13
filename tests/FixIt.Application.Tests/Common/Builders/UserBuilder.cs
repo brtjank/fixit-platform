@@ -11,6 +11,7 @@ public class UserBuilder
     private string _lastName = "Doe";
     private UserRole _role = UserRole.Customer;
     private bool _isActive = true;
+    private string? _passwordHash;
 
     public UserBuilder WithTenantId(Guid tenantId)
     {
@@ -30,6 +31,12 @@ public class UserBuilder
         return this;
     }
 
+    public UserBuilder WithPasswordHash(string passwordHash)
+    {
+        _passwordHash = passwordHash;
+        return this;
+    }
+
     public UserBuilder AsInactive()
     {
         _isActive = false;
@@ -39,6 +46,10 @@ public class UserBuilder
     public User Build()
     {
         var user = new User(_tenantId, _email, _firstName, _lastName, _role);
+        if (_passwordHash is not null)
+        {
+            user.SetPasswordHash(_passwordHash);
+        }
         if (!_isActive)
         {
             user.Deactivate();

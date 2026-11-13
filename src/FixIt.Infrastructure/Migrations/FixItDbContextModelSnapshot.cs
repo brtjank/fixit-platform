@@ -207,6 +207,10 @@ namespace FixIt.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasMaxLength(50)
