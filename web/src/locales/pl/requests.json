@@ -27,12 +27,11 @@
     "filters": {
       "all": "Wszystkie",
       "byStatus": "Filtruj według statusu",
-      "searchPlaceholder": "Szukaj po tytule…",
-      "searchLabel": "Szukaj po tytule",
+      "searchPlaceholder": "Szukaj w tytule lub opisie…",
+      "searchLabel": "Szukaj w tytule lub opisie",
       "byWorker": "Filtruj według pracownika",
       "anyWorker": "Dowolny pracownik",
-      "inactive": " (nieaktywny)",
-      "searchHint": "Przeszukuje tylko bieżącą stronę"
+      "inactive": " (nieaktywny)"
     },
     "columns": {
       "reference": "Numer",
@@ -47,6 +46,11 @@
       "title": "Brak zgłoszeń pasujących do filtrów",
       "filtered": "Spróbuj innego statusu, pracownika lub wyszukiwanej frazy.",
       "none": "Nie ma jeszcze żadnych zgłoszeń serwisowych."
+    },
+    "sort": {
+      "sortBy": "Sortuj według: {{column}}",
+      "ascending": "rosnąco",
+      "descending": "malejąco"
     }
   },
   "detail": {
@@ -96,7 +100,6 @@
       "title": "Przypisz pracownika",
       "submit": "Przypisz pracownika",
       "selectWorker": "Wybierz pracownika",
-      "availabilityMocked": "Dostępność symulowana",
       "workers": "Pracownicy",
       "loadError": "Nie udało się wczytać pracowników.",
       "emptyTitle": "Brak aktywnych pracowników",

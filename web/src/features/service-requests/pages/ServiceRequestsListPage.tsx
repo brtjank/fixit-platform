@@ -1,10 +1,10 @@
 import { Inbox, Plus } from 'lucide-react'
-import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { useIsAdmin } from '@/features/auth'
 import { errorMessage } from '@/shared/api'
 import { usePagination } from '@/shared/hooks'
+import { DEFAULT_SERVICE_REQUEST_SORT } from '@/shared/types'
 import { Button, Card, EmptyState, ErrorState, PageHeader, Pagination } from '@/shared/ui'
 import { RequestFilterBar } from '../components/RequestFilterBar'
 import { RequestsTable } from '../components/RequestsTable'
@@ -24,13 +24,12 @@ export default function ServiceRequestsListPage() {
     pageSize,
     status: filters.status,
     assignedWorkerId: filters.assignedWorkerId || undefined,
+    search: filters.q || undefined,
+    // Default sort is left implicit (backend default createdAt:desc) so the query key stays stable.
+    sort: filters.sort === DEFAULT_SERVICE_REQUEST_SORT ? undefined : filters.sort,
   })
 
-  const items = useMemo(() => {
-    const all = query.data?.items ?? []
-    const term = filters.q.trim().toLowerCase()
-    return term ? all.filter((sr) => sr.title.toLowerCase().includes(term)) : all
-  }, [query.data, filters.q])
+  const items = query.data?.items ?? []
 
   const total = query.data?.totalCount
 
@@ -70,7 +69,13 @@ export default function ServiceRequestsListPage() {
           />
         ) : (
           <div className={query.isPlaceholderData ? 'opacity-60 transition-opacity' : undefined}>
-            <RequestsTable items={items} loading={query.isLoading} onAssign={openAssign} onChangeStatus={openStatus} />
+            <RequestsTable
+              items={items}
+              loading={query.isLoading}
+              onAssign={openAssign}
+              onChangeStatus={openStatus}
+              sort={{ field: filters.sortField, direction: filters.sortDirection, onToggle: filters.toggleSort }}
+            />
           </div>
         )}
         {total !== undefined && total > 0 ? (

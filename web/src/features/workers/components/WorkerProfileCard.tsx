@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatDate } from '@/shared/lib'
 import type { User, WorkerProfile } from '@/shared/types'
-import { Card, CardContent, CardHeader, MockBadge, Skeleton } from '@/shared/ui'
+import { Card, CardContent, CardHeader, Skeleton } from '@/shared/ui'
 
 export function WorkerProfileCard({ user, profile, loading }: { user: User; profile: WorkerProfile | null; loading?: boolean }) {
   const { t } = useTranslation('workers')
@@ -10,7 +10,7 @@ export function WorkerProfileCard({ user, profile, loading }: { user: User; prof
   const missing = <span className="text-fg-subtle">{t('detail.profile.notSet')}</span>
   return (
     <Card>
-      <CardHeader title={<span className="inline-flex items-center gap-2">{t('detail.profile.title')} <MockBadge /></span>} />
+      <CardHeader title={t('detail.profile.title')} />
       <CardContent>
         {!loading && !profile ? <p className="mb-3 text-sm italic text-fg-subtle">{t('detail.profile.noProfile')}</p> : null}
         <dl className="space-y-3 text-sm">

@@ -13,7 +13,7 @@
     "total": "Total",
     "availableNow": "Available now",
     "busy": "Busy",
-    "mocked": "Profiles & workload mocked"
+    "mocked": "Workload mocked"
   },
   "toolbar": {
     "searchPlaceholder": "Search name or specialization…",
@@ -46,7 +46,6 @@
     "notFoundDescription": "This worker does not exist or belongs to another organization.",
     "backToWorkers": "Back to workers",
     "editProfile": "Edit profile",
-    "profileMocked": "Profile mocked",
     "assigned": {
       "title": "Assigned requests",
       "showingLatest": "Showing the latest 50 of {{total}}",

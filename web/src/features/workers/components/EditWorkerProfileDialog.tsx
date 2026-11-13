@@ -5,17 +5,22 @@ import { Controller, useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { errorMessage } from '@/shared/api'
+import { WORKER_PHONE_MAX_LENGTH, WORKER_SPECIALIZATION_MAX_LENGTH } from '../api/workersApi'
 import type { WorkerProfile } from '@/shared/types'
-import { Button, Dialog, DialogClose, DialogContent, FormField, Input, MockBadge, Switch } from '@/shared/ui'
+import { Button, Dialog, DialogClose, DialogContent, FormField, Input, Switch } from '@/shared/ui'
 import { useUpdateWorkerProfile } from '../hooks'
 
 const makeSchema = (t: TFunction<'workers'>) =>
   z.object({
-    specialization: z.string().trim().max(100, t('editProfile.validation.maxLength', { max: 100 })),
+    // Limits mirror the backend (WRK_001 / WRK_002) so users see an inline message instead of a 400.
+    specialization: z
+      .string()
+      .trim()
+      .max(WORKER_SPECIALIZATION_MAX_LENGTH, t('editProfile.validation.maxLength', { max: WORKER_SPECIALIZATION_MAX_LENGTH })),
     phoneNumber: z
       .string()
       .trim()
-      .max(30, t('editProfile.validation.maxLength', { max: 30 }))
+      .max(WORKER_PHONE_MAX_LENGTH, t('editProfile.validation.maxLength', { max: WORKER_PHONE_MAX_LENGTH }))
       .regex(/^[+\d\s()-]*$/, t('editProfile.validation.phoneFormat')),
     isAvailable: z.boolean(),
   })
@@ -60,6 +65,7 @@ function Body({ userId, profile, workerName, onDone }: Omit<EditWorkerProfileDia
 
   const onSubmit = handleSubmit((v) =>
     update.mutate(
+      // PUT is a full replacement: always send all three fields (empty → null; backend also trims/nulls).
       { userId, body: { specialization: v.specialization || null, phoneNumber: v.phoneNumber || null, isAvailable: v.isAvailable } },
       { onSuccess: onDone },
     ),
@@ -67,11 +73,7 @@ function Body({ userId, profile, workerName, onDone }: Omit<EditWorkerProfileDia
 
   return (
     <DialogContent
-      title={
-        <span className="inline-flex items-center gap-2">
-          {t('editProfile.title')} <MockBadge />
-        </span>
-      }
+      title={t('editProfile.title')}
       description={workerName}
       footer={
         <>

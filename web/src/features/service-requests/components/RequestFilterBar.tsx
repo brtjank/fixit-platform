@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useWorkers } from '@/features/users/hooks'
 import { useDebounce } from '@/shared/hooks'
 import { fullName } from '@/shared/lib'
+import { SERVICE_REQUEST_SEARCH_MAX_LENGTH } from '@/shared/types'
 import { Button, Input, NativeSelect } from '@/shared/ui'
 import { StatusFilterTabs } from './StatusFilterTabs'
 import type { useRequestFilters } from './useRequestFilters'
@@ -16,7 +17,7 @@ export function RequestFilterBar({ filters }: { filters: ReturnType<typeof useRe
   const { setFilter, q } = filters
 
   useEffect(() => {
-    if (debounced !== q) setFilter('q', debounced.trim() || undefined)
+    if (debounced.trim() !== q) setFilter('q', debounced.trim() || undefined)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only push debounced input to the URL
   }, [debounced])
 
@@ -36,6 +37,7 @@ export function RequestFilterBar({ filters }: { filters: ReturnType<typeof useRe
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('list.filters.searchPlaceholder')}
             aria-label={t('list.filters.searchLabel')}
+            maxLength={SERVICE_REQUEST_SEARCH_MAX_LENGTH}
             className="pl-9"
           />
         </div>
@@ -54,7 +56,6 @@ export function RequestFilterBar({ filters }: { filters: ReturnType<typeof useRe
             ))}
           </NativeSelect>
         </div>
-        <span className="text-xs text-fg-subtle sm:ml-1">{t('list.filters.searchHint')}</span>
         {filters.hasFilters ? (
           <Button variant="ghost" size="sm" className="sm:ml-auto" onClick={filters.clear}>
             <X /> {t('common:actions.clearFilters')}

@@ -24,7 +24,7 @@ export default function WorkerDetailPage() {
   const { entries, workersQuery, profilesQuery, workloadQuery, extrasLoading } = useWorkerRoster()
 
   const entry = entries.find((e) => e.user.id === id) ?? null
-  // Fallback (⚠ mock-only GET /api/users/{id}) when the worker is not in the first 100 results.
+  // Fallback (✅ GET /api/users/{id}) when the worker is not in the first 100 results.
   const needsFallback = workersQuery.isSuccess && !entry
   const fallback = useUser(needsFallback ? id : undefined)
 

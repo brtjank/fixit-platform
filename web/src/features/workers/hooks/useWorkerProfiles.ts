@@ -4,7 +4,7 @@ import { i18n } from '@/i18n'
 import { errorMessage } from '@/shared/api'
 import { workersApi, type UpdateWorkerProfileRequest } from '../api/workersApi'
 
-/** ⚠ All worker-profile hooks are backed by MOCK-ONLY endpoints. */
+/** Profiles: ✅ real endpoints. Workload: ⚠ MOCK-ONLY (GET /api/workers/workload). */
 export const workerKeys = {
   all: ['workers'] as const,
   profiles: () => [...workerKeys.all, 'profiles'] as const,

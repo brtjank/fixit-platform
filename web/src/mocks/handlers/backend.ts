@@ -6,8 +6,13 @@
 import { delay, http, HttpResponse } from 'msw'
 import { parseStatus } from '@/shared/lib'
 import {
+  SERVICE_REQUEST_SEARCH_MAX_LENGTH,
+  SERVICE_REQUEST_SORT_FIELDS,
   ServiceRequestStatus,
   UserRole,
+  type ServiceRequestSortField,
+  type SortDirection,
+  type WorkerProfile,
   type AssignWorkerRequest,
   type ChangeServiceStatusRequest,
   type CreateServiceRequestRequest,
@@ -15,6 +20,11 @@ import {
   type LoginResponse,
   type ServiceRequest,
 } from '@/shared/types'
+import {
+  WORKER_PHONE_MAX_LENGTH,
+  WORKER_SPECIALIZATION_MAX_LENGTH,
+  type UpdateWorkerProfileRequest,
+} from '@/features/workers/api/workersApi'
 import { authorize, errors, isResponse, issueMockToken, Policies, resolveUser, type Principal } from '../auth'
 import { db, findServiceRequest, findUser, findUserByEmail, newId, nowIso, paginate, pushNotification } from '../db'
 
@@ -24,6 +34,37 @@ const LATENCY = () => delay(250 + Math.random() * 250)
 function canReadRequest(sr: ServiceRequest | null | undefined, auth: Principal): sr is ServiceRequest {
   if (!sr || sr.tenantId !== auth.tenantId) return false
   return auth.role !== UserRole.Customer || sr.customerId === auth.userId
+}
+
+const STATUS_NAMES = ['', 'Pending', 'Assigned', 'InProgress', 'Completed', 'Cancelled']
+
+/** `field[:dir]`, case-insensitive; blank → createdAt:desc; invalid → null (400 SR_007_SORT_INVALID). */
+function parseSortParam(raw: string | null): { field: ServiceRequestSortField; direction: SortDirection } | null {
+  if (!raw?.trim()) return { field: 'createdAt', direction: 'desc' }
+  const parts = raw.trim().split(':')
+  if (parts.length > 2) return null
+  const field = SERVICE_REQUEST_SORT_FIELDS.find((f) => f.toLowerCase() === parts[0].trim().toLowerCase())
+  const direction = (parts[1]?.trim() || 'asc').toLowerCase()
+  if (!field || (direction !== 'asc' && direction !== 'desc')) return null
+  return { field, direction }
+}
+
+function compareBy(field: ServiceRequestSortField, a: ServiceRequest, b: ServiceRequest) {
+  switch (field) {
+    case 'title':
+      return a.title.localeCompare(b.title)
+    // The DB stores the enum as a string, so the backend orders by status NAME, not by workflow order.
+    case 'status':
+      return STATUS_NAMES[a.status].localeCompare(STATUS_NAMES[b.status])
+    case 'createdAt':
+      return a.createdAt.localeCompare(b.createdAt)
+  }
+}
+
+/** Trim; empty → null. */
+function normalize(value: string | null | undefined) {
+  const trimmed = value?.trim()
+  return trimmed ? trimmed : null
 }
 
 export const backendHandlers = [
@@ -55,6 +96,13 @@ export const backendHandlers = [
     if (statusRaw && !status) return errors.badRequest('ERR_001_UNEXPECTED', `Requested value '${statusRaw}' was not found.`)
     const assignedWorkerId = url.searchParams.get('assignedWorkerId')
     const customerId = url.searchParams.get('customerId')
+    const search = (url.searchParams.get('search') ?? '').trim()
+    if (search.length > SERVICE_REQUEST_SEARCH_MAX_LENGTH)
+      return errors.badRequest('SR_006_SEARCH_TOO_LONG', `Search term cannot be longer than ${SERVICE_REQUEST_SEARCH_MAX_LENGTH} characters.`)
+    const sortRaw = url.searchParams.get('sort')
+    const sort = parseSortParam(sortRaw)
+    if (!sort)
+      return errors.badRequest('SR_007_SORT_INVALID', `Sort '${sortRaw}' is invalid. Allowed fields: createdAt, title, status; directions: asc, desc.`)
 
     let items = db.serviceRequests.filter((sr) => sr.tenantId === auth.tenantId && !sr.isDeleted)
     // Customers only ever see their own requests (backend forces this regardless of ?customerId).
@@ -62,6 +110,13 @@ export const backendHandlers = [
     if (status) items = items.filter((sr) => sr.status === status)
     if (assignedWorkerId) items = items.filter((sr) => sr.assignedWorkerId === assignedWorkerId)
     if (customerId) items = items.filter((sr) => sr.customerId === customerId)
+    if (search) {
+      const term = search.toLowerCase()
+      items = items.filter((sr) => sr.title.toLowerCase().includes(term) || sr.description.toLowerCase().includes(term))
+    }
+    // Ordering is always applied (deterministic paging); tie-break on id ascending.
+    const sign = sort.direction === 'asc' ? 1 : -1
+    items = [...items].sort((a, b) => sign * compareBy(sort.field, a, b) || a.id.localeCompare(b.id))
     return HttpResponse.json(paginate(items, page, pageSize))
   }),
 
@@ -185,7 +240,7 @@ export const backendHandlers = [
     return HttpResponse.json(paginate(items, Number(url.searchParams.get('page') ?? 1), Number(url.searchParams.get('pageSize') ?? 20)))
   }),
 
-  // GET /api/users/me (any role) — User + tenantName. Registered before the mock-only /api/users/:id.
+  // GET /api/users/me (any role) — User + tenantName. Registered before /api/users/:id (first match wins).
   http.get('/api/users/me', async ({ request }) => {
     await LATENCY()
     const auth = authorize(request)
@@ -204,6 +259,69 @@ export const backendHandlers = [
     const url = new URL(request.url)
     const items = db.users.filter((u) => u.tenantId === auth.tenantId && !u.isDeleted && u.role === UserRole.Worker)
     return HttpResponse.json(paginate(items, Number(url.searchParams.get('page') ?? 1), Number(url.searchParams.get('pageSize') ?? 10)))
+  }),
+
+  // GET /api/users/{id:guid} (any role) — tenant-scoped; other tenant / missing → 404. After /me and /workers.
+  http.get('/api/users/:id', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const id = String(params.id)
+    const user = findUser(id)
+    if (!user || user.tenantId !== auth.tenantId || user.isDeleted) return errors.notFound('User', id)
+    return HttpResponse.json(user)
+  }),
+
+  // GET /api/workers/profiles (WorkerOrAdmin) — plain array, ordered by createdAt asc then id
+  http.get('/api/workers/profiles', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.WorkerOrAdmin])
+    if (isResponse(auth)) return auth
+    const profiles = db.workerProfiles
+      .filter((p) => p.tenantId === auth.tenantId && !p.isDeleted)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id))
+    return HttpResponse.json(profiles)
+  }),
+
+  // GET /api/workers/{userId:guid}/profile (any role) — 404 when no profile in the caller's tenant
+  http.get('/api/workers/:userId/profile', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const userId = String(params.userId)
+    const profile = db.workerProfiles.find((p) => p.userId === userId && p.tenantId === auth.tenantId && !p.isDeleted)
+    if (!profile) return errors.notFound('WorkerProfile', userId)
+    return HttpResponse.json(profile)
+  }),
+
+  // PUT /api/workers/{userId:guid}/profile (WorkerOrAdmin; Worker: self only → else 404) — full replacement, upsert, 200
+  http.put('/api/workers/:userId/profile', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request, [...Policies.WorkerOrAdmin])
+    if (isResponse(auth)) return auth
+    const userId = String(params.userId)
+    if (auth.role === UserRole.Worker && auth.userId !== userId) return errors.notFound('Worker', userId)
+    const body = (await request.json()) as Partial<UpdateWorkerProfileRequest>
+    const specialization = normalize(body.specialization)
+    const phoneNumber = normalize(body.phoneNumber)
+    if (specialization && specialization.length > WORKER_SPECIALIZATION_MAX_LENGTH)
+      return errors.badRequest('WRK_001_SPECIALIZATION_TOO_LONG', `Worker specialization cannot be longer than ${WORKER_SPECIALIZATION_MAX_LENGTH} characters.`)
+    if (phoneNumber && phoneNumber.length > WORKER_PHONE_MAX_LENGTH)
+      return errors.badRequest('WRK_002_PHONE_TOO_LONG', `Worker phone number cannot be longer than ${WORKER_PHONE_MAX_LENGTH} characters.`)
+    const worker = findUser(userId)
+    if (!worker || worker.tenantId !== auth.tenantId || worker.isDeleted || worker.role !== UserRole.Worker)
+      return errors.notFound('Worker', userId)
+
+    let profile = db.workerProfiles.find((p) => p.userId === userId && p.tenantId === auth.tenantId && !p.isDeleted)
+    if (!profile) {
+      const created: WorkerProfile = { id: newId(), tenantId: auth.tenantId, userId, specialization, phoneNumber, isAvailable: true, createdAt: nowIso(), isDeleted: false }
+      db.workerProfiles.push(created)
+      profile = created
+    }
+    profile.specialization = specialization
+    profile.phoneNumber = phoneNumber
+    profile.isAvailable = body.isAvailable ?? profile.isAvailable
+    return HttpResponse.json(profile)
   }),
 
   // GET /health

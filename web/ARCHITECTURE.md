@@ -68,11 +68,11 @@ error codes (`RES_001_NOT_FOUND`, `SR_001_STATUS_IMMUTABLE`, …), and numeric e
 | Route               | Admin | Worker | Customer | Notes                                            |
 | ------------------- | :---: | :----: | :------: | ------------------------------------------------ |
 | `/` (Home)          | Dashboard | Dashboard | My requests | `app/pages/HomePage.tsx` switches on role |
-| `/requests`         |  ✅   |   ✅   |    –     | list + filters + pagination (real)               |
+| `/requests`         |  ✅   |   ✅   |    –     | list + filters + search/sort + pagination (real) |
 | `/requests/new`     |  ✅   |   –    |    ✅    | create (real)                                    |
 | `/requests/:id`     |  ✅   |   ✅   |    ✅    | detail, actions, timeline (real)                 |
 | `/my-assignments`   |   –   |   ✅   |    –     | `assignedWorkerId=me` (real)                     |
-| `/workers`, `/workers/:id` | ✅ | ✅  |    –     | users/workers (real) + profiles/workload (mock)  |
+| `/workers`, `/workers/:id` | ✅ | ✅  |    –     | users/workers + profiles (real) + workload (mock) |
 | `/users`            |  ✅   |   –    |    –     | list (real) + invite/edit/deactivate (mock)      |
 | `/settings`         |  ✅   |   ✅   |    ✅    | profile (real), tenant/preferences (mock), appearance (local) |
 | `/notifications`    |  ✅   |   ✅   |    ✅    | mock                                             |

@@ -3,13 +3,13 @@
  * Each one is documented in docs/API_GAPS.md as a proposed backend endpoint.
  * In live mode they decode the real JWT and answer from the in-memory dataset.
  */
-import { delay, http, HttpResponse, passthrough } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import type { DashboardStats, StatusBreakdown, DailyVolumePoint, ActivityItem } from '@/features/dashboard/api/dashboardApi'
 import type { InviteUserRequest, UpdateUserRequest } from '@/features/users/api/usersApi'
-import type { UpdateWorkerProfileRequest, WorkerWorkload } from '@/features/workers/api/workersApi'
+import type { WorkerWorkload } from '@/features/workers/api/workersApi'
 import type { NotificationPreferences, UpdateTenantRequest } from '@/features/settings/api/settingsApi'
 import { parseRole } from '@/shared/lib'
-import { ServiceRequestStatus, UserRole, type User, type WorkerProfile } from '@/shared/types'
+import { ServiceRequestStatus, UserRole, type User } from '@/shared/types'
 import { authorize, isResponse, errors, Policies } from '../auth'
 import { db, findUser, newId, nowIso } from '../db'
 
@@ -35,16 +35,6 @@ export const mockOnlyHandlers = [
   }),
 
   // ---- User management (Admin) ------------------------------------------------
-  http.get('/api/users/:id', async ({ request, params }) => {
-    // Reserved sub-routes served by the backend (mock backend handlers in mock mode, real API in live mode).
-    if (['workers', 'me'].includes(String(params.id))) return passthrough()
-    await LATENCY()
-    const auth = authorize(request)
-    if (isResponse(auth)) return auth
-    const user = findUser(String(params.id))
-    if (!user || user.tenantId !== auth.tenantId) return errors.notFound('User', String(params.id))
-    return HttpResponse.json(user)
-  }),
   http.post('/api/users', async ({ request }) => {
     await LATENCY()
     const auth = authorize(request, [...Policies.AdminOnly])
@@ -96,13 +86,7 @@ export const mockOnlyHandlers = [
     return HttpResponse.json(user)
   }),
 
-  // ---- Worker profiles ---------------------------------------------------------
-  http.get('/api/workers/profiles', async ({ request }) => {
-    await LATENCY()
-    const auth = authorize(request, [...Policies.WorkerOrAdmin])
-    if (isResponse(auth)) return auth
-    return HttpResponse.json(db.workerProfiles.filter((p) => p.tenantId === auth.tenantId && !p.isDeleted))
-  }),
+  // ---- Workers ---------------------------------------------------------
   http.get('/api/workers/workload', async ({ request }) => {
     await LATENCY()
     const auth = authorize(request, [...Policies.WorkerOrAdmin])
@@ -120,32 +104,6 @@ export const mockOnlyHandlers = [
         }
       })
     return HttpResponse.json(result)
-  }),
-  http.get('/api/workers/:userId/profile', async ({ request, params }) => {
-    await LATENCY()
-    const auth = authorize(request)
-    if (isResponse(auth)) return auth
-    const profile = db.workerProfiles.find((p) => p.userId === String(params.userId) && !p.isDeleted)
-    if (!profile) return errors.notFound('WorkerProfile', String(params.userId))
-    return HttpResponse.json(profile)
-  }),
-  http.put('/api/workers/:userId/profile', async ({ request, params }) => {
-    await LATENCY()
-    const auth = authorize(request, [...Policies.WorkerOrAdmin])
-    if (isResponse(auth)) return auth
-    const userId = String(params.userId)
-    if (auth.role === UserRole.Worker && auth.userId !== userId) return errors.forbidden()
-    let profile = db.workerProfiles.find((p) => p.userId === userId && !p.isDeleted)
-    const body = (await request.json()) as Partial<UpdateWorkerProfileRequest>
-    if (!profile) {
-      const created: WorkerProfile = { id: newId(), tenantId: auth.tenantId, userId, specialization: null, phoneNumber: null, isAvailable: true, createdAt: nowIso(), isDeleted: false }
-      db.workerProfiles.push(created)
-      profile = created
-    }
-    if (body.specialization !== undefined) profile.specialization = body.specialization || null
-    if (body.phoneNumber !== undefined) profile.phoneNumber = body.phoneNumber || null
-    if (typeof body.isAvailable === 'boolean') profile.isAvailable = body.isAvailable
-    return HttpResponse.json(profile)
   }),
 
   // ---- Dashboard ---------------------------------------------------------------

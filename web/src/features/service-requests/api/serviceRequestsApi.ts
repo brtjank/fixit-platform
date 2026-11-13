@@ -16,7 +16,11 @@ import type {
  * ✅ = real backend endpoint   ⚠ = MOCK-ONLY (see docs/API_GAPS.md)
  */
 export const serviceRequestsApi = {
-  /** ✅ GET /api/service-requests?page&pageSize&status&assignedWorkerId&customerId  (Customer role is always scoped to own requests) */
+  /**
+   * ✅ GET /api/service-requests?page&pageSize&status&assignedWorkerId&customerId&search&sort
+   * (Customer role is always scoped to own requests). `search` matches title OR description,
+   * `sort` = `createdAt|title|status:asc|desc` (default createdAt:desc). Empty values are omitted.
+   */
   list: (params: ServiceRequestListParams = {}) =>
     http.get<Paged<ServiceRequest>>('/api/service-requests', {
       query: {
@@ -25,6 +29,8 @@ export const serviceRequestsApi = {
         status: params.status, // backend parses enum name or number (Enum.Parse)
         assignedWorkerId: params.assignedWorkerId,
         customerId: params.customerId,
+        search: params.search?.trim() || undefined,
+        sort: params.sort,
       },
     }),
 

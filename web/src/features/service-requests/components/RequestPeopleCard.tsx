@@ -40,7 +40,7 @@ export function RequestPeopleCard({ request, canAssign, onAssign }: { request: S
   const { t } = useTranslation('requests')
   const role = useRole()
   const isStaff = role === UserRole.Admin || role === UserRole.Worker
-  // ⚠ GET /api/users/{id} is mock-only; it is the only way a Customer can resolve names.
+  // ✅ GET /api/users/{id} (any role) — the only way a Customer can resolve names.
   const customer = useUser(request.customerId)
   const worker = useUser(request.assignedWorkerId ?? undefined)
   const profiles = useWorkerProfiles({ enabled: isStaff && Boolean(request.assignedWorkerId) })

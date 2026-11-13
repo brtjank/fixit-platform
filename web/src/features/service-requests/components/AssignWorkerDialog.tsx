@@ -5,7 +5,7 @@ import { useWorkers } from '@/features/users/hooks'
 import { useWorkerProfiles } from '@/features/workers/hooks'
 import { cn, fullName, shortId } from '@/shared/lib'
 import type { ServiceRequest } from '@/shared/types'
-import { Avatar, Button, Dialog, DialogClose, DialogContent, EmptyState, ErrorState, MockBadge, Skeleton } from '@/shared/ui'
+import { Avatar, Button, Dialog, DialogClose, DialogContent, EmptyState, ErrorState, Skeleton } from '@/shared/ui'
 import { useAssignWorker } from '../hooks'
 import { AvailabilityDot } from './AvailabilityDot'
 import { InlineError } from './InlineError'
@@ -60,7 +60,6 @@ function AssignWorkerBody({ request, onDone }: { request: ServiceRequest; onDone
     >
       <div className="mb-2 flex items-center justify-between text-xs text-fg-subtle">
         <span>{t('dialogs.assign.selectWorker')}</span>
-        {profilesQuery.data ? <MockBadge label={t('dialogs.assign.availabilityMocked')} /> : null}
       </div>
       {workersQuery.isLoading ? (
         <div className="space-y-2">

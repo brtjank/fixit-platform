@@ -47,7 +47,7 @@ export interface User extends BaseEntity {
   isActive: boolean
 }
 
-/** Backend entity exists but has NO endpoint yet → served by mocks only. */
+/** ✅ GET /api/workers/profiles, GET/PUT /api/workers/{userId}/profile. Limits: specialization ≤ 200, phoneNumber ≤ 20. */
 export interface WorkerProfile extends BaseEntity {
   userId: string
   specialization: string | null
@@ -108,7 +108,19 @@ export interface ServiceRequestListParams {
   status?: ServiceRequestStatus
   assignedWorkerId?: string
   customerId?: string
+  /** Case-insensitive substring on title OR description (server-side, before totalCount). Max 200 chars. */
+  search?: string
+  /** `field:dir`; omitted → backend default `createdAt:desc` (tie-break id). */
+  sort?: ServiceRequestSort
 }
+
+export const SERVICE_REQUEST_SORT_FIELDS = ['createdAt', 'title', 'status'] as const
+export type ServiceRequestSortField = (typeof SERVICE_REQUEST_SORT_FIELDS)[number]
+export type SortDirection = 'asc' | 'desc'
+export type ServiceRequestSort = `${ServiceRequestSortField}:${SortDirection}`
+export const DEFAULT_SERVICE_REQUEST_SORT: ServiceRequestSort = 'createdAt:desc'
+/** Backend limit for `?search=` (longer → 400 SR_006_SEARCH_TOO_LONG). */
+export const SERVICE_REQUEST_SEARCH_MAX_LENGTH = 200
 
 export interface CreateServiceRequestRequest {
   title: string

@@ -31,7 +31,7 @@ export const usersApi = {
       query: { page: params.page ?? 1, pageSize: params.pageSize ?? 20 },
     }),
 
-  /** ⚠ GET /api/users/{id} — MOCK-ONLY */
+  /** ✅ GET /api/users/{id}  (any role, tenant-scoped; 404 RES_001_NOT_FOUND otherwise) */
   getById: (id: string) => http.get<User>(`/api/users/${id}`),
 
   /** ⚠ POST /api/users — MOCK-ONLY (invite / create user) */
