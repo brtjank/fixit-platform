@@ -7,7 +7,10 @@ export interface MeResponse extends User {
 }
 
 export const authApi = {
-  /** ✅ POST /api/auth/login — real backend endpoint. Note: backend currently does not verify passwords. */
+  /**
+   * ✅ POST /api/auth/login — real backend endpoint. Verifies the password (PBKDF2 hash); unknown, inactive or
+   * wrong-password logins all get the same 401 AUTH_001_NOT_AUTHENTICATED. Demo accounts use DEMO_PASSWORD.
+   */
   login: (body: LoginRequest) => http.post<LoginResponse>('/api/auth/login', body),
 
   /** ✅ GET /api/users/me — real backend endpoint (any role). */

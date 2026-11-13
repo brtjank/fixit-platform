@@ -1,5 +1,6 @@
-import { forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes, type SelectHTMLAttributes } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { forwardRef, useState, type InputHTMLAttributes, type TextareaHTMLAttributes, type SelectHTMLAttributes } from 'react'
+import { ChevronDown, Eye, EyeOff } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/lib'
 
 const base =
@@ -9,6 +10,30 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   <input ref={ref} className={cn(base, 'h-9', className)} {...props} />
 ))
 Input.displayName = 'Input'
+
+/** Password input with a show/hide (eye) toggle. Spread FormField's control props and `register()` on it like on `Input`. */
+export const PasswordInput = forwardRef<HTMLInputElement, Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>>(
+  ({ className, ...props }, ref) => {
+    const { t } = useTranslation()
+    const [visible, setVisible] = useState(false)
+    return (
+      <div className="relative">
+        <input ref={ref} type={visible ? 'text' : 'password'} className={cn(base, 'h-9 pr-10', className)} {...props} />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          disabled={props.disabled}
+          aria-label={visible ? t('password.hide') : t('password.show')}
+          aria-pressed={visible}
+          className="absolute inset-y-0 right-0 flex w-9 items-center justify-center rounded-r-md text-fg-subtle transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed"
+        >
+          {visible ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+        </button>
+      </div>
+    )
+  },
+)
+PasswordInput.displayName = 'PasswordInput'
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(({ className, ...props }, ref) => (
   <textarea ref={ref} className={cn(base, 'min-h-24 py-2 leading-relaxed', className)} {...props} />

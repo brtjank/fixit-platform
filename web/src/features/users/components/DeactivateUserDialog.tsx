@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { fullName } from '@/shared/lib'
 import type { User } from '@/shared/types'
-import { Button, Dialog, DialogClose, DialogContent, MockBadge } from '@/shared/ui'
+import { Button, Dialog, DialogClose, DialogContent } from '@/shared/ui'
 import { useSetUserActive } from '../hooks'
 
 interface DeactivateUserDialogProps {
@@ -17,11 +17,7 @@ export function DeactivateUserDialog({ user, onOpenChange }: DeactivateUserDialo
       {user ? (
         <DialogContent
           size="sm"
-          title={
-            <span className="inline-flex items-center gap-2">
-              {t('deactivate.title', { name: fullName(user) })} <MockBadge />
-            </span>
-          }
+          title={t('deactivate.title', { name: fullName(user) })}
           description={t('deactivate.description')}
           footer={
             <>

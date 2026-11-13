@@ -9,11 +9,17 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
 {
     private readonly IUserRepository _userRepository;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public LoginCommandHandler(IUserRepository userRepository, IJwtTokenService jwtTokenService)
+    public LoginCommandHandler(
+        IUserRepository userRepository,
+        IJwtTokenService jwtTokenService,
+        IPasswordHasher passwordHasher
+    )
     {
         _userRepository = userRepository;
         _jwtTokenService = jwtTokenService;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<LoginResponse> Handle(
@@ -21,16 +27,17 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
         CancellationToken cancellationToken
     )
     {
-        // Note: In Phase 4, we're doing basic login without password hashing
-        // This is a placeholder - in production, you'd verify password hash
         var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
 
-        if (user == null)
-            throw new UserNotAuthenticatedException();
-
-        // TODO: Verify password hash (Phase 4 - basic implementation)
-        // For now, we'll just check if user exists and is active
-        if (!user.IsActive || user.IsDeleted)
+        // Every failure maps to the same exception so callers cannot tell an unknown email
+        // from a wrong password or a disabled account
+        if (
+            user is null
+            || !user.IsActive
+            || user.IsDeleted
+            || user.PasswordHash is null
+            || !_passwordHasher.Verify(user.PasswordHash, request.Password)
+        )
             throw new UserNotAuthenticatedException();
 
         var token = _jwtTokenService.GenerateToken(user);

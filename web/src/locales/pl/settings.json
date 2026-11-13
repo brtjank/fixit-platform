@@ -12,13 +12,24 @@
     "language": "Język",
     "developer": "Dla deweloperów"
   },
+  "changePassword": {
+    "title": "Zmień hasło",
+    "description": "Podaj obecne hasło, a następnie wybierz nowe.",
+    "current": "Obecne hasło",
+    "currentRequired": "Podaj obecne hasło",
+    "currentIncorrect": "Obecne hasło jest nieprawidłowe",
+    "submit": "Zmień hasło",
+    "error": "Nie udało się zmienić hasła"
+  },
   "profile": {
     "title": "Profil",
     "description": "Twoje konto w tej organizacji.",
     "organization": "Organizacja",
     "userId": "ID użytkownika",
     "tenantId": "ID organizacji (tenant)",
-    "editingUnavailable": "Edycja profilu nie jest jeszcze dostępna.",
+    "editingUnavailable": "Imię, nazwisko i e-mail zmienia administrator.",
+    "password": "Hasło",
+    "changePassword": "Zmień hasło",
     "signOut": "Wyloguj z tego urządzenia"
   },
   "organization": {

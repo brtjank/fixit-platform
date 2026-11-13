@@ -12,13 +12,24 @@
     "language": "Language",
     "developer": "Developer"
   },
+  "changePassword": {
+    "title": "Change password",
+    "description": "Enter your current password, then choose a new one.",
+    "current": "Current password",
+    "currentRequired": "Enter your current password",
+    "currentIncorrect": "Current password is incorrect",
+    "submit": "Change password",
+    "error": "Could not change the password"
+  },
   "profile": {
     "title": "Profile",
     "description": "Your account in this organization.",
     "organization": "Organization",
     "userId": "User ID",
     "tenantId": "Tenant ID",
-    "editingUnavailable": "Profile editing is not available yet.",
+    "editingUnavailable": "Name and email are managed by an administrator.",
+    "password": "Password",
+    "changePassword": "Change password",
     "signOut": "Sign out of this device"
   },
   "organization": {

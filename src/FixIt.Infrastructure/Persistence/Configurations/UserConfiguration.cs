@@ -24,6 +24,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.Role).IsRequired().HasConversion<string>().HasMaxLength(50);
 
+        builder.Property(u => u.PasswordHash).HasMaxLength(256);
+
         builder.Property(u => u.IsActive).IsRequired().HasDefaultValue(true);
 
         builder.Property(u => u.IsDeleted).IsRequired().HasDefaultValue(false);

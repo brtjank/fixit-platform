@@ -21,7 +21,7 @@ Zasady kodowania, architektura, konwencje: `DEV_GUIDELINES.md`
 | 8 — Azure Deployment | ⏳ |
 | 9 — Monitoring & README | ⏳ |
 
-Testy: 110/110 pass (Application + Domain unit tests).
+Testy: 155/155 pass (Application + Domain unit tests).
 
 ## Architektura — kluczowe decyzje
 

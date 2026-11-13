@@ -6,10 +6,11 @@ import { errorMessage } from '@/shared/api'
 import { useDebounce, usePagination } from '@/shared/hooks'
 import { fullName } from '@/shared/lib'
 import type { User } from '@/shared/types'
-import { Button, Card, EmptyState, ErrorState, MockBadge, PageHeader, Pagination } from '@/shared/ui'
+import { Button, Card, EmptyState, ErrorState, PageHeader, Pagination } from '@/shared/ui'
 import { DeactivateUserDialog } from '../components/DeactivateUserDialog'
 import { EditUserDialog } from '../components/EditUserDialog'
 import { InviteUserDialog } from '../components/InviteUserDialog'
+import { ResetPasswordDialog } from '../components/ResetPasswordDialog'
 import type { RoleFilterValue } from '../components/UserRoleFilter'
 import { UsersTable } from '../components/UsersTable'
 import { UsersToolbar, type StatusFilterValue } from '../components/UsersToolbar'
@@ -30,6 +31,7 @@ export default function UsersPage() {
   const [inviteOpen, setInviteOpen] = useState(false)
   const [editing, setEditing] = useState<User | null>(null)
   const [deactivating, setDeactivating] = useState<User | null>(null)
+  const [resettingPassword, setResettingPassword] = useState<User | null>(null)
 
   const filtered = useMemo(() => {
     const items = query.data?.items ?? []
@@ -55,12 +57,9 @@ export default function UsersPage() {
         title={t('list.title')}
         description={t('list.description')}
         actions={
-          <>
-            <MockBadge />
-            <Button onClick={() => setInviteOpen(true)}>
-              <UserPlus /> {t('actions.invite')}
-            </Button>
-          </>
+          <Button onClick={() => setInviteOpen(true)}>
+            <UserPlus /> {t('actions.invite')}
+          </Button>
         }
       />
 
@@ -112,6 +111,7 @@ export default function UsersPage() {
               currentUserId={session?.userId}
               onEdit={setEditing}
               onDeactivate={setDeactivating}
+              onResetPassword={setResettingPassword}
               onActivate={(u) => setActive.mutate({ id: u.id, active: true })}
             />
           )}
@@ -131,6 +131,7 @@ export default function UsersPage() {
       <InviteUserDialog open={inviteOpen} onOpenChange={setInviteOpen} />
       <EditUserDialog user={editing} lockRole={editing?.id === session?.userId} onOpenChange={(o) => !o && setEditing(null)} />
       <DeactivateUserDialog user={deactivating} onOpenChange={(o) => !o && setDeactivating(null)} />
+      <ResetPasswordDialog user={resettingPassword} onOpenChange={(o) => !o && setResettingPassword(null)} />
     </>
   )
 }

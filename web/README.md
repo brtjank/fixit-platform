@@ -10,7 +10,8 @@ npm install
 npm run dev          # http://localhost:5173 — VITE_API_MODE=mock by default
 ```
 
-Sign in with one of the demo accounts shown on the login page (any password):
+Sign in with one of the demo accounts shown on the login page (one click). Every demo account uses the
+password `Demo123!` — passwords are verified in both modes (`DEMO_PASSWORD` in `src/mocks/data/seed.ts`):
 
 | Role     | Email                              |
 | -------- | ---------------------------------- |
@@ -31,7 +32,8 @@ cd web && VITE_API_MODE=live npm run dev       # /api is proxied to the backend
 ```
 
 In live mode the real endpoints (`/api/auth/login`, `/api/service-requests*` including `/{id}/logs`,
-`GET /api/users`, `/api/users/workers`, `/api/users/me`) hit the API; everything the backend does not
+`/api/users*` — list, workers, me, `{id}`, invite/edit/activate/deactivate, own password change and admin
+password reset — and `/api/workers/profiles`, `/api/workers/{userId}/profile`) hit the API; everything the backend does not
 implement yet is still served by MSW — see [`docs/API_GAPS.md`](docs/API_GAPS.md). UI backed by mocked endpoints is marked with a small
 "Mocked" badge.
 

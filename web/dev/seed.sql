@@ -1,18 +1,20 @@
 -- Demo data for LIVE mode (PostgreSQL from docker-compose, DB FixItDb).
 -- Usage: psql "host=localhost port=5433 dbname=FixItDb user=postgres password=postgres" -f web/dev/seed.sql
--- Enums are stored as strings (EF HasConversion<string>). Passwords are not verified by the backend yet.
+-- Enums are stored as strings (EF HasConversion<string>).
+-- Passwords are verified by the backend (PBKDF2 via ASP.NET Core PasswordHasher). Every demo account
+-- uses the password Demo123! (one hash shared by all rows). Re-running this file resets the passwords.
 
 INSERT INTO "Tenants" ("Id","Name","Description","IsActive","TenantId","CreatedAt","IsDeleted") VALUES
  ('11111111-1111-4111-8111-111111111111','Hydro-Serwis Nowak','Plumbing, heating & HVAC services','true','11111111-1111-4111-8111-111111111111',now(),false)
 ON CONFLICT DO NOTHING;
 
-INSERT INTO "Users" ("Id","Email","FirstName","LastName","Role","IsActive","TenantId","CreatedAt","IsDeleted") VALUES
- ('22222222-2222-4222-8222-222222222201','marta.nowak@hydro-serwis.pl','Marta','Nowak','Admin',true,'11111111-1111-4111-8111-111111111111',now(),false),
- ('22222222-2222-4222-8222-222222222202','tomasz.kowalczyk@hydro-serwis.pl','Tomasz','Kowalczyk','Worker',true,'11111111-1111-4111-8111-111111111111',now(),false),
- ('22222222-2222-4222-8222-222222222203','anna.wisniewska@hydro-serwis.pl','Anna','Wiśniewska','Worker',true,'11111111-1111-4111-8111-111111111111',now(),false),
- ('22222222-2222-4222-8222-222222222204','bartosz.jankowski@gmail.com','Bartosz','Jankowski','Customer',true,'11111111-1111-4111-8111-111111111111',now(),false),
- ('22222222-2222-4222-8222-222222222205','katarzyna.jablonska@gmail.com','Katarzyna','Jabłońska','Customer',true,'11111111-1111-4111-8111-111111111111',now(),false)
-ON CONFLICT DO NOTHING;
+INSERT INTO "Users" ("Id","Email","FirstName","LastName","Role","IsActive","TenantId","CreatedAt","IsDeleted","PasswordHash") VALUES
+ ('22222222-2222-4222-8222-222222222201','marta.nowak@hydro-serwis.pl','Marta','Nowak','Admin',true,'11111111-1111-4111-8111-111111111111',now(),false,'AQAAAAIAAYagAAAAEM7b+63PivQ9BAz7C49mj0L9t+r1qA5ACa5wRYYEUywEX9M/nZRinOYyvN0JqFr4Xw=='),
+ ('22222222-2222-4222-8222-222222222202','tomasz.kowalczyk@hydro-serwis.pl','Tomasz','Kowalczyk','Worker',true,'11111111-1111-4111-8111-111111111111',now(),false,'AQAAAAIAAYagAAAAEM7b+63PivQ9BAz7C49mj0L9t+r1qA5ACa5wRYYEUywEX9M/nZRinOYyvN0JqFr4Xw=='),
+ ('22222222-2222-4222-8222-222222222203','anna.wisniewska@hydro-serwis.pl','Anna','Wiśniewska','Worker',true,'11111111-1111-4111-8111-111111111111',now(),false,'AQAAAAIAAYagAAAAEM7b+63PivQ9BAz7C49mj0L9t+r1qA5ACa5wRYYEUywEX9M/nZRinOYyvN0JqFr4Xw=='),
+ ('22222222-2222-4222-8222-222222222204','bartosz.jankowski@gmail.com','Bartosz','Jankowski','Customer',true,'11111111-1111-4111-8111-111111111111',now(),false,'AQAAAAIAAYagAAAAEM7b+63PivQ9BAz7C49mj0L9t+r1qA5ACa5wRYYEUywEX9M/nZRinOYyvN0JqFr4Xw=='),
+ ('22222222-2222-4222-8222-222222222205','katarzyna.jablonska@gmail.com','Katarzyna','Jabłońska','Customer',true,'11111111-1111-4111-8111-111111111111',now(),false,'AQAAAAIAAYagAAAAEM7b+63PivQ9BAz7C49mj0L9t+r1qA5ACa5wRYYEUywEX9M/nZRinOYyvN0JqFr4Xw==')
+ON CONFLICT ("Id") DO UPDATE SET "PasswordHash" = EXCLUDED."PasswordHash";
 
 INSERT INTO "WorkerProfiles" ("Id","UserId","Specialization","PhoneNumber","IsAvailable","TenantId","CreatedAt","IsDeleted") VALUES
  ('33333333-3333-4333-8333-333333333301','22222222-2222-4222-8222-222222222202','Plumbing','+48 600 100 200',true,'11111111-1111-4111-8111-111111111111',now(),false),

@@ -61,7 +61,9 @@ MSW still serves the endpoints listed in `docs/API_GAPS.md` (it decodes the real
 
 Mock handlers mirror the backend precisely: policies (`AdminOnly`, `WorkerOrAdmin`, `CustomerOrAdmin`),
 domain rules (assignment only when Pending; Completed/Cancelled immutable; InProgress requires a worker),
-error codes (`RES_001_NOT_FOUND`, `SR_001_STATUS_IMMUTABLE`, …), and numeric enums.
+error codes (`RES_001_NOT_FOUND`, `SR_001_STATUS_IMMUTABLE`, …), and numeric enums. Mock login verifies
+passwords against a per-user map in the mock db (seeded with `DEMO_PASSWORD` = `Demo123!`, updated by the
+password endpoints); live mode checks the PBKDF2 hash stored by `dev/seed.sql`.
 
 ## Roles & routes
 
@@ -73,8 +75,8 @@ error codes (`RES_001_NOT_FOUND`, `SR_001_STATUS_IMMUTABLE`, …), and numeric e
 | `/requests/:id`     |  ✅   |   ✅   |    ✅    | detail, actions, timeline (real)                 |
 | `/my-assignments`   |   –   |   ✅   |    –     | `assignedWorkerId=me` (real)                     |
 | `/workers`, `/workers/:id` | ✅ | ✅  |    –     | users/workers + profiles (real) + workload (mock) |
-| `/users`            |  ✅   |   –    |    –     | list (real) + invite/edit/deactivate (mock)      |
-| `/settings`         |  ✅   |   ✅   |    ✅    | profile (real), tenant/preferences (mock), appearance (local) |
+| `/users`            |  ✅   |   –    |    –     | list, invite, edit, (de)activate, reset password (real) |
+| `/settings`         |  ✅   |   ✅   |    ✅    | profile + change password (real), tenant/preferences (mock), appearance (local) |
 | `/notifications`    |  ✅   |   ✅   |    ✅    | mock                                             |
 
 Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders a 403 state).
@@ -84,6 +86,10 @@ Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders
 - Pages: `export default function XPage()`, use `PageHeader`, handle loading (`Skeleton`/`PageSpinner`),
   error (`ErrorState` with retry) and empty (`EmptyState`) states explicitly.
 - Anything rendered from a mock-only endpoint shows a small `<MockBadge />` near its heading.
+- Field-level API errors (e.g. `USR_005_EMAIL_TAKEN`, `USR_007_PASSWORD_TOO_WEAK`, `USR_008_PASSWORD_MISMATCH`)
+  are mapped onto the form field with `setError` in the mutation's `onError`; the hook skips the toast for those
+  codes (`isFieldError`) and the dialog's banner shows only the remaining errors.
+- Passwords use `PasswordInput` (`shared/ui/Input.tsx`, show/hide toggle); the 8–128 policy lives in `usersApi.ts`.
 - Status labels/colors come from `shared/lib/status.ts` — never hardcode.
 - Dates via `formatDate/formatDateTime/formatRelative`; names via `fullName`; GUIDs via `shortId(id, 'SR')`.
 - Tailwind: use semantic tokens (`bg-surface`, `text-fg-muted`, `border-border`, `bg-brand`, tones `*-soft/*-fg`).

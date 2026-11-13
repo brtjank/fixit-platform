@@ -43,7 +43,8 @@
     "viewAsWorker": "Zobacz jako pracownika",
     "deactivate": "Dezaktywuj",
     "activate": "Aktywuj",
-    "cannotDeactivateSelf": "Nie możesz dezaktywować własnego konta"
+    "cannotDeactivateSelf": "Nie możesz dezaktywować własnego konta",
+    "resetPassword": "Zresetuj hasło"
   },
   "form": {
     "email": "E-mail",
@@ -51,18 +52,33 @@
     "firstName": "Imię",
     "lastName": "Nazwisko",
     "role": "Rola",
+    "temporaryPassword": "Hasło tymczasowe",
+    "temporaryPasswordHint": "{{min}}–{{max}} znaków. Przekaż je tej osobie; może je zmienić w Ustawieniach.",
     "validation": {
       "email": "Podaj poprawny adres e-mail",
       "role": "Wybierz rolę",
       "firstNameRequired": "Imię jest wymagane",
       "lastNameRequired": "Nazwisko jest wymagane",
-      "maxLength": "Maksymalnie {{max}} znaków"
+      "maxLength": "Maksymalnie {{max}} znaków",
+      "emailTaken": "Użytkownik z tym adresem e-mail już istnieje"
+    }
+  },
+  "password": {
+    "new": "Nowe hasło",
+    "confirm": "Powtórz nowe hasło",
+    "hint": "{{min}}–{{max}} znaków.",
+    "validation": {
+      "required": "Podaj hasło",
+      "min": "Użyj co najmniej {{min}} znaków",
+      "max": "Użyj co najwyżej {{max}} znaków",
+      "tooWeak": "Hasło musi mieć od {{min}} do {{max}} znaków",
+      "confirmMismatch": "Hasła nie są takie same"
     }
   },
   "invite": {
     "title": "Zaproś użytkownika",
-    "description": "Otrzyma e-mail z zaproszeniem do Twojej organizacji.",
-    "submit": "Wyślij zaproszenie",
+    "description": "Konto zostanie utworzone od razu. Ustaw hasło tymczasowe i przekaż je tej osobie — e-mail nie jest wysyłany.",
+    "submit": "Utwórz użytkownika",
     "roleHint": "Pracownicy otrzymują profil i mogą być przypisywani do zgłoszeń.",
     "error": "Nie udało się zaprosić użytkownika"
   },
@@ -78,12 +94,22 @@
     "confirm": "Dezaktywuj",
     "account": "Konto:"
   },
+  "resetPassword": {
+    "title": "Zresetuj hasło",
+    "description": "Ustaw nowe hasło dla: {{name}} ({{email}}). Dotychczasowe hasło przestanie działać od razu.",
+    "submit": "Zresetuj hasło",
+    "error": "Nie udało się zresetować hasła"
+  },
   "toasts": {
-    "invited": "Wysłano zaproszenie na adres {{email}}",
+    "invited": "Utworzono użytkownika {{email}}",
     "inviteError": "Nie udało się zaprosić użytkownika",
     "updated": "Zaktualizowano użytkownika",
     "updateError": "Nie udało się zaktualizować użytkownika",
     "activated": "Aktywowano użytkownika",
-    "deactivated": "Dezaktywowano użytkownika"
+    "deactivated": "Dezaktywowano użytkownika",
+    "passwordReset": "Zresetowano hasło",
+    "passwordResetError": "Nie udało się zresetować hasła",
+    "passwordChanged": "Zmieniono hasło",
+    "passwordChangeError": "Nie udało się zmienić hasła"
   }
 }
