@@ -2,7 +2,7 @@ import { Mail, Pencil, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { fullName } from '@/shared/lib'
 import type { User, WorkerProfile } from '@/shared/types'
-import { Avatar, Button, Card, MockBadge, RoleBadge, Skeleton } from '@/shared/ui'
+import { Avatar, Button, Card, RoleBadge, Skeleton } from '@/shared/ui'
 import { AvailabilityBadge } from './AvailabilityBadge'
 
 interface WorkerDetailHeaderProps {
@@ -37,7 +37,6 @@ export function WorkerDetailHeader({ user, profile, profileLoading, canEdit, onE
               </a>
             ) : null}
             {profile?.specialization ? <span>{profile.specialization}</span> : null}
-            <MockBadge label={t('detail.profileMocked')} />
           </div>
         </div>
         {canEdit ? (

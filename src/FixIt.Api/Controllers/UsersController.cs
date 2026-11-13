@@ -1,6 +1,8 @@
 using FixIt.Application.Features.Users.GetCurrentUser;
+using FixIt.Application.Features.Users.GetUserById;
 using FixIt.Application.Features.Users.GetUsers;
 using FixIt.Application.Features.Users.GetWorkers;
+using FixIt.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,5 +57,17 @@ public class UsersController : ControllerBase
         var response = await _mediator.Send(new GetCurrentUserQuery(), cancellationToken);
 
         return Ok(response);
+    }
+
+    // The guid constraint keeps literal segments such as "workers" and "me" routed to their own actions
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<User>> GetUserById(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await _mediator.Send(new GetUserByIdQuery(id), cancellationToken);
+
+        return Ok(response.User);
     }
 }

@@ -36,7 +36,7 @@ export function useWorkers(params: PagedParams = { page: 1, pageSize: 100 }, opt
   })
 }
 
-/** ⚠ GET /api/users/{id} — mock-only */
+/** ✅ GET /api/users/{id} — any role, tenant-scoped */
 export function useUser(id: string | undefined) {
   return useQuery({ queryKey: userKeys.detail(id ?? ''), queryFn: () => usersApi.getById(id!), enabled: Boolean(id) })
 }

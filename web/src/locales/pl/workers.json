@@ -13,7 +13,7 @@
     "total": "Łącznie",
     "availableNow": "Dostępni teraz",
     "busy": "Zajęci",
-    "mocked": "Profile i obciążenie są zamockowane"
+    "mocked": "Obciążenie zamockowane"
   },
   "toolbar": {
     "searchPlaceholder": "Szukaj po nazwisku lub specjalizacji…",
@@ -46,7 +46,6 @@
     "notFoundDescription": "Ten pracownik nie istnieje lub należy do innej organizacji.",
     "backToWorkers": "Wróć do pracowników",
     "editProfile": "Edytuj profil",
-    "profileMocked": "Profil zamockowany",
     "assigned": {
       "title": "Przypisane zgłoszenia",
       "showingLatest": "Wyświetlono 50 najnowszych z {{total}}",

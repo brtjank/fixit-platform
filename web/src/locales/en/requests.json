@@ -25,12 +25,11 @@
     "filters": {
       "all": "All",
       "byStatus": "Filter by status",
-      "searchPlaceholder": "Search titles…",
-      "searchLabel": "Search titles",
+      "searchPlaceholder": "Search title or description…",
+      "searchLabel": "Search title or description",
       "byWorker": "Filter by worker",
       "anyWorker": "Any worker",
-      "inactive": " (inactive)",
-      "searchHint": "Search applies to the current page only"
+      "inactive": " (inactive)"
     },
     "columns": {
       "reference": "Reference",
@@ -45,6 +44,11 @@
       "title": "No requests match these filters",
       "filtered": "Try a different status, worker or search term.",
       "none": "There are no service requests yet."
+    },
+    "sort": {
+      "sortBy": "Sort by {{column}}",
+      "ascending": "ascending",
+      "descending": "descending"
     }
   },
   "detail": {
@@ -94,7 +98,6 @@
       "title": "Assign worker",
       "submit": "Assign worker",
       "selectWorker": "Select a worker",
-      "availabilityMocked": "Availability mocked",
       "workers": "Workers",
       "loadError": "Could not load workers.",
       "emptyTitle": "No active workers",

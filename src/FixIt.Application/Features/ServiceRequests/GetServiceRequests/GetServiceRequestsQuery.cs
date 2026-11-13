@@ -8,5 +8,7 @@ public record GetServiceRequestsQuery(
     int PageSize = 20,
     ServiceRequestStatus? Status = null,
     Guid? AssignedWorkerId = null,
-    Guid? CustomerId = null
+    Guid? CustomerId = null,
+    string? Search = null,
+    string? Sort = null
 ) : IRequest<GetServiceRequestsResponse>;

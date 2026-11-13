@@ -1,6 +1,7 @@
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
 using FixIt.Domain.Enums;
+using FixIt.Domain.Exceptions;
 using MediatR;
 
 namespace FixIt.Application.Features.ServiceRequests.GetServiceRequests;
@@ -8,6 +9,8 @@ namespace FixIt.Application.Features.ServiceRequests.GetServiceRequests;
 public class GetServiceRequestsQueryHandler
     : IRequestHandler<GetServiceRequestsQuery, GetServiceRequestsResponse>
 {
+    public const int SearchMaxLength = 200;
+
     private readonly IServiceRequestRepository _serviceRequestRepository;
     private readonly ICurrentUserService _currentUser;
     private readonly IQueryableExecutor _queryableExecutor;
@@ -28,6 +31,11 @@ public class GetServiceRequestsQueryHandler
         CancellationToken cancellationToken
     )
     {
+        var sort = ServiceRequestSort.Parse(request.Sort);
+        var search = request.Search?.Trim();
+        if (search?.Length > SearchMaxLength)
+            throw new ServiceRequestSearchTooLongException(SearchMaxLength);
+
         var tenantId = _currentUser.TenantId;
 
         var queryable = _serviceRequestRepository.GetByTenantId(tenantId);
@@ -55,9 +63,21 @@ public class GetServiceRequestsQueryHandler
             queryable = queryable.Where(sr => sr.CustomerId == request.CustomerId.Value);
         }
 
+        if (!string.IsNullOrEmpty(search))
+        {
+            // ToLower().Contains() keeps the filter translatable to SQL (LOWER(col) substring match)
+            // instead of falling back to client-side evaluation
+            var term = search.ToLower();
+            queryable = queryable.Where(sr =>
+                sr.Title.ToLower().Contains(term) || sr.Description.ToLower().Contains(term)
+            );
+        }
+
         var totalCount = await _queryableExecutor.CountAsync(queryable, cancellationToken);
         var items = await _queryableExecutor.ToListAsync(
-            queryable.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize),
+            sort.Apply(queryable)
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize),
             cancellationToken
         );
 
