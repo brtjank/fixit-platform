@@ -1,3 +1,5 @@
+using FixIt.Application.Common;
+using FixIt.Application.Common.Exceptions;
 using FixIt.Application.Features.Workers.UpdateWorkerProfile;
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
@@ -281,5 +283,59 @@ public class UpdateWorkerProfileCommandHandlerTests
             x => x.UpdateAsync(It.IsAny<WorkerProfile>(), It.IsAny<CancellationToken>()),
             Times.Never
         );
+    }
+
+    [Fact]
+    public async Task Handle_ProfileCreatedConcurrently_ThrowsWorkerProfileConcurrentCreateException()
+    {
+        // Arrange
+        _workerProfileRepositoryMock
+            .Setup(x => x.GetByUserIdAsync(_worker.Id, _tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((WorkerProfile?)null);
+        _workerProfileRepositoryMock
+            .Setup(x => x.AddAsync(It.IsAny<WorkerProfile>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(
+                new UniqueConstraintViolationException(
+                    UniqueConstraints.WorkerProfileUser,
+                    new Exception()
+                )
+            );
+
+        // Act
+        var act = async () =>
+            await _handler.Handle(
+                new UpdateWorkerProfileCommand(_worker.Id, "Plumbing", null, true),
+                CancellationToken.None
+            );
+
+        // Assert
+        var exception = await act.Should().ThrowAsync<WorkerProfileConcurrentCreateException>();
+        exception.Which.Should().BeAssignableTo<ConflictException>();
+        exception.Which.ErrorCode.Should().Be("WRK_003_PROFILE_CONCURRENT_CREATE");
+        exception
+            .Which.Message.Should()
+            .Be("The profile was created by another request at the same time. Reload and try again.");
+    }
+
+    [Fact]
+    public async Task Handle_UnknownUniqueViolationOnCreate_Rethrows()
+    {
+        // Arrange
+        _workerProfileRepositoryMock
+            .Setup(x => x.GetByUserIdAsync(_worker.Id, _tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((WorkerProfile?)null);
+        _workerProfileRepositoryMock
+            .Setup(x => x.AddAsync(It.IsAny<WorkerProfile>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new UniqueConstraintViolationException("IX_Other", new Exception()));
+
+        // Act
+        var act = async () =>
+            await _handler.Handle(
+                new UpdateWorkerProfileCommand(_worker.Id, "Plumbing", null, true),
+                CancellationToken.None
+            );
+
+        // Assert
+        await act.Should().ThrowAsync<UniqueConstraintViolationException>();
     }
 }

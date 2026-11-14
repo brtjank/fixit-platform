@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text.Json;
 using FixIt.Domain.Exceptions;
 
 namespace FixIt.Api.Middleware;
@@ -35,12 +34,13 @@ public class ErrorHandlingMiddleware
             UnauthorizedException => HttpStatusCode.Unauthorized,
             ForbiddenException => HttpStatusCode.Forbidden,
             NotFoundException => HttpStatusCode.NotFound,
+            ConflictException => HttpStatusCode.Conflict,
             AppException => HttpStatusCode.InternalServerError,
             _ => HttpStatusCode.InternalServerError
         };
 
         var errorCode = exception is AppException appEx ? appEx.ErrorCode : "ERR_001_UNEXPECTED";
-        var requestId = context.Items[RequestIdMiddleware.HttpContextItemKey]?.ToString();
+        var requestId = ErrorResponseWriter.GetRequestId(context);
 
         // Expected client errors (4xx) are part of normal operation: log a one-line warning.
         // Anything mapped to 5xx is a real failure and gets the full exception.
@@ -76,22 +76,6 @@ public class ErrorHandlingMiddleware
             );
         }
 
-        var response = new ErrorResponse(
-            ErrorCode: errorCode,
-            Message: exception.Message,
-            RequestId: requestId
-        );
-
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)statusCode;
-
-        var jsonOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        return context.Response.WriteAsync(JsonSerializer.Serialize(response, jsonOptions));
+        return ErrorResponseWriter.WriteAsync(context, statusCode, errorCode, exception.Message);
     }
-
-    private record ErrorResponse(string ErrorCode, string Message, string? RequestId);
 }

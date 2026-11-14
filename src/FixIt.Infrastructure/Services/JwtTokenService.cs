@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Globalization;
 using System.Text;
+using FixIt.Application.Common;
 using FixIt.Application.Interfaces.Services;
 using FixIt.Domain.Entities;
 using FixIt.Infrastructure.Exceptions;
@@ -35,8 +37,12 @@ public class JwtTokenService : IJwtTokenService
                 new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim("sub", user.Id.ToString()),
-                    new Claim("TenantId", user.TenantId.ToString()),
+                    new Claim(JwtClaimNames.Subject, user.Id.ToString()),
+                    new Claim(JwtClaimNames.TenantId, user.TenantId.ToString()),
+                    new Claim(
+                        JwtClaimNames.TokenVersion,
+                        user.TokenVersion.ToString(CultureInfo.InvariantCulture)
+                    ),
                     new Claim(ClaimTypes.Role, user.Role.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
                 }

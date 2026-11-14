@@ -1,4 +1,6 @@
 using System.Reflection;
+using FixIt.Application.Features.Auth.SessionValidation;
+using FixIt.Application.Interfaces.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +14,7 @@ public static class DependencyInjection
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
         services.AddValidatorsFromAssembly(assembly);
+        services.AddScoped<IUserSessionValidator, UserSessionValidator>();
 
         return services;
     }

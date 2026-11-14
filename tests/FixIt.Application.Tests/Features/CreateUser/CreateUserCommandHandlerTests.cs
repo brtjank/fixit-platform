@@ -1,3 +1,5 @@
+using FixIt.Application.Common;
+using FixIt.Application.Common.Exceptions;
 using FixIt.Application.Features.Users.CreateUser;
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
@@ -153,6 +155,52 @@ public class CreateUserCommandHandlerTests
         // Assert
         await act.Should().ThrowAsync<UserEmailRequiredException>();
         VerifyNothingPersisted();
+    }
+
+    [Fact]
+    public async Task Handle_ConcurrentCreateHitsEmailIndex_ThrowsUserEmailTakenException()
+    {
+        // Arrange: the pre-check passed, but another request inserted the same email first
+        _userRepositoryMock
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(
+                new UniqueConstraintViolationException(UniqueConstraints.UserEmail, new Exception())
+            );
+
+        // Act
+        var act = async () =>
+            await _handler.Handle(
+                Command("Race@Example.com", UserRole.Worker),
+                CancellationToken.None
+            );
+
+        // Assert
+        var exception = await act.Should().ThrowAsync<UserEmailTakenException>();
+        exception.Which.ErrorCode.Should().Be("USR_005_EMAIL_TAKEN");
+        _workerProfileRepositoryMock.Verify(
+            x => x.AddAsync(It.IsAny<WorkerProfile>(), It.IsAny<CancellationToken>()),
+            Times.Never
+        );
+    }
+
+    [Fact]
+    public async Task Handle_UnknownUniqueViolation_Rethrows()
+    {
+        // Arrange
+        _userRepositoryMock
+            .Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new UniqueConstraintViolationException("IX_Other", new Exception()));
+
+        // Act
+        var act = async () =>
+            await _handler.Handle(
+                Command("user@example.com", UserRole.Customer),
+                CancellationToken.None
+            );
+
+        // Assert
+        var exception = await act.Should().ThrowAsync<UniqueConstraintViolationException>();
+        exception.Which.ConstraintName.Should().Be("IX_Other");
     }
 
     private static CreateUserCommand Command(string email, UserRole role, string password = Password) =>

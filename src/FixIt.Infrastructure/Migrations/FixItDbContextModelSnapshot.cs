@@ -245,6 +245,9 @@ namespace FixIt.Infrastructure.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("TokenVersion")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("IsActive");
@@ -252,9 +255,6 @@ namespace FixIt.Infrastructure.Migrations
                     b.HasIndex("IsDeleted");
 
                     b.HasIndex("TenantId");
-
-                    b.HasIndex("TenantId", "Email")
-                        .IsUnique();
 
                     b.ToTable("Users", (string)null);
                 });
