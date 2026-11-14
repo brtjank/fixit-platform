@@ -15,7 +15,7 @@ interface RequestOptions {
 /** Hooks the auth layer plugs into (set once in features/auth/session.ts). */
 export const httpAuth = {
   getToken: (): string | null => null,
-  onUnauthorized: (): void => {},
+  onUnauthorized: (_errorCode: string | undefined, _token: string | null): void => {},
 }
 
 function buildUrl(path: string, query?: Query) {
@@ -66,8 +66,8 @@ async function request<T>(method: string, path: string, options: RequestOptions 
   const data = await parseBody(response)
 
   if (!response.ok) {
-    if (response.status === 401) httpAuth.onUnauthorized()
     const body = typeof data === 'object' && data !== null ? (data as Record<string, unknown>) : null
+    if (response.status === 401) httpAuth.onUnauthorized(typeof body?.errorCode === 'string' ? body.errorCode : undefined, token)
     throw new ApiError(
       response.status,
       body

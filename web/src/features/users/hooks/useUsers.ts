@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
-import { useRole } from '@/features/auth'
+import { useRole, useSessionStore } from '@/features/auth'
 import { i18n } from '@/i18n'
 import { errorMessage, isApiError } from '@/shared/api'
 import { fullName, shortId } from '@/shared/lib'
@@ -160,7 +160,12 @@ export function useSetUserActive() {
 export function useChangeOwnPassword() {
   return useMutation({
     mutationFn: (body: ChangeOwnPasswordRequest) => usersApi.changeOwnPassword(body),
-    onSuccess: () => toast.success(i18n.t('users:toasts.passwordChanged')),
+    onSuccess: ({ token }) => {
+      // The old token is revoked server-side; swap in the new one so this session survives.
+      const { session, setSession } = useSessionStore.getState()
+      if (session) setSession({ ...session, token })
+      toast.success(i18n.t('users:toasts.passwordChanged'))
+    },
     onError: (e) => toastError(e, 'users:toasts.passwordChangeError'),
   })
 }
