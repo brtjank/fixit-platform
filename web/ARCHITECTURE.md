@@ -47,7 +47,8 @@ Import alias: `@/` → `src/`.
 Page → feature hook (`useX`) → feature api (`xApi`) → `http` → (MSW in mock mode | Vite proxy → backend).
 
 - `http` adds `Authorization: Bearer <token>`, parses `{ errorCode, message, requestId }` into `ApiError`,
-  and clears the session on 401.
+  and on 401 for an authenticated request clears the session; the login page then shows a one-time
+  "session ended" notice (`sessionEnded` in the session store; not shown on logout or a failed login).
 - Mutations invalidate related query keys and toast success/errors. Pages don't call `fetch` directly.
 - Session (`features/auth/session.ts`) persists `{ token, userId, tenantId, role }` plus a best-effort
   profile (name, email, tenant name) from `GET /api/users/me`.

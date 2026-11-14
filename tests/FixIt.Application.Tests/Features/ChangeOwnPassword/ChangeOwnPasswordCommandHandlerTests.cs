@@ -18,6 +18,7 @@ public class ChangeOwnPasswordCommandHandlerTests
 
     private readonly Mock<IUserRepository> _userRepositoryMock = new();
     private readonly Mock<ICurrentUserService> _currentUserServiceMock = new();
+    private readonly Mock<IJwtTokenService> _jwtTokenServiceMock = new();
     private readonly ChangeOwnPasswordCommandHandler _handler;
 
     private readonly Guid _tenantId = Guid.NewGuid();
@@ -39,7 +40,8 @@ public class ChangeOwnPasswordCommandHandlerTests
         _handler = new ChangeOwnPasswordCommandHandler(
             _userRepositoryMock.Object,
             PasswordHasherMock.Create().Object,
-            _currentUserServiceMock.Object
+            _currentUserServiceMock.Object,
+            _jwtTokenServiceMock.Object
         );
     }
 
@@ -55,6 +57,29 @@ public class ChangeOwnPasswordCommandHandlerTests
         // Assert
         _user.PasswordHash.Should().Be(PasswordHasherMock.HashOf(NewPassword));
         _userRepositoryMock.Verify(x => x.UpdateAsync(_user, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_CorrectCurrentPassword_RevokesOldTokensAndReturnsTokenForNewVersion()
+    {
+        // Arrange
+        var versionBefore = _user.TokenVersion;
+        int? versionInToken = null;
+        _jwtTokenServiceMock
+            .Setup(x => x.GenerateToken(_user))
+            .Callback((User u) => versionInToken = u.TokenVersion)
+            .Returns("new-token");
+
+        // Act
+        var result = await _handler.Handle(
+            new ChangeOwnPasswordCommand(CurrentPassword, NewPassword),
+            CancellationToken.None
+        );
+
+        // Assert
+        result.Token.Should().Be("new-token");
+        _user.TokenVersion.Should().Be(versionBefore + 1);
+        versionInToken.Should().Be(versionBefore + 1);
     }
 
     [Fact]
@@ -93,6 +118,7 @@ public class ChangeOwnPasswordCommandHandlerTests
     private void AssertUnchanged()
     {
         _user.PasswordHash.Should().Be(PasswordHasherMock.HashOf(CurrentPassword));
+        _jwtTokenServiceMock.Verify(x => x.GenerateToken(It.IsAny<User>()), Times.Never);
         _userRepositoryMock.Verify(
             x => x.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
             Times.Never

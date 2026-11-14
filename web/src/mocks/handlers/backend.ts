@@ -462,7 +462,7 @@ export const backendHandlers = [
     return HttpResponse.json(user)
   }),
 
-  // PUT /api/users/me/password (any role) — 204. Registered before /api/users/:id/password (first match wins).
+  // PUT /api/users/me/password (any role) — 200 { token } (fresh JWT). Registered before /api/users/:id/password (first match wins).
   http.put('/api/users/me/password', async ({ request }) => {
     await LATENCY()
     const auth = authorize(request)
@@ -475,7 +475,7 @@ export const backendHandlers = [
     const weak = checkPassword(body.newPassword)
     if (weak) return weak
     setPassword(user.id, body.newPassword!)
-    return new HttpResponse(null, { status: 204 })
+    return HttpResponse.json({ token: issueMockToken(user) })
   }),
 
   // PUT /api/users/{id:guid}/password (AdminOnly) — admin reset, 204

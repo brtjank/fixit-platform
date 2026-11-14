@@ -1,3 +1,5 @@
+using FixIt.Application.Common;
+using FixIt.Application.Common.Exceptions;
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
 using FixIt.Domain.Entities;
@@ -60,7 +62,18 @@ public class UpdateWorkerProfileCommandHandler
                 request.PhoneNumber
             );
             ApplyAvailability(profile, request.IsAvailable);
-            await _workerProfileRepository.AddAsync(profile, cancellationToken);
+
+            // Two first saves at once both see "no profile"; the (TenantId, UserId) unique index
+            // rejects the second one
+            try
+            {
+                await _workerProfileRepository.AddAsync(profile, cancellationToken);
+            }
+            catch (UniqueConstraintViolationException ex)
+                when (ex.ConstraintName == UniqueConstraints.WorkerProfileUser)
+            {
+                throw new WorkerProfileConcurrentCreateException(request.UserId);
+            }
         }
         else
         {

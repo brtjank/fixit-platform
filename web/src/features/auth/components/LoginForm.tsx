@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { AlertCircle, LogIn } from 'lucide-react'
+import { AlertCircle, Info, LogIn } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router'
@@ -10,6 +10,7 @@ import { errorMessage } from '@/shared/api'
 import { Button, Card, FormField, Input, PasswordInput } from '@/shared/ui'
 import { DEMO_PASSWORD } from '@/mocks/data/seed'
 import { useLogin } from '../hooks'
+import { useSessionStore } from '../session'
 import { DemoAccounts, type DemoAccount } from './DemoAccounts'
 
 const makeLoginSchema = (t: TFunction<'auth'>) =>
@@ -26,6 +27,7 @@ export function LoginForm() {
   const login = useLogin()
   const navigate = useNavigate()
   const location = useLocation()
+  const sessionEnded = useSessionStore((s) => s.sessionEnded)
   const [demoEmail, setDemoEmail] = useState<string | null>(null)
 
   const {
@@ -38,6 +40,7 @@ export function LoginForm() {
   const from = (location.state as { from?: string } | null)?.from ?? '/'
 
   const onSubmit = (values: LoginValues) => {
+    useSessionStore.getState().dismissSessionEnded()
     login.mutate(values, {
       onSuccess: () => navigate(from, { replace: true }),
       onSettled: () => setDemoEmail(null),
@@ -60,6 +63,12 @@ export function LoginForm() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+          {sessionEnded && !login.isError ? (
+            <div role="status" className="flex items-start gap-2.5 rounded-md border border-border bg-bg-subtle px-3 py-2.5 text-sm text-fg">
+              <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <span>{t(`login.sessionEnded.${sessionEnded}`)}</span>
+            </div>
+          ) : null}
           {login.isError ? (
             <div role="alert" className="flex items-start gap-2.5 rounded-md border border-danger-fg/20 bg-danger-soft px-3 py-2.5 text-sm text-danger-fg">
               <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />

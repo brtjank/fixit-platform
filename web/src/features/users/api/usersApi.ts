@@ -72,8 +72,8 @@ export const usersApi = {
   deactivate: (id: string) => http.put<User>(`/api/users/${id}/deactivate`),
   activate: (id: string) => http.put<User>(`/api/users/${id}/activate`),
 
-  /** ✅ PUT /api/users/me/password  (any role) → 204. 400 USR_008_PASSWORD_MISMATCH / USR_007_PASSWORD_TOO_WEAK. */
-  changeOwnPassword: (body: ChangeOwnPasswordRequest) => http.put<void>('/api/users/me/password', body),
+  /** ✅ PUT /api/users/me/password  (any role) → 200 `{ token }` (fresh JWT; all other sessions of the user are revoked). 400 USR_008_PASSWORD_MISMATCH / USR_007_PASSWORD_TOO_WEAK. */
+  changeOwnPassword: (body: ChangeOwnPasswordRequest) => http.put<{ token: string }>('/api/users/me/password', body),
 
   /** ✅ PUT /api/users/{id}/password  (AdminOnly) → 204. 400 USR_007; other tenant → 404. */
   resetPassword: (id: string, body: ResetUserPasswordRequest) => http.put<void>(`/api/users/${id}/password`, body),

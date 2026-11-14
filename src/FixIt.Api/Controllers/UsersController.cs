@@ -166,21 +166,29 @@ public class UsersController : ControllerBase
         return Ok(response.User);
     }
 
+    /// <summary>
+    /// Changes the caller's password. All existing tokens of the user are revoked; the response
+    /// carries a new token so the caller's own session continues.
+    /// </summary>
     // "me" is not a guid, so this never collides with the {id:guid}/password route below
     [HttpPut("me/password")]
-    public async Task<IActionResult> ChangeOwnPassword(
+    public async Task<ActionResult<ChangeOwnPasswordResponse>> ChangeOwnPassword(
         [FromBody] ChangeOwnPasswordRequest request,
         CancellationToken cancellationToken = default
     )
     {
-        await _mediator.Send(
+        var response = await _mediator.Send(
             new ChangeOwnPasswordCommand(request.CurrentPassword, request.NewPassword),
             cancellationToken
         );
 
-        return NoContent();
+        return Ok(response);
     }
 
+    /// <summary>
+    /// Admin password reset. Revokes all existing tokens of the target user; if an admin resets
+    /// their own password through this endpoint, their current token is revoked as well.
+    /// </summary>
     [HttpPut("{id:guid}/password")]
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> ResetUserPassword(

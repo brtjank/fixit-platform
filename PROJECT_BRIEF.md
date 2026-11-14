@@ -157,6 +157,7 @@ Cel: cloud-ready app
 1. Dockerfile (multi-stage)
 2. docker-compose dla local dev
 3. healthcheck
+4. Strefy czasowe: obraz runtime musi mieć dane IANA (`tzdata`). `Tenant.UpdateSettings` waliduje timezone przez `TimeZoneInfo.TryFindSystemTimeZoneById` — bez tzdata każda strefa poza UTC zostanie odrzucona (`TEN_007_TIMEZONE_INVALID`). Obrazy Debian `mcr.microsoft.com/dotnet/aspnet:8.0` mają tzdata; dla Alpine dodać `RUN apk add --no-cache tzdata`, dla chiseled użyć wariantu `-extra`. Nie ustawiać `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT` bez sprawdzenia stref.
 ✔️ Efekt: aplikacja działa w kontenerze
 
 🔹 FAZA 7 – CI/CD

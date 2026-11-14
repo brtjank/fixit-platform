@@ -23,9 +23,14 @@ export interface SessionProfile {
 interface SessionState {
   session: Session | null
   profile: SessionProfile | null
+  /** Set when the server ended the session (401 on an authenticated request); shown once on /login. Not persisted. */
+  sessionEnded: 'revoked' | 'expired' | null
   setSession: (session: Session) => void
   setProfile: (profile: SessionProfile) => void
+  /** Explicit sign-out: clears the session without a notice. */
   clear: () => void
+  endSession: (reason: 'revoked' | 'expired') => void
+  dismissSessionEnded: () => void
 }
 
 export const useSessionStore = create<SessionState>()(
@@ -33,25 +38,36 @@ export const useSessionStore = create<SessionState>()(
     (set) => ({
       session: null,
       profile: null,
-      setSession: (session) => set({ session }),
+      sessionEnded: null,
+      setSession: (session) => set({ session, sessionEnded: null }),
       setProfile: (profile) => set({ profile }),
       clear: () => set({ session: null, profile: null }),
+      endSession: (reason) => set({ session: null, profile: null, sessionEnded: reason }),
+      dismissSessionEnded: () => set({ sessionEnded: null }),
     }),
-    { name: 'fixit.session' },
+    {
+      name: 'fixit.session',
+      partialize: ({ session, profile }) => ({ session, profile }),
+    },
   ),
 )
 
 // Wire the http client to the store (avoids a circular import inside shared/api).
 httpAuth.getToken = () => {
-  const { session, clear } = useSessionStore.getState()
+  const { session, endSession } = useSessionStore.getState()
   if (!session) return null
   if (isTokenExpired(session.token)) {
-    clear()
+    endSession('expired')
     return null
   }
   return session.token
 }
-httpAuth.onUnauthorized = () => useSessionStore.getState().clear()
+// A 401 without a session is a failed login (wrong password): no notice. With one, the session was ended server-side.
+// A 401 for a token that has since been replaced (e.g. a request in flight during a password change) is ignored.
+httpAuth.onUnauthorized = (errorCode, token) => {
+  const { session, endSession } = useSessionStore.getState()
+  if (session && session.token === token) endSession(errorCode === 'AUTH_003_SESSION_REVOKED' ? 'revoked' : 'expired')
+}
 
 // ---- Convenience selectors ---------------------------------------------------
 

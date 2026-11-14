@@ -1,4 +1,8 @@
+using System.Net;
 using System.Text;
+using FixIt.Api.Middleware;
+using FixIt.Application.Interfaces.Services;
+using FixIt.Domain.Exceptions;
 using FixIt.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +11,8 @@ namespace FixIt.Api.Extensions;
 
 public static class JwtExtensions
 {
+    private const string SessionRevokedItemKey = "Auth.SessionRevoked";
+
     public static IServiceCollection AddJwtAuthentication(
         this IServiceCollection services,
         IConfiguration configuration
@@ -43,8 +49,51 @@ public static class JwtExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ClockSkew = TimeSpan.Zero,
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = ValidateSessionAsync,
+                    OnChallenge = WriteChallengeAsync,
+                };
             });
 
         return services;
+    }
+
+    // A signature-valid token is not enough: the account may have been deactivated or deleted,
+    // or its password/role changed since the token was issued (TokenVersion bumped)
+    private static async Task ValidateSessionAsync(TokenValidatedContext context)
+    {
+        var validator =
+            context.HttpContext.RequestServices.GetRequiredService<IUserSessionValidator>();
+
+        if (
+            context.Principal is null
+            || !await validator.IsValidAsync(context.Principal, context.HttpContext.RequestAborted)
+        )
+        {
+            context.HttpContext.Items[SessionRevokedItemKey] = true;
+            context.Fail("Session has been revoked.");
+        }
+    }
+
+    // Replaces the default empty 401 with the standard error body so clients can tell a revoked
+    // session apart from a missing/expired token
+    private static Task WriteChallengeAsync(JwtBearerChallengeContext context)
+    {
+        context.HandleResponse();
+
+        AppException error = context.HttpContext.Items.ContainsKey(SessionRevokedItemKey)
+            ? new SessionRevokedException()
+            : new UserNotAuthenticatedException();
+
+        context.Response.Headers.WWWAuthenticate = JwtBearerDefaults.AuthenticationScheme;
+
+        return ErrorResponseWriter.WriteAsync(
+            context.HttpContext,
+            HttpStatusCode.Unauthorized,
+            error.ErrorCode,
+            error.Message
+        );
     }
 }

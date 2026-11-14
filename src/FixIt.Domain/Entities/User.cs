@@ -17,6 +17,11 @@ public class User : BaseEntity
     [JsonIgnore]
     public string? PasswordHash { get; private set; }
 
+    // Embedded in every JWT ("tv" claim) and compared on each request; bumping it revokes all
+    // tokens issued so far. Internal security state, so it is never serialised.
+    [JsonIgnore]
+    public int TokenVersion { get; private set; }
+
     private User() { }
 
     public User(Guid tenantId, string email, string firstName, string lastName, UserRole role)
@@ -52,16 +57,23 @@ public class User : BaseEntity
             throw new ArgumentException("Password hash cannot be empty.", nameof(passwordHash));
 
         PasswordHash = passwordHash;
+        TokenVersion++;
     }
 
     public void ChangeRole(UserRole role)
     {
+        if (Role == role)
+            return;
+
+        // The role is carried in the JWT, so tokens with the old role must stop working
         Role = role;
+        TokenVersion++;
     }
 
     public void Deactivate()
     {
         IsActive = false;
+        TokenVersion++;
     }
 
     public void Activate()
@@ -76,5 +88,6 @@ public class User : BaseEntity
     {
         IsDeleted = true;
         IsActive = false;
+        TokenVersion++;
     }
 }

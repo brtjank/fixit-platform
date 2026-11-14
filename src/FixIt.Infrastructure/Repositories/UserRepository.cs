@@ -1,3 +1,4 @@
+using FixIt.Application.Features.Auth.SessionValidation;
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Domain.Entities;
 using FixIt.Infrastructure.Persistence;
@@ -45,12 +46,33 @@ public class UserRepository : IUserRepository
         CancellationToken cancellationToken = default
     )
     {
-        // Soft-deleted rows are included: they still occupy the (TenantId, Email) unique index,
+        // Soft-deleted rows are included: they still occupy the lower(Email) unique index,
         // and reusing a deleted account's email would make login ambiguous if it were ever restored
         var normalized = NormalizeEmail(email);
         return await _context
             .Users.IgnoreQueryFilters()
             .AnyAsync(u => u.Email.ToLower() == normalized, cancellationToken);
+    }
+
+    public async Task<UserSessionState?> GetSessionStateAsync(
+        Guid id,
+        CancellationToken cancellationToken = default
+    )
+    {
+        // Runs on every authenticated request: untracked projection, and the soft-delete filter is
+        // bypassed so a deleted account is reported as deleted rather than missing
+        return await _context
+            .Users.IgnoreQueryFilters()
+            .AsNoTracking()
+            .Where(u => u.Id == id)
+            .Select(u => new UserSessionState(
+                u.Id,
+                u.TenantId,
+                u.IsActive,
+                u.IsDeleted,
+                u.TokenVersion
+            ))
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public IQueryable<User> GetByTenantId(Guid tenantId)
