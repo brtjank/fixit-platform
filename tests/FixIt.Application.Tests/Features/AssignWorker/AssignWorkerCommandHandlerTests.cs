@@ -245,5 +245,12 @@ public class AssignWorkerCommandHandlerTests
         capturedLog.NewStatus.Should().Be(ServiceRequestStatus.Assigned);
         capturedLog.Notes.Should().BeNull();
         capturedLog.ChangedByUserId.Should().Be(currentUserId);
+
+        var @event = serviceRequest
+            .DomainEvents.OfType<FixIt.Domain.Events.ServiceRequestStatusChanged>()
+            .Single();
+        @event.ChangedByUserId.Should().Be(currentUserId);
+        @event.PreviousStatus.Should().Be(ServiceRequestStatus.Pending);
+        @event.NewStatus.Should().Be(ServiceRequestStatus.Assigned);
     }
 }

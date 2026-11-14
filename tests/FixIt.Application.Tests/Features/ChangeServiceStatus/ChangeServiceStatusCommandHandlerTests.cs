@@ -86,6 +86,37 @@ public class ChangeServiceStatusCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ValidRequest_RaisesStatusChangedEventWithActor()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var actorId = Guid.NewGuid();
+        var serviceRequest = new ServiceRequest(tenantId, "Fix sink", "Leaking sink", Guid.NewGuid());
+        serviceRequest.AssignWorker(Guid.NewGuid());
+        serviceRequest.ClearDomainEvents();
+
+        _serviceRequestRepositoryMock
+            .Setup(x => x.GetByIdAsync(serviceRequest.Id, tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(serviceRequest);
+        _currentUserServiceMock.Setup(x => x.TenantId).Returns(tenantId);
+        _currentUserServiceMock.Setup(x => x.UserId).Returns(actorId);
+
+        // Act
+        await _handler.Handle(
+            new ChangeServiceStatusCommand(serviceRequest.Id, ServiceRequestStatus.InProgress),
+            CancellationToken.None
+        );
+
+        // Assert
+        var @event = serviceRequest
+            .DomainEvents.OfType<FixIt.Domain.Events.ServiceRequestStatusChanged>()
+            .Single();
+        @event.ChangedByUserId.Should().Be(actorId);
+        @event.PreviousStatus.Should().Be(ServiceRequestStatus.Assigned);
+        @event.NewStatus.Should().Be(ServiceRequestStatus.InProgress);
+    }
+
+    [Fact]
     public async Task Handle_ServiceRequestNotFound_ThrowsNotFoundException()
     {
         // Arrange

@@ -1,5 +1,6 @@
 using FixIt.Application.Interfaces.Repositories;
 using FixIt.Application.Interfaces.Services;
+using FixIt.Infrastructure.Messaging;
 using FixIt.Infrastructure.Persistence;
 using FixIt.Infrastructure.Repositories;
 using FixIt.Infrastructure.Services;
@@ -35,6 +36,14 @@ public static class DependencyInjection
             IUserNotificationPreferencesRepository,
             UserNotificationPreferencesRepository
         >();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+
+        // Messaging (queue clients are thread-safe and reused for the app lifetime)
+        services.Configure<MessagingOptions>(
+            configuration.GetSection(MessagingOptions.SectionName)
+        );
+        services.AddSingleton<QueueClientProvider>();
+        services.AddSingleton<IMessagePublisher, AzureQueueMessagePublisher>();
 
         // Register services
         services.AddScoped<ICurrentUserService, CurrentUserService>();
@@ -43,6 +52,15 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, PasswordHasherService>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
+        return services;
+    }
+
+    /// <summary>
+    /// Relays the transactional outbox to the queue. Hosted by the API, which writes the outbox.
+    /// </summary>
+    public static IServiceCollection AddOutboxPublisher(this IServiceCollection services)
+    {
+        services.AddHostedService<OutboxPublisher>();
         return services;
     }
 }

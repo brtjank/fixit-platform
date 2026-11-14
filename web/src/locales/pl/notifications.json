@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Powiadomienia",
-    "description": "Aktualności o zgłoszeniach w Twojej organizacji"
+    "description": "Zmiany statusu zgłoszeń, które Cię dotyczą"
   },
   "list": {
     "markAllRead": "Oznacz wszystkie jako przeczytane",
@@ -25,5 +25,31 @@
     "title": "Wszystko przeczytane",
     "unread": "Brak nieprzeczytanych powiadomień.",
     "all": "Tutaj pojawią się nowe informacje o zgłoszeniach."
+  },
+  "types": {
+    "statusChanged": {
+      "title": {
+        "default": "Zmiana statusu",
+        "pending": "Zgłoszenie ponownie otwarte",
+        "assigned": "Przypisano pracownika",
+        "inProgress": "Rozpoczęto prace",
+        "completed": "Zgłoszenie zakończone",
+        "cancelled": "Zgłoszenie anulowane"
+      },
+      "untitled": "Zgłoszenie bez tytułu",
+      "body": {
+        "movedBy": "Status zgłoszenia „{{title}}” zmienił się z „{{prev}}” na „{{next}}”. Autor zmiany: {{actor}}.",
+        "moved": "Status zgłoszenia „{{title}}” zmienił się z „{{prev}}” na „{{next}}”.",
+        "nowBy": "Zgłoszenie „{{title}}” ma teraz status „{{next}}”. Autor zmiany: {{actor}}.",
+        "now": "Zgłoszenie „{{title}}” ma teraz status „{{next}}”."
+      }
+    },
+    "generic": {
+      "title": "Nowe powiadomienie"
+    }
+  },
+  "toasts": {
+    "markReadError": "Nie udało się oznaczyć powiadomienia jako przeczytanego",
+    "markAllReadError": "Nie udało się oznaczyć powiadomień jako przeczytanych"
   }
 }

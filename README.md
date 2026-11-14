@@ -126,7 +126,7 @@ Tests follow AAA pattern (Arrange-Act-Assert) and use semantic exception type ch
 
 ### Local Development Setup
 
-1. **Start PostgreSQL database:**
+1. **Start PostgreSQL and Azurite (queue emulator):**
    ```bash
    docker-compose up -d
    ```
@@ -144,6 +144,11 @@ Tests follow AAA pattern (Arrange-Act-Assert) and use semantic exception type ch
    dotnet run
    ```
 
+4. **Run the background worker** (consumes queue messages, creates in-app notifications):
+   ```bash
+   dotnet run --project src/FixIt.Worker
+   ```
+
 The API will be available at `https://localhost:5001` (or the port configured in `launchSettings.json`).
 
 ### Database Connection
@@ -158,7 +163,7 @@ See [LICENSE](LICENSE) file for details.
 
 ## 📊 Project Status
 
-**Current Status:** 🚧 In Development - Phase 4 ✅ COMPLETED
+**Current Status:** 🚧 In Development - Phase 5 ✅ COMPLETED
 
 - ✅ Phase 0: Setup Project
 - ✅ Phase 1: Domain & Application
@@ -166,7 +171,7 @@ See [LICENSE](LICENSE) file for details.
 - ✅ Phase 2: Persistence & EF Core
 - ✅ Phase 3: Auth & Security
 - ✅ Phase 4: API Layer
-- ⏳ Phase 5: Async Messaging
+- ✅ Phase 5: Async Messaging (transactional outbox → Azure Storage Queue → Worker, in-app notifications)
 - ⏳ Phase 6: Docker
 - ⏳ Phase 7: CI/CD
 - ⏳ Phase 8: Azure Deployment

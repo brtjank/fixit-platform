@@ -49,9 +49,26 @@ import {
   type UpdateUserRequest,
 } from '@/features/users/api/usersApi'
 import { authorize, errors, isResponse, issueMockToken, Policies, resolveUser, type Principal } from '../auth'
-import { db, findServiceRequest, findUser, findUserByEmail, newId, nowIso, paginate, passwordMatches, pushNotification, setPassword } from '../db'
+import {
+  db,
+  findServiceRequest,
+  findUser,
+  findUserByEmail,
+  newId,
+  notifyStatusChanged,
+  nowIso,
+  paginate,
+  passwordMatches,
+  setPassword,
+  toNotificationDto,
+} from '../db'
 
 const LATENCY = () => delay(250 + Math.random() * 250)
+
+/** The caller's own notifications (tenant + recipient). */
+function ownNotifications(auth: Principal) {
+  return db.notifications.filter((n) => n.tenantId === auth.tenantId && n.recipientUserId === auth.userId)
+}
 
 /** Tenant check + Customer scoping (customers can only read their own requests; others get 404). */
 function canReadRequest(sr: ServiceRequest | null | undefined, auth: Principal): sr is ServiceRequest {
@@ -260,8 +277,8 @@ export const backendHandlers = [
       createdAt: nowIso(),
       isDeleted: false,
     }
+    // Creating a request raises no domain event → no notification (only ChangeStatus / AssignWorker do).
     db.serviceRequests.unshift(sr)
-    pushNotification({ title: 'New service request', body: `${sr.title} was submitted and is waiting for assignment.`, serviceRequestId: sr.id })
     return HttpResponse.json(
       { id: sr.id, title: sr.title, description: sr.description, customerId: sr.customerId, status: sr.status, createdAt: sr.createdAt },
       { status: 201, headers: { Location: `/api/service-requests/${sr.id}` } },
@@ -293,7 +310,7 @@ export const backendHandlers = [
     sr.status = ServiceRequestStatus.Assigned
     // Backend writes a Pending→Assigned ServiceLog on assignment (notes null).
     db.serviceLogs.push({ id: newId(), tenantId: sr.tenantId, serviceRequestId: sr.id, previousStatus: previous, newStatus: sr.status, notes: null, changedByUserId: auth.userId, createdAt: nowIso(), isDeleted: false })
-    pushNotification({ title: 'Worker assigned', body: `${worker.firstName} ${worker.lastName} was assigned to “${sr.title}”.`, serviceRequestId: sr.id })
+    notifyStatusChanged(sr, previous, sr.status, auth.userId)
     return HttpResponse.json({ serviceRequestId: sr.id, assignedWorkerId: sr.assignedWorkerId, status: sr.status })
   }),
 
@@ -319,7 +336,7 @@ export const backendHandlers = [
     sr.status = newStatus
     if (body.notes?.trim()) sr.notes = body.notes.trim()
     db.serviceLogs.push({ id: newId(), tenantId: sr.tenantId, serviceRequestId: sr.id, previousStatus: previous, newStatus, notes: body.notes?.trim() || null, changedByUserId: auth.userId, createdAt: nowIso(), isDeleted: false })
-    pushNotification({ title: 'Status updated', body: `“${sr.title}” is now ${names[newStatus]}.`, serviceRequestId: sr.id })
+    if (previous !== newStatus) notifyStatusChanged(sr, previous, newStatus, auth.userId)
     return HttpResponse.json({ serviceRequestId: sr.id, status: sr.status })
   }),
 
@@ -720,6 +737,55 @@ export const backendHandlers = [
       return errors.badRequest(TenantErrorCodes.TimezoneInvalid, `Timezone '${timezone}' is not a known IANA time zone id.`)
     Object.assign(db.tenant, { name, description, contactEmail, phone, address, timezone })
     return HttpResponse.json(db.tenant)
+  }),
+
+  // ---- In-app notifications (any role; always the caller's own: tenant + recipient scoped) ----------------
+  // In the backend these rows are written asynchronously by FixIt.Worker; the mock writes them synchronously.
+
+  // GET /api/notifications?unreadOnly=false&limit=20 — newest first
+  http.get('/api/notifications', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const url = new URL(request.url)
+    const unreadOnly = url.searchParams.get('unreadOnly')?.toLowerCase() === 'true'
+    const limit = clampParam(url.searchParams.get('limit'), 20, 1, 100)
+    const items = ownNotifications(auth)
+      .filter((n) => !unreadOnly || !n.readAt)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+      .slice(0, limit)
+    return HttpResponse.json(items.map(toNotificationDto))
+  }),
+
+  // GET /api/notifications/unread-count → { count }
+  http.get('/api/notifications/unread-count', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    return HttpResponse.json({ count: ownNotifications(auth).filter((n) => !n.readAt).length })
+  }),
+
+  // PUT /api/notifications/read-all → { updated }
+  http.put('/api/notifications/read-all', async ({ request }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const now = nowIso()
+    let updated = 0
+    for (const n of ownNotifications(auth)) if (!n.readAt) { n.readAt = now; updated++ }
+    return HttpResponse.json({ updated })
+  }),
+
+  // PUT /api/notifications/{id}/read → NotificationDto (idempotent; another user's / tenant's id → 404)
+  http.put('/api/notifications/:id/read', async ({ request, params }) => {
+    await LATENCY()
+    const auth = authorize(request)
+    if (isResponse(auth)) return auth
+    const id = String(params.id)
+    const n = ownNotifications(auth).find((x) => x.id === id)
+    if (!n) return errors.notFound('Notification', id)
+    n.readAt ??= nowIso()
+    return HttpResponse.json(toNotificationDto(n))
   }),
 
   // GET /health

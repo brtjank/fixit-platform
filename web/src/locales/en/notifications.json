@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Notifications",
-    "description": "Updates about requests in your organization"
+    "description": "Status changes on requests that involve you"
   },
   "list": {
     "markAllRead": "Mark all as read",
@@ -23,5 +23,31 @@
     "title": "You're all caught up",
     "unread": "No unread notifications.",
     "all": "New updates about requests will show up here."
+  },
+  "types": {
+    "statusChanged": {
+      "title": {
+        "default": "Status changed",
+        "pending": "Request reopened",
+        "assigned": "Worker assigned",
+        "inProgress": "Work started",
+        "completed": "Request completed",
+        "cancelled": "Request cancelled"
+      },
+      "untitled": "Untitled request",
+      "body": {
+        "movedBy": "“{{title}}” moved from {{prev}} to {{next}} by {{actor}}.",
+        "moved": "“{{title}}” moved from {{prev}} to {{next}}.",
+        "nowBy": "“{{title}}” is now {{next}} ({{actor}}).",
+        "now": "“{{title}}” is now {{next}}."
+      }
+    },
+    "generic": {
+      "title": "New notification"
+    }
+  },
+  "toasts": {
+    "markReadError": "Couldn't mark the notification as read",
+    "markAllReadError": "Couldn't mark notifications as read"
   }
 }

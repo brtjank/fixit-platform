@@ -33,6 +33,7 @@ public class AssignWorkerCommandHandler : IRequestHandler<AssignWorkerCommand, A
     )
     {
         var tenantId = _currentUser.TenantId;
+        var userId = _currentUser.UserId;
 
         var serviceRequest = await _serviceRequestRepository.GetByIdAsync(
             request.ServiceRequestId,
@@ -70,7 +71,7 @@ public class AssignWorkerCommandHandler : IRequestHandler<AssignWorkerCommand, A
 
         var previousStatus = serviceRequest.Status;
 
-        serviceRequest.AssignWorker(request.WorkerId);
+        serviceRequest.AssignWorker(request.WorkerId, userId);
 
         await _serviceRequestRepository.UpdateAsync(serviceRequest, cancellationToken);
 
@@ -80,7 +81,7 @@ public class AssignWorkerCommandHandler : IRequestHandler<AssignWorkerCommand, A
             previousStatus,
             serviceRequest.Status,
             null,
-            _currentUser.UserId
+            userId
         );
 
         await _serviceLogRepository.AddAsync(serviceLog, cancellationToken);
