@@ -53,7 +53,7 @@ public class ChangeServiceStatusCommandHandler
 
         var previousStatus = serviceRequest.Status;
 
-        serviceRequest.ChangeStatus(request.NewStatus);
+        serviceRequest.ChangeStatus(request.NewStatus, userId);
 
         if (!string.IsNullOrWhiteSpace(request.Notes))
         {

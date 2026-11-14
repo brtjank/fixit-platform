@@ -237,6 +237,39 @@ public class GetUserQueryHandler : IQueryHandler<GetUserQuery, UserDto>
 
 ---
 
+## 📨 Messaging (Phase 5)
+
+Asynchroniczna komunikacja przez **transactional outbox** + **Azure Storage Queue** (lokalnie Azurite):
+
+```
+HTTP PUT change-status / assign-worker
+  └─ Handler → ServiceRequest.ChangeStatus(..., actorId)    raises ServiceRequestStatusChanged
+       └─ FixItDbContext.SaveChangesAsync                    ONE transaction:
+            ├─ UPDATE "ServiceRequests"
+            └─ INSERT "OutboxMessages" (Type, Payload jsonb)
+  (ServiceLog nadal zapisywany synchronicznie w handlerze)
+
+FixIt.Api: OutboxPublisher (BackgroundService, co Messaging:OutboxPollIntervalSeconds)
+  └─ SELECT ... WHERE ProcessedAt IS NULL ORDER BY OccurredAt LIMIT 20 FOR UPDATE SKIP LOCKED
+       └─ queue "service-request-events" ← { "type": "...", "payload": {...} }  (base64)
+          sukces → ProcessedAt; błąd → Attempts++, LastError, retry przy kolejnym ticku
+
+FixIt.Worker: QueueConsumer (BackgroundService)
+  └─ receive ≤16, visibility timeout 30 s, pusta kolejka → backoff 1 s … 10 s
+       ├─ DequeueCount > 5 / nieznany type / zły JSON → "service-request-events-poison"
+       └─ MediatR HandleServiceRequestStatusChangedCommand (własny scope) → INSERT "Notifications" → delete
+          błąd → wiadomość wraca po visibility timeout (retry)
+```
+
+Zasady:
+- **At-least-once:** publisher może wysłać wiadomość ponownie (crash między send a commit), consumer musi być **idempotentny** — unikalny indeks `(SourceEventId, RecipientUserId)` + pominięcie już istniejących odbiorców; konflikt unikalności = „już przetworzone”.
+- **Eventy domenowe** podnosi encja (`BaseEntity.Raise`), nie handler; nie są mapowane przez EF ani serializowane (`[JsonIgnore]`).
+- **Worker nie ma HTTP contextu:** handlery konsumenta biorą `TenantId` z eventu; `ICurrentUserService` w Workerze rzuca wyjątek (fail fast).
+- **Nowy typ wiadomości:** event w `Domain/Events` → command + handler w `Application/Features/...` → wpis w `FixIt.Worker/Messaging/MessageDispatcher`.
+- **Konfiguracja:** sekcja `Messaging` (`QueueConnectionString`, `QueueName`, `OutboxPollIntervalSeconds`), nadpisywana env vars (`Messaging__QueueConnectionString`); Key Vault w Phase 8.
+
+---
+
 ## 📊 Monitoring
 
 ### Logging

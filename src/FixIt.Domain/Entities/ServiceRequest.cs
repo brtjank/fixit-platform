@@ -1,4 +1,5 @@
 using FixIt.Domain.Enums;
+using FixIt.Domain.Events;
 using FixIt.Domain.Exceptions;
 
 namespace FixIt.Domain.Entities;
@@ -27,16 +28,18 @@ public class ServiceRequest : BaseEntity
         CustomerId = customerId;
     }
 
-    public void AssignWorker(Guid workerId)
+    /// <param name="changedByUserId">Actor recorded on the raised event (null for system changes).</param>
+    public void AssignWorker(Guid workerId, Guid? changedByUserId = null)
     {
         if (Status != ServiceRequestStatus.Pending)
             throw new ServiceRequestStatusInvalidForAssignmentException(Id, Status);
 
         AssignedWorkerId = workerId;
-        Status = ServiceRequestStatus.Assigned;
+        SetStatus(ServiceRequestStatus.Assigned, changedByUserId);
     }
 
-    public void ChangeStatus(ServiceRequestStatus newStatus)
+    /// <param name="changedByUserId">Actor recorded on the raised event (null for system changes).</param>
+    public void ChangeStatus(ServiceRequestStatus newStatus, Guid? changedByUserId = null)
     {
         if (Status == ServiceRequestStatus.Completed || Status == ServiceRequestStatus.Cancelled)
             throw new ServiceRequestStatusImmutableException(Id, Status);
@@ -44,7 +47,7 @@ public class ServiceRequest : BaseEntity
         if (newStatus == ServiceRequestStatus.InProgress && AssignedWorkerId == null)
             throw new ServiceRequestWorkerRequiredException(Id);
 
-        Status = newStatus;
+        SetStatus(newStatus, changedByUserId);
     }
 
     public void AddNotes(string notes)
@@ -55,5 +58,27 @@ public class ServiceRequest : BaseEntity
     public void UpdateNotes(string notes)
     {
         Notes = notes;
+    }
+
+    private void SetStatus(ServiceRequestStatus newStatus, Guid? changedByUserId)
+    {
+        // Re-applying the current status is a no-op and must not notify anyone
+        if (Status == newStatus)
+            return;
+
+        var previousStatus = Status;
+        Status = newStatus;
+
+        Raise(
+            new ServiceRequestStatusChanged(
+                EventId: Guid.NewGuid(),
+                OccurredAt: DateTime.UtcNow,
+                TenantId: TenantId,
+                ServiceRequestId: Id,
+                PreviousStatus: previousStatus,
+                NewStatus: newStatus,
+                ChangedByUserId: changedByUserId
+            )
+        );
     }
 }

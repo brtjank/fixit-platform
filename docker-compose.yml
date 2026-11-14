@@ -16,5 +16,17 @@ services:
       timeout: 5s
       retries: 5
 
+  # Azure Storage emulator (queues only) for async messaging; the app connects with
+  # "UseDevelopmentStorage=true" (queue endpoint http://127.0.0.1:10001)
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: fixit-azurite
+    command: azurite-queue --queueHost 0.0.0.0 --skipApiVersionCheck --loose --location /data
+    ports:
+      - "10001:10001"
+    volumes:
+      - azurite_data:/data
+
 volumes:
   postgres_data:
+  azurite_data:

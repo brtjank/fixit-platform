@@ -15,8 +15,8 @@ Zasady kodowania, architektura, konwencje: `DEV_GUIDELINES.md`
 | 2 — EF Core, Persistence | ✅ |
 | 3 — Auth & Security (JWT) | ✅ |
 | 4 — API Layer | ✅ |
-| **5 — Async Messaging** | **⏳ NEXT** |
-| 6 — Docker | ⏳ |
+| 5 — Async Messaging | ✅ |
+| **6 — Docker** | **⏳ NEXT** |
 | 7 — CI/CD (GitHub Actions) | ⏳ |
 | 8 — Azure Deployment | ⏳ |
 | 9 — Monitoring & README | ⏳ |
@@ -35,16 +35,15 @@ Testy: 269/269 pass (Application + Domain unit tests).
 - **Fluent API** w Infrastructure, nie Data Annotations w Domain
 - **SoftDelete()** automatycznie ustawia `IsActive = false`
 
-## Phase 5 — Async Messaging (co dalej)
+## Phase 5 — Async Messaging (zrobione)
 
-Cel: event-driven element w systemie.
+Transactional outbox → Azure Storage Queue (lokalnie Azurite) → osobny proces `FixIt.Worker` → in-app notyfikacje. Szczegóły i diagram: `DEV_GUIDELINES.md` → „Messaging”.
+- `ServiceRequest.ChangeStatus/AssignWorker` podnoszą `ServiceRequestStatusChanged` (tylko gdy status faktycznie się zmienia); `FixItDbContext.SaveChangesAsync` zapisuje eventy do `OutboxMessages` w tej samej transakcji
+- `OutboxPublisher` (hosted w API) wysyła do kolejki `service-request-events` (`FOR UPDATE SKIP LOCKED`); `QueueConsumer` (Worker) → `HandleServiceRequestStatusChangedCommand` → `Notifications` (idempotentnie po `SourceEventId + RecipientUserId`); poison: `service-request-events-poison`
+- `ServiceLog` nadal zapisywany synchronicznie w handlerach
+- API: `GET /api/notifications`, `GET /api/notifications/unread-count`, `PUT /api/notifications/{id}/read`, `PUT /api/notifications/read-all`
 
-1. Zdefiniuj event domenowy: `ServiceRequestStatusChanged`
-2. Publish event po zmianie statusu (`ChangeServiceStatusCommandHandler`)
-3. Consumer: zapis do `ServiceLog` (historia)
-4. Infrastruktura: Azure Storage Queue (lokalnie Azurite)
-
-Sekrety przez env vars / Azure Key Vault (Phase 8).
+Sekrety przez env vars / Azure Key Vault (Phase 8), np. `Messaging__QueueConnectionString`.
 
 ## Frontend (`web/`)
 
@@ -57,9 +56,10 @@ React 19 + Vite + TypeScript + Tailwind v4, TanStack Query, MSW. Feature-sliced;
 ## Dev setup
 
 ```bash
-docker-compose up -d          # PostgreSQL 16 na porcie 5433
+docker-compose up -d          # PostgreSQL 16 na porcie 5433 + Azurite (kolejki) na 10001
 ./scripts/migrate-database.sh # EF Core migrations
-dotnet run --project src/FixIt.Api
+dotnet run --project src/FixIt.Api     # API + OutboxPublisher
+dotnet run --project src/FixIt.Worker  # QueueConsumer (notyfikacje)
 ```
 
 Testy: `dotnet test src/FixIt.sln`

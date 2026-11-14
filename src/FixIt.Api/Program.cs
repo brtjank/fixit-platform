@@ -23,6 +23,7 @@ builder.Services.AddSwaggerWithJwt();
 // Add application layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddOutboxPublisher();
 
 // Authentication and Authorization
 builder.Services.AddHttpContextAccessor();

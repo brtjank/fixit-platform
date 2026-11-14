@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixIt.Domain.Tests", "..\te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixIt.Application.Tests", "..\tests\FixIt.Application.Tests\FixIt.Application.Tests.csproj", "{986A518B-50AD-4550-B69D-D569EECAB63D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixIt.Worker", "FixIt.Worker\FixIt.Worker.csproj", "{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,18 @@ Global
 		{986A518B-50AD-4550-B69D-D569EECAB63D}.Release|x64.Build.0 = Release|Any CPU
 		{986A518B-50AD-4550-B69D-D569EECAB63D}.Release|x86.ActiveCfg = Release|Any CPU
 		{986A518B-50AD-4550-B69D-D569EECAB63D}.Release|x86.Build.0 = Release|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Debug|x64.Build.0 = Debug|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Release|x64.ActiveCfg = Release|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Release|x64.Build.0 = Release|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{025C16BD-E3F2-4205-9E99-EBEB5D9D49E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
