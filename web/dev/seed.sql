@@ -8,6 +8,18 @@ INSERT INTO "Tenants" ("Id","Name","Description","IsActive","TenantId","CreatedA
  ('11111111-1111-4111-8111-111111111111','Hydro-Serwis Nowak','Plumbing, heating & HVAC services','true','11111111-1111-4111-8111-111111111111',now(),false)
 ON CONFLICT DO NOTHING;
 
+-- Tenant settings (columns from migration AddTenantSettings). A plain UPDATE, so re-running the
+-- seed also resets everything editable on the settings page (name and description included).
+UPDATE "Tenants" SET
+  "Name" = 'Hydro-Serwis Nowak',
+  "Description" = 'Plumbing, heating & HVAC services',
+  "ContactEmail" = 'biuro@hydro-serwis.pl',
+  "Phone" = '+48 22 123 45 67',
+  "Address" = 'ul. Wodna 12, 00-001 Warszawa',
+  "Timezone" = 'Europe/Warsaw',
+  "Plan" = 'team'
+WHERE "Id" = '11111111-1111-4111-8111-111111111111';
+
 INSERT INTO "Users" ("Id","Email","FirstName","LastName","Role","IsActive","TenantId","CreatedAt","IsDeleted","PasswordHash") VALUES
  ('22222222-2222-4222-8222-222222222201','marta.nowak@hydro-serwis.pl','Marta','Nowak','Admin',true,'11111111-1111-4111-8111-111111111111',now(),false,'AQAAAAIAAYagAAAAEM7b+63PivQ9BAz7C49mj0L9t+r1qA5ACa5wRYYEUywEX9M/nZRinOYyvN0JqFr4Xw=='),
  ('22222222-2222-4222-8222-222222222202','tomasz.kowalczyk@hydro-serwis.pl','Tomasz','Kowalczyk','Worker',true,'11111111-1111-4111-8111-111111111111',now(),false,'AQAAAAIAAYagAAAAEM7b+63PivQ9BAz7C49mj0L9t+r1qA5ACa5wRYYEUywEX9M/nZRinOYyvN0JqFr4Xw=='),
@@ -26,4 +38,15 @@ INSERT INTO "ServiceRequests" ("Id","Title","Description","CustomerId","Assigned
  ('44444444-4444-4444-8444-444444444402','Boiler not heating water','Error F.28, no hot water since yesterday.','22222222-2222-4222-8222-222222222205','22222222-2222-4222-8222-222222222203','Assigned',NULL,'11111111-1111-4111-8111-111111111111',now() - interval '2 days',false),
  ('44444444-4444-4444-8444-444444444403','Radiator valve stuck','Thermostatic valve will not turn.','22222222-2222-4222-8222-222222222204','22222222-2222-4222-8222-222222222202','InProgress','On site, diagnosing.','11111111-1111-4111-8111-111111111111',now() - interval '3 days',false),
  ('44444444-4444-4444-8444-444444444404','Annual boiler service','Yearly inspection for warranty.','22222222-2222-4222-8222-222222222205','22222222-2222-4222-8222-222222222203','Completed','Serviced and tested.','11111111-1111-4111-8111-111111111111',now() - interval '10 days',false)
+ON CONFLICT DO NOTHING;
+
+-- Status history so the dashboard (completion metrics, volume, activity) has something to show.
+-- Request 404 is completed 9 days ago, i.e. ~24 h after it was created.
+INSERT INTO "ServiceLogs" ("Id","ServiceRequestId","PreviousStatus","NewStatus","Notes","ChangedByUserId","TenantId","CreatedAt","IsDeleted") VALUES
+ ('55555555-5555-4555-8555-555555555501','44444444-4444-4444-8444-444444444402','Pending','Assigned',NULL,'22222222-2222-4222-8222-222222222201','11111111-1111-4111-8111-111111111111',now() - interval '2 days' + interval '2 hours',false),
+ ('55555555-5555-4555-8555-555555555502','44444444-4444-4444-8444-444444444403','Pending','Assigned',NULL,'22222222-2222-4222-8222-222222222201','11111111-1111-4111-8111-111111111111',now() - interval '3 days' + interval '1 hour',false),
+ ('55555555-5555-4555-8555-555555555503','44444444-4444-4444-8444-444444444403','Assigned','InProgress','On site, diagnosing.','22222222-2222-4222-8222-222222222202','11111111-1111-4111-8111-111111111111',now() - interval '2 days',false),
+ ('55555555-5555-4555-8555-555555555504','44444444-4444-4444-8444-444444444404','Pending','Assigned',NULL,'22222222-2222-4222-8222-222222222201','11111111-1111-4111-8111-111111111111',now() - interval '10 days' + interval '1 hour',false),
+ ('55555555-5555-4555-8555-555555555505','44444444-4444-4444-8444-444444444404','Assigned','InProgress',NULL,'22222222-2222-4222-8222-222222222203','11111111-1111-4111-8111-111111111111',now() - interval '10 days' + interval '4 hours',false),
+ ('55555555-5555-4555-8555-555555555506','44444444-4444-4444-8444-444444444404','InProgress','Completed','Serviced and tested.','22222222-2222-4222-8222-222222222203','11111111-1111-4111-8111-111111111111',now() - interval '9 days',false)
 ON CONFLICT DO NOTHING;

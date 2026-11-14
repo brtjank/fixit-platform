@@ -3,20 +3,21 @@
  * All mock handlers read/write through this module so features stay consistent
  * (e.g. changing a status via the mock API also appends a ServiceLog and a notification).
  */
-import type { ServiceLog, ServiceRequest, Tenant, User, WorkerProfile } from '@/shared/types'
+import type { ServiceLog, ServiceRequest, User, WorkerProfile } from '@/shared/types'
 import type { Notification } from '@/features/notifications/api/notificationsApi'
 import type { NotificationPreferences, TenantSettings } from '@/features/settings/api/settingsApi'
 import * as seed from './data/seed'
 
 export interface MockDb {
-  tenant: Tenant
-  tenantSettings: TenantSettings
+  /** The demo tenant incl. the settings columns (GET/PUT /api/tenants/current; /api/users/me reads its name). */
+  tenant: TenantSettings
   users: User[]
   workerProfiles: WorkerProfile[]
   serviceRequests: ServiceRequest[]
   serviceLogs: ServiceLog[]
   notifications: Notification[]
-  notificationPreferences: NotificationPreferences
+  /** userId → saved preferences. No entry = DEFAULT_NOTIFICATION_PREFERENCES (as the backend with no row). */
+  notificationPreferences: Record<string, NotificationPreferences>
   /** userId → plain-text password (mock only; the real backend stores a PBKDF2 hash). Seeded with DEMO_PASSWORD. */
   passwords: Record<string, string>
 }
@@ -39,12 +40,12 @@ function buildNotifications(): Notification[] {
 
 export function createDb(): MockDb {
   return {
-    tenant: clone(seed.tenant),
-    tenantSettings: {
+    // Same values as dev/seed.sql's UPDATE "Tenants".
+    tenant: {
       ...clone(seed.tenant),
       contactEmail: 'biuro@hydro-serwis.pl',
       phone: '+48 22 123 45 67',
-      address: 'ul. Grochowska 312, 03-840 Warszawa',
+      address: 'ul. Wodna 12, 00-001 Warszawa',
       timezone: 'Europe/Warsaw',
       plan: 'team',
     },
@@ -54,12 +55,7 @@ export function createDb(): MockDb {
     serviceRequests: clone(seed.serviceRequests),
     serviceLogs: clone(seed.serviceLogs),
     notifications: buildNotifications(),
-    notificationPreferences: {
-      emailOnNewRequest: true,
-      emailOnAssignment: true,
-      emailOnStatusChange: false,
-      dailyDigest: true,
-    },
+    notificationPreferences: {},
   }
 }
 
@@ -68,7 +64,7 @@ export function createDb(): MockDb {
  * a request created or updated through the mock API does not vanish on refresh. Bump the version
  * when the seed changes shape. Closing the tab or calling resetDb() returns to the seed.
  */
-const STORAGE_KEY = 'fixit.mockdb.v2'
+const STORAGE_KEY = 'fixit.mockdb.v3'
 
 function loadPersisted(): MockDb | null {
   try {

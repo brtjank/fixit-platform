@@ -33,9 +33,10 @@ cd web && VITE_API_MODE=live npm run dev       # /api is proxied to the backend
 
 In live mode the real endpoints (`/api/auth/login`, `/api/service-requests*` including `/{id}/logs`,
 `/api/users*` — list, workers, me, `{id}`, invite/edit/activate/deactivate, own password change and admin
-password reset — and `/api/workers/profiles`, `/api/workers/{userId}/profile`) hit the API; everything the backend does not
-implement yet is still served by MSW — see [`docs/API_GAPS.md`](docs/API_GAPS.md). UI backed by mocked endpoints is marked with a small
-"Mocked" badge.
+password reset, `/me/notification-preferences` — `/api/workers/profiles`, `/api/workers/{userId}/profile`,
+`/api/workers/workload`, `/api/dashboard/*` and `/api/tenants/current`) hit the API; only the in-app notifications
+(`/api/notifications*`) are still served by MSW — see [`docs/API_GAPS.md`](docs/API_GAPS.md). UI backed by mocked
+endpoints is marked with a small "Mocked" badge.
 
 ## Languages
 

@@ -25,6 +25,7 @@
   },
   "trend": {
     "vsPrev30Days": "vs poprzednie 30 dni",
+    "newVsPrev30Days": "nowe zgłoszenia vs poprzednie 30 dni",
     "vsPrev": "vs poprzedni okres",
     "noChange": "Bez zmian {{value}} {{period}}",
     "up": "Wzrost o {{value}} {{period}}",

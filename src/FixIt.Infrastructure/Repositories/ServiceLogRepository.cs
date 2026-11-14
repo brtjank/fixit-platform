@@ -28,6 +28,11 @@ public class ServiceLogRepository : IServiceLogRepository
             .ToListAsync(cancellationToken);
     }
 
+    public IQueryable<ServiceLog> GetByTenantId(Guid tenantId)
+    {
+        return _context.ServiceLogs.Where(sl => sl.TenantId == tenantId);
+    }
+
     public async Task<ServiceLog> AddAsync(
         ServiceLog serviceLog,
         CancellationToken cancellationToken = default

@@ -3,10 +3,12 @@ using FixIt.Application.Features.Users.ChangeOwnPassword;
 using FixIt.Application.Features.Users.CreateUser;
 using FixIt.Application.Features.Users.DeactivateUser;
 using FixIt.Application.Features.Users.GetCurrentUser;
+using FixIt.Application.Features.Users.GetMyNotificationPreferences;
 using FixIt.Application.Features.Users.GetUserById;
 using FixIt.Application.Features.Users.GetUsers;
 using FixIt.Application.Features.Users.GetWorkers;
 using FixIt.Application.Features.Users.ResetUserPassword;
+using FixIt.Application.Features.Users.UpdateMyNotificationPreferences;
 using FixIt.Application.Features.Users.UpdateUser;
 using FixIt.Domain.Entities;
 using MediatR;
@@ -61,6 +63,36 @@ public class UsersController : ControllerBase
     )
     {
         var response = await _mediator.Send(new GetCurrentUserQuery(), cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("me/notification-preferences")]
+    public async Task<ActionResult<NotificationPreferencesResponse>> GetMyNotificationPreferences(
+        CancellationToken cancellationToken = default
+    )
+    {
+        var response = await _mediator.Send(
+            new GetMyNotificationPreferencesQuery(),
+            cancellationToken
+        );
+
+        return Ok(response);
+    }
+
+    [HttpPut("me/notification-preferences")]
+    public async Task<ActionResult<NotificationPreferencesResponse>> UpdateMyNotificationPreferences(
+        [FromBody] UpdateMyNotificationPreferencesRequest request,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var command = new UpdateMyNotificationPreferencesCommand(
+            request.EmailOnNewRequest,
+            request.EmailOnAssignment,
+            request.EmailOnStatusChange,
+            request.DailyDigest
+        );
+        var response = await _mediator.Send(command, cancellationToken);
 
         return Ok(response);
     }

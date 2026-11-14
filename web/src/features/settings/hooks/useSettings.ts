@@ -2,13 +2,20 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { useSessionStore } from '@/features/auth'
 import { i18n } from '@/i18n'
-import { errorMessage } from '@/shared/api'
-import { settingsApi, type NotificationPreferences, type UpdateTenantRequest } from '../api/settingsApi'
+import { errorMessage, isApiError } from '@/shared/api'
+import { settingsApi, TenantErrorCodes, type NotificationPreferences, type UpdateTenantRequest } from '../api/settingsApi'
 
-/** ⚠ All settings hooks are backed by MOCK-ONLY endpoints. */
+/** ✅ All settings hooks are backed by real endpoints. */
 export const settingsKeys = {
   tenant: ['settings', 'tenant'] as const,
   notificationPreferences: ['settings', 'notification-preferences'] as const,
+}
+
+/** TEN_00x validation codes — the organization form shows them on the field, so no toast. */
+const TENANT_FIELD_ERROR_CODES: ReadonlySet<string> = new Set(Object.values(TenantErrorCodes))
+
+export function isTenantFieldError(error: unknown) {
+  return isApiError(error) && TENANT_FIELD_ERROR_CODES.has(error.errorCode)
 }
 
 export const useTenant = () => useQuery({ queryKey: settingsKeys.tenant, queryFn: settingsApi.tenant })
@@ -23,7 +30,9 @@ export function useUpdateTenant() {
       if (profile) setProfile({ ...profile, tenantName: tenant.name })
       toast.success(i18n.t('settings:toasts.organizationUpdated'))
     },
-    onError: (e) => toast.error(errorMessage(e, i18n.t('settings:toasts.organizationFailed'))),
+    onError: (e) => {
+      if (!isTenantFieldError(e)) toast.error(errorMessage(e, i18n.t('settings:toasts.organizationFailed')))
+    },
   })
 }
 

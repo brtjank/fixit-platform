@@ -12,6 +12,10 @@ export interface UpdateWorkerProfileRequest {
   isAvailable: boolean
 }
 
+/**
+ * ✅ One row per Worker (inactive included). `open` = Assigned | InProgress, `completedLast30Days` = Completed
+ * with completedAt (latest Completed ServiceLog) in the last 30 days.
+ */
 export interface WorkerWorkload {
   workerId: string
   open: number
@@ -34,6 +38,6 @@ export const workersApi = {
   updateProfile: (userId: string, body: UpdateWorkerProfileRequest) =>
     http.put<WorkerProfile>(`/api/workers/${userId}/profile`, body),
 
-  /** ⚠ GET /api/workers/workload — MOCK-ONLY. Counts per worker. */
+  /** ✅ GET /api/workers/workload  (policy: WorkerOrAdmin) — counts per worker, ordered by worker createdAt */
   workload: () => http.get<WorkerWorkload[]>('/api/workers/workload'),
 }

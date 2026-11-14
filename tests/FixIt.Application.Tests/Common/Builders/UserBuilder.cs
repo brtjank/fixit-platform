@@ -25,6 +25,13 @@ public class UserBuilder
         return this;
     }
 
+    public UserBuilder WithName(string firstName, string lastName)
+    {
+        _firstName = firstName;
+        _lastName = lastName;
+        return this;
+    }
+
     public UserBuilder WithRole(UserRole role)
     {
         _role = role;

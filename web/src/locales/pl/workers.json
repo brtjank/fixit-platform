@@ -12,8 +12,7 @@
   "summary": {
     "total": "Łącznie",
     "availableNow": "Dostępni teraz",
-    "busy": "Zajęci",
-    "mocked": "Obciążenie zamockowane"
+    "busy": "Zajęci"
   },
   "toolbar": {
     "searchPlaceholder": "Szukaj po nazwisku lub specjalizacji…",

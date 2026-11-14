@@ -21,6 +21,7 @@
   },
   "trend": {
     "vsPrev30Days": "vs previous 30 days",
+    "newVsPrev30Days": "new requests vs previous 30 days",
     "vsPrev": "vs previous period",
     "noChange": "No change {{value}} {{period}}",
     "up": "Up {{value}} {{period}}",

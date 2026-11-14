@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { dashboardApi } from '../api/dashboardApi'
 
-/** ⚠ All dashboard hooks are backed by MOCK-ONLY endpoints. */
+/** ✅ All dashboard hooks are backed by real endpoints (WorkerOrAdmin). */
 export const dashboardKeys = {
   all: ['dashboard'] as const,
   stats: () => [...dashboardKeys.all, 'stats'] as const,

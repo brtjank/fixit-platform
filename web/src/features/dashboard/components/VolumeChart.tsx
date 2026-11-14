@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { formatDate } from '@/shared/lib'
-import { Button, Card, CardContent, CardHeader, ErrorState, MockBadge, Skeleton } from '@/shared/ui'
+import { Button, Card, CardContent, CardHeader, ErrorState, Skeleton } from '@/shared/ui'
 import { errorMessage } from '@/shared/api'
 import { useVolume } from '../hooks'
 import type { DailyVolumePoint } from '../api/dashboardApi'
@@ -86,7 +86,7 @@ export function VolumeChart({ days = 30 }: { days?: number }) {
       <CardHeader
         title={
           <span className="inline-flex items-center gap-2">
-            {t('volume.title')} <MockBadge />
+            {t('volume.title')}
           </span>
         }
         description={t('volume.description', { count: days })}

@@ -19,4 +19,10 @@ public class TenantRepository : ITenantRepository
         // Soft-deleted tenants are excluded by the global query filter
         return await _context.Tenants.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
+
+    public async Task UpdateAsync(Tenant tenant, CancellationToken cancellationToken = default)
+    {
+        _context.Tenants.Update(tenant);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

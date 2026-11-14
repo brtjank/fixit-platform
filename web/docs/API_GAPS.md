@@ -6,13 +6,6 @@ endpoint, shaped to fit the existing conventions (camelCase JSON, numeric enums,
 
 | Endpoint | Policy | Purpose / proposed contract | Used by |
 | --- | --- | --- | --- |
-| `GET /api/workers/workload` | WorkerOrAdmin | `{ workerId, open, inProgress, completedLast30Days }[]`. | Workers, dashboard |
-| `GET /api/dashboard/stats` | WorkerOrAdmin | KPIs + 30-day trends. | Dashboard |
-| `GET /api/dashboard/status-breakdown` | WorkerOrAdmin | `{ status, count }[]`. | Dashboard |
-| `GET /api/dashboard/volume?days=30` | WorkerOrAdmin | `{ date, created, completed }[]`. | Dashboard |
-| `GET /api/dashboard/activity?limit=10` | WorkerOrAdmin | Recent events across requests. | Dashboard |
-| `GET/PUT /api/tenants/current` | any / AdminOnly | Organization settings. | Settings |
-| `GET/PUT /api/users/me/notification-preferences` | any | Per-user email preferences. | Settings |
 | `GET /api/notifications`, `PUT …/{id}/read`, `PUT …/read-all` | any | In-app notifications (natural consumer of the Phase 5 `ServiceRequestStatusChanged` event). | Topbar, Notifications |
 
 ## Behavioural gaps in existing endpoints (worked around client-side)
@@ -20,7 +13,7 @@ endpoint, shaped to fit the existing conventions (camelCase JSON, numeric enums,
 | Gap | Workaround in the UI |
 | --- | --- |
 | Enums serialize as integers. | Types use numeric enums; `status` query param is sent as the number (backend `Enum.Parse` accepts it). Consider `JsonStringEnumConverter` for readability. |
-| No seed data / registration. | `dev/seed.sql` inserts the demo tenant + users for live mode. |
+| No self-service sign-up / tenant onboarding. | `dev/seed.sql` creates the demo tenant (incl. settings) and its users for live mode; further users are created by an admin (`POST /api/users`). |
 
 ## Resolved
 
@@ -40,3 +33,11 @@ endpoint, shaped to fit the existing conventions (camelCase JSON, numeric enums,
 - `PUT /api/users/{id}/activate` / `deactivate` — AdminOnly, no body, idempotent → 200 `User`; other tenant → 404; deactivating yourself → `USR_006_SELF_DEACTIVATE`; activating a soft-deleted user → `USR_003_CANNOT_ACTIVATE`.
 - `PUT /api/users/me/password` — any role; `{ currentPassword, newPassword }` → 204; wrong current → `USR_008_PASSWORD_MISMATCH`; weak new → `USR_007`.
 - `PUT /api/users/{id}/password` — AdminOnly admin reset (no email flow); `{ newPassword }` → 204; other tenant → 404 `RES_001_NOT_FOUND`; weak → `USR_007`.
+- Definitions used by the dashboard/workload endpoints: **open** = Pending | Assigned | InProgress; a request's **completedAt** = `createdAt` of its latest `ServiceLog` with `newStatus` Completed (not the request's own `createdAt`); "last 30 days" = `(now-30d, now]`, "previous 30 days" = `(now-60d, now-30d]`; `pct(cur, prev) = prev == 0 ? (cur == 0 ? 0 : 100) : round((cur-prev)/prev*100, 1)`.
+- `GET /api/workers/workload` — WorkerOrAdmin; `{ workerId, open, inProgress, completedLast30Days }[]`, one row per Worker (inactive included), ordered by worker `createdAt` then `id`; `open` = Assigned | InProgress, `completedLast30Days` by completedAt.
+- `GET /api/dashboard/stats` — WorkerOrAdmin; `{ openRequests, pendingUnassigned, inProgress, completedLast30Days, avgResolutionHours, activeWorkers, availableWorkers, trends }`; avg = mean `completedAt - createdAt` in hours (1 decimal, 0 when none); a worker without a profile counts as available; `trends.openRequests` = requests **created** last 30 vs previous 30 days (the open backlog has no history — the UI labels it "new requests vs previous 30 days"); `trends.avgResolutionHours` = 0 when the previous window has no completions.
+- `GET /api/dashboard/status-breakdown` — WorkerOrAdmin; exactly five `{ status, count }` rows (1..5), zero-filled.
+- `GET /api/dashboard/volume?days=30` — WorkerOrAdmin; `days` clamped to [7, 90] (non-numeric → 30); exactly `days` UTC points `{ date, created, completed }`, oldest first, last = today; `completed` counts Completed `ServiceLog`s that day.
+- `GET /api/dashboard/activity?limit=10` — WorkerOrAdmin; `limit` clamped to [1, 50] (non-numeric → 10); newest first, merged from `ServiceLog`s (`assigned` / `completed` / `cancelled` / `status_changed`; `detail` = notes or `"Pending → Assigned"` with enum names; actor `"System"` when unknown) and request creations (`id` = `created:<requestId>`, actor = customer, `detail` null).
+- `GET /api/tenants/current` — any role; Tenant + `contactEmail`, `phone`, `address` (nullable), `timezone` (IANA), `plan` (`starter|team|business`, read-only). `PUT` — AdminOnly; full replacement `{ name, description, contactEmail, phone, address, timezone }`, trimmed, empty → `null`; `TEN_001_NAME_REQUIRED`, `TEN_003_NAME_TOO_LONG` (> 200), `TEN_004_CONTACT_EMAIL_INVALID` (one `@`, text on both sides, dot in the domain, ≤ 256), `TEN_005_PHONE_TOO_LONG` (> 30), `TEN_006_ADDRESS_TOO_LONG` (> 300), `TEN_007_TIMEZONE_INVALID`, `TEN_008_DESCRIPTION_TOO_LONG` (> 1000). The organization form shows these on the field.
+- `GET/PUT /api/users/me/notification-preferences` — any role, the caller's own; defaults `{ emailOnNewRequest: true, emailOnAssignment: true, emailOnStatusChange: true, dailyDigest: false }` until saved; PUT = full replacement of all four bools (upsert). **Stored only — no e-mail is sent yet**; the settings UI says so.
