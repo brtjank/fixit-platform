@@ -1,12 +1,13 @@
 # API gaps — endpoints the UI needs that the backend does not have yet
 
-The frontend mocks these with MSW (in **both** API modes). Each is a proposal for a future backend
-endpoint, shaped to fit the existing conventions (camelCase JSON, numeric enums, `Paged<T>` envelope,
-`{ errorCode, message, requestId }` errors, policies).
+**None at the moment** — every endpoint the UI calls exists on the backend, so MSW is only started in
+`VITE_API_MODE=mock`. If the UI ever needs an endpoint ahead of the backend, list it here as a proposal
+(camelCase JSON, numeric enums, `Paged<T>` envelope, `{ errorCode, message, requestId }` errors, policies),
+mock it with MSW in both modes and mark the UI with `<MockBadge />`.
 
 | Endpoint | Policy | Purpose / proposed contract | Used by |
 | --- | --- | --- | --- |
-| `GET /api/notifications`, `PUT …/{id}/read`, `PUT …/read-all` | any | In-app notifications (natural consumer of the Phase 5 `ServiceRequestStatusChanged` event). | Topbar, Notifications |
+| — | | | |
 
 ## Behavioural gaps in existing endpoints (worked around client-side)
 
@@ -40,4 +41,14 @@ endpoint, shaped to fit the existing conventions (camelCase JSON, numeric enums,
 - `GET /api/dashboard/volume?days=30` — WorkerOrAdmin; `days` clamped to [7, 90] (non-numeric → 30); exactly `days` UTC points `{ date, created, completed }`, oldest first, last = today; `completed` counts Completed `ServiceLog`s that day.
 - `GET /api/dashboard/activity?limit=10` — WorkerOrAdmin; `limit` clamped to [1, 50] (non-numeric → 10); newest first, merged from `ServiceLog`s (`assigned` / `completed` / `cancelled` / `status_changed`; `detail` = notes or `"Pending → Assigned"` with enum names; actor `"System"` when unknown) and request creations (`id` = `created:<requestId>`, actor = customer, `detail` null).
 - `GET /api/tenants/current` — any role; Tenant + `contactEmail`, `phone`, `address` (nullable), `timezone` (IANA), `plan` (`starter|team|business`, read-only). `PUT` — AdminOnly; full replacement `{ name, description, contactEmail, phone, address, timezone }`, trimmed, empty → `null`; `TEN_001_NAME_REQUIRED`, `TEN_003_NAME_TOO_LONG` (> 200), `TEN_004_CONTACT_EMAIL_INVALID` (one `@`, text on both sides, dot in the domain, ≤ 256), `TEN_005_PHONE_TOO_LONG` (> 30), `TEN_006_ADDRESS_TOO_LONG` (> 300), `TEN_007_TIMEZONE_INVALID`, `TEN_008_DESCRIPTION_TOO_LONG` (> 1000). The organization form shows these on the field.
+- In-app notifications (Phase 5: `ServiceRequestStatusChanged` domain event → transactional outbox → Azure Storage Queue → `FixIt.Worker`
+  consumer). Any role, always the caller's own (tenant + recipient scoped; a foreign id → 404 `RES_001_NOT_FOUND`).
+  Recipients per event: the request's customer, its assigned worker and all active Admins of the tenant — distinct, minus the actor.
+  Raised by `ChangeStatus` (only on a real change) and `AssignWorker` (Pending → Assigned); creating a request notifies nobody.
+  `NotificationDto` = `{ id, type: "ServiceRequestStatusChanged", serviceRequestId, serviceRequestTitle, previousStatus, newStatus,
+  actorName ("First Last" | null), createdAt, readAt }` — no stored text; the UI renders translated copy from type + statuses.
+  - `GET /api/notifications?unreadOnly=false&limit=20` (limit 1..100) → `NotificationDto[]` newest first.
+  - `GET /api/notifications/unread-count` → `{ count }` — the top-bar badge polls it every 30 s and on window focus.
+  - `PUT /api/notifications/{id}/read` → `NotificationDto` (idempotent); `PUT /api/notifications/read-all` → `{ updated }`.
+  Delivery is asynchronous, so a notification appears a few seconds after the change (next poll).
 - `GET/PUT /api/users/me/notification-preferences` — any role, the caller's own; defaults `{ emailOnNewRequest: true, emailOnAssignment: true, emailOnStatusChange: true, dailyDigest: false }` until saved; PUT = full replacement of all four bools (upsert). **Stored only — no e-mail is sent yet**; the settings UI says so.

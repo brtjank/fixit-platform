@@ -112,7 +112,7 @@
       "live": "Live",
       "switchHintBefore": "Switch with",
       "switchHintIn": "in",
-      "switchHintAfter": ", then restart the dev server. Endpoints that are mocked even in live mode are listed in docs/API_GAPS.md.",
+      "switchHintAfter": ", then restart the dev server.",
       "baseUrl": "API base URL",
       "sameOrigin": "(same origin, proxied to http://localhost:5177)"
     },

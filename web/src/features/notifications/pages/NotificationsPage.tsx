@@ -5,10 +5,10 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { cn, getDateLocale } from '@/shared/lib'
-import { Button, Card, EmptyState, ErrorState, MockBadge, PageHeader, Skeleton } from '@/shared/ui'
-import type { Notification } from '../api/notificationsApi'
+import { Button, Card, EmptyState, ErrorState, PageHeader, Skeleton } from '@/shared/ui'
+import { NOTIFICATIONS_MAX_LIMIT, type Notification } from '../api/notificationsApi'
 import { NotificationItem } from '../components/NotificationItem'
-import { useMarkAllRead, useMarkRead, useNotifications } from '../hooks'
+import { useMarkAllRead, useMarkRead, useNotifications, useUnreadCount } from '../hooks'
 
 type Filter = 'all' | 'unread'
 
@@ -35,12 +35,13 @@ export default function NotificationsPage() {
   const { t } = useTranslation('notifications')
   const [filter, setFilter] = useState<Filter>('all')
   const navigate = useNavigate()
-  const { data, isLoading, isError, refetch } = useNotifications()
+  // Server-side filter; the newest 100 (backend max) are enough for an in-app inbox.
+  const { data, isLoading, isError, refetch } = useNotifications({ unreadOnly: filter === 'unread', limit: NOTIFICATIONS_MAX_LIMIT })
+  const unreadCount = useUnreadCount()
   const markRead = useMarkRead()
   const markAll = useMarkAllRead()
 
-  const unreadCount = data?.filter((n) => !n.readAt).length ?? 0
-  const groups = useMemo(() => groupByDay((data ?? []).filter((n) => filter === 'all' || !n.readAt), t), [data, filter, t])
+  const groups = useMemo(() => groupByDay(data ?? [], t), [data, t])
 
   const open = (n: Notification) => {
     if (!n.readAt) markRead.mutate(n.id)
@@ -50,11 +51,7 @@ export default function NotificationsPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader
-        title={
-          <span className="flex items-center gap-2">
-            {t('page.title')} <MockBadge />
-          </span>
-        }
+        title={t('page.title')}
         description={t('page.description')}
         actions={
           <Button variant="secondary" size="sm" disabled={unreadCount === 0} loading={markAll.isPending} onClick={() => markAll.mutate()}>
@@ -103,7 +100,13 @@ export default function NotificationsPage() {
               <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-fg-subtle">{g.label}</h2>
               <Card className="divide-y divide-border overflow-hidden">
                 {g.items.map((n) => (
-                  <NotificationItem key={n.id} n={n} onOpen={open} onMarkRead={(x) => markRead.mutate(x.id)} />
+                  <NotificationItem
+                    key={n.id}
+                    n={n}
+                    onOpen={open}
+                    onMarkRead={(x) => markRead.mutate(x.id)}
+                    markingRead={markRead.isPending && markRead.variables === n.id}
+                  />
                 ))}
               </Card>
             </section>

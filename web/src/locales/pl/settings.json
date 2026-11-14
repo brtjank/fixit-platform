@@ -112,7 +112,7 @@
       "live": "Na żywo",
       "switchHintBefore": "Przełącz za pomocą",
       "switchHintIn": "w pliku",
-      "switchHintAfter": ", a następnie zrestartuj serwer deweloperski. Endpointy mockowane nawet w trybie na żywo są wymienione w docs/API_GAPS.md.",
+      "switchHintAfter": ", a następnie zrestartuj serwer deweloperski.",
       "baseUrl": "Bazowy URL API",
       "sameOrigin": "(to samo źródło, proxy do http://localhost:5177)"
     },

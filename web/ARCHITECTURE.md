@@ -36,7 +36,7 @@ src/
     ui/           design-system components (Button, Input, FormField, Badge/StatusBadge/RoleBadge, Card,
                   Dialog, DropdownMenu, Tooltip, Table, Tabs, Switch, Pagination, Skeleton, EmptyState,
                   ErrorState, PageHeader, Avatar, MockBadge, Spinner)
-  mocks/          MSW: seed data (deterministic), in-memory db, auth helpers, handlers (backend + mockOnly)
+  mocks/          MSW (mock mode only): seed data (deterministic), in-memory db, auth helpers, handlers
   styles/         globals.css — tokens, dark mode (`.dark` on <html>), base styles
 ```
 
@@ -58,7 +58,7 @@ Page → feature hook (`useX`) → feature api (`xApi`) → `http` → (MSW in m
 `VITE_API_MODE=mock` (default) — every request is served by MSW from `src/mocks/data/seed.ts`.
 `VITE_API_MODE=live` — real endpoints go through the Vite proxy to `http://localhost:5177` (kept for
 convenience; the backend also allows `http://localhost:5173` via CORS);
-MSW still serves the endpoints listed in `docs/API_GAPS.md` (it decodes the real JWT to apply policies).
+MSW is not started (every endpoint exists on the backend; `docs/API_GAPS.md` lists none).
 
 Mock handlers mirror the backend precisely: policies (`AdminOnly`, `WorkerOrAdmin`, `CustomerOrAdmin`),
 domain rules (assignment only when Pending; Completed/Cancelled immutable; InProgress requires a worker),
@@ -78,7 +78,7 @@ password endpoints); live mode checks the PBKDF2 hash stored by `dev/seed.sql`.
 | `/workers`, `/workers/:id` | ✅ | ✅  |    –     | users/workers + profiles + workload (real)       |
 | `/users`            |  ✅   |   –    |    –     | list, invite, edit, (de)activate, reset password (real) |
 | `/settings`         |  ✅   |   ✅   |    ✅    | profile, password, organization, notification preferences (real), appearance (local) |
-| `/notifications`    |  ✅   |   ✅   |    ✅    | mock                                             |
+| `/notifications`    |  ✅   |   ✅   |    ✅    | own notifications, filter, mark one/all read (real) |
 
 Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders a 403 state).
 
@@ -86,7 +86,12 @@ Route-level gates: `RequireAuth` (redirects to `/login`), `RequireRole` (renders
 
 - Pages: `export default function XPage()`, use `PageHeader`, handle loading (`Skeleton`/`PageSpinner`),
   error (`ErrorState` with retry) and empty (`EmptyState`) states explicitly.
-- Anything rendered from a mock-only endpoint shows a small `<MockBadge />` near its heading.
+- Anything rendered from a mock-only endpoint shows a small `<MockBadge />` near its heading (none today).
+- Notifications: the backend stores no text, only `type` + statuses + actor; `features/notifications/lib/notificationCopy.ts`
+  renders the translated title/body. The top-bar badge uses `GET /api/notifications/unread-count`
+  (`useUnreadCount`, `refetchInterval` 30 s + refetch on window focus); mark-read mutations invalidate `['notifications']`
+  (list + badge), and request mutations invalidate it too. The mock writes notifications synchronously
+  (`notifyStatusChanged` in `mocks/db.ts`, same recipient rule as the backend consumer).
 - Field-level API errors (e.g. `USR_005_EMAIL_TAKEN`, `USR_007_PASSWORD_TOO_WEAK`, `USR_008_PASSWORD_MISMATCH`,
   the organization form's `TEN_001`/`TEN_003`–`TEN_008`) are mapped onto the form field with `setError` in the
   mutation's `onError`; the hook skips the toast for those codes (`isFieldError`, `isTenantFieldError`) and the

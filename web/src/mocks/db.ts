@@ -1,12 +1,27 @@
 /**
  * In-memory mock database. Seeded once per page load; mutations persist for the session.
  * All mock handlers read/write through this module so features stay consistent
- * (e.g. changing a status via the mock API also appends a ServiceLog and a notification).
+ * (e.g. changing a status via the mock API also appends a ServiceLog and notifies the request's participants).
  */
-import type { ServiceLog, ServiceRequest, User, WorkerProfile } from '@/shared/types'
-import type { Notification } from '@/features/notifications/api/notificationsApi'
+import { UserRole, type ServiceLog, type ServiceRequest, type ServiceRequestStatus, type User, type WorkerProfile } from '@/shared/types'
+import { NotificationType, type Notification } from '@/features/notifications/api/notificationsApi'
 import type { NotificationPreferences, TenantSettings } from '@/features/settings/api/settingsApi'
 import * as seed from './data/seed'
+
+/** Row of the backend `Notifications` table (one per recipient). Mapped to `Notification` (the DTO) by toNotificationDto. */
+export interface MockNotification {
+  id: string
+  tenantId: string
+  recipientUserId: string
+  type: string
+  serviceRequestId: string | null
+  previousStatus: ServiceRequestStatus | null
+  newStatus: ServiceRequestStatus | null
+  actorUserId: string | null
+  sourceEventId: string
+  createdAt: string
+  readAt: string | null
+}
 
 export interface MockDb {
   /** The demo tenant incl. the settings columns (GET/PUT /api/tenants/current; /api/users/me reads its name). */
@@ -15,7 +30,7 @@ export interface MockDb {
   workerProfiles: WorkerProfile[]
   serviceRequests: ServiceRequest[]
   serviceLogs: ServiceLog[]
-  notifications: Notification[]
+  notifications: MockNotification[]
   /** userId → saved preferences. No entry = DEFAULT_NOTIFICATION_PREFERENCES (as the backend with no row). */
   notificationPreferences: Record<string, NotificationPreferences>
   /** userId → plain-text password (mock only; the real backend stores a PBKDF2 hash). Seeded with DEMO_PASSWORD. */
@@ -26,16 +41,48 @@ function clone<T>(value: T): T {
   return structuredClone(value)
 }
 
-function buildNotifications(): Notification[] {
-  const recent = seed.serviceRequests.slice(0, 6)
-  return recent.map((sr, i) => ({
-    id: seed.guid(`notif:${sr.id}`),
-    title: i % 2 === 0 ? 'New service request' : 'Status updated',
-    body: i % 2 === 0 ? `${sr.title} was submitted and is waiting for assignment.` : `${sr.title} changed status.`,
-    serviceRequestId: sr.id,
-    createdAt: sr.createdAt,
-    readAt: i > 2 ? sr.createdAt : null,
-  }))
+/**
+ * Recipients of a ServiceRequestStatusChanged event — same rule as the backend consumer:
+ * the request's customer, its assigned worker and every active Admin of the tenant; distinct, minus the actor,
+ * only active non-deleted users of the same tenant.
+ */
+export function notificationRecipients(users: User[], sr: ServiceRequest, actorUserId: string | null) {
+  const ids = new Set<string>([sr.customerId, ...(sr.assignedWorkerId ? [sr.assignedWorkerId] : [])])
+  for (const u of users) if (u.role === UserRole.Admin && u.tenantId === sr.tenantId) ids.add(u.id)
+  if (actorUserId) ids.delete(actorUserId)
+  return users.filter((u) => ids.has(u.id) && u.tenantId === sr.tenantId && u.isActive && !u.isDeleted).map((u) => u.id)
+}
+
+/** Demo notifications derived from the most recent seeded ServiceLogs; each user's newest 3 are unread, the rest read. */
+function buildNotifications(): MockNotification[] {
+  const requests = new Map(seed.serviceRequests.map((sr) => [sr.id, sr]))
+  const out: MockNotification[] = []
+  for (const log of seed.serviceLogs.slice(-25)) {
+    const sr = requests.get(log.serviceRequestId)
+    if (!sr) continue
+    for (const recipientUserId of notificationRecipients(seed.users, sr, log.changedByUserId)) {
+      out.push({
+        id: seed.guid(`notif:${log.id}:${recipientUserId}`),
+        tenantId: sr.tenantId,
+        recipientUserId,
+        type: NotificationType.ServiceRequestStatusChanged,
+        serviceRequestId: sr.id,
+        previousStatus: log.previousStatus,
+        newStatus: log.newStatus,
+        actorUserId: log.changedByUserId,
+        sourceEventId: seed.guid(`event:${log.id}`),
+        createdAt: log.createdAt,
+        readAt: new Date(new Date(log.createdAt).getTime() + 3_600_000).toISOString(),
+      })
+    }
+  }
+  const unreadLeft = new Map<string, number>()
+  for (const n of [...out].sort((a, b) => b.createdAt.localeCompare(a.createdAt))) {
+    const left = unreadLeft.get(n.recipientUserId) ?? 3
+    if (left > 0) n.readAt = null
+    unreadLeft.set(n.recipientUserId, left - 1)
+  }
+  return out
 }
 
 export function createDb(): MockDb {
@@ -64,7 +111,7 @@ export function createDb(): MockDb {
  * a request created or updated through the mock API does not vanish on refresh. Bump the version
  * when the seed changes shape. Closing the tab or calling resetDb() returns to the seed.
  */
-const STORAGE_KEY = 'fixit.mockdb.v3'
+const STORAGE_KEY = 'fixit.mockdb.v4'
 
 function loadPersisted(): MockDb | null {
   try {
@@ -138,6 +185,43 @@ export function paginate<T>(items: T[], page: number, pageSize: number) {
   }
 }
 
-export function pushNotification(n: Omit<Notification, 'id' | 'createdAt' | 'readAt'>) {
-  db.notifications.unshift({ ...n, id: newId(), createdAt: nowIso(), readAt: null })
+/**
+ * What the backend's outbox → queue → FixIt.Worker pipeline produces for one status change
+ * (ChangeStatus or AssignWorker): one unread notification per recipient, actor excluded.
+ */
+export function notifyStatusChanged(sr: ServiceRequest, previousStatus: ServiceRequestStatus, newStatus: ServiceRequestStatus, actorUserId: string | null) {
+  const sourceEventId = newId()
+  const createdAt = nowIso()
+  for (const recipientUserId of notificationRecipients(db.users, sr, actorUserId)) {
+    db.notifications.push({
+      id: newId(),
+      tenantId: sr.tenantId,
+      recipientUserId,
+      type: NotificationType.ServiceRequestStatusChanged,
+      serviceRequestId: sr.id,
+      previousStatus,
+      newStatus,
+      actorUserId,
+      sourceEventId,
+      createdAt,
+      readAt: null,
+    })
+  }
+}
+
+/** NotificationDto: request title and actor name joined in (actor null when unknown or deleted). */
+export function toNotificationDto(n: MockNotification): Notification {
+  const sr = n.serviceRequestId ? db.serviceRequests.find((x) => x.id === n.serviceRequestId) : null
+  const actor = n.actorUserId ? findUser(n.actorUserId) : null
+  return {
+    id: n.id,
+    type: n.type,
+    serviceRequestId: n.serviceRequestId,
+    serviceRequestTitle: sr?.title ?? null,
+    previousStatus: n.previousStatus,
+    newStatus: n.newStatus,
+    actorName: actor ? `${actor.firstName} ${actor.lastName}` : null,
+    createdAt: n.createdAt,
+    readAt: n.readAt,
+  }
 }
